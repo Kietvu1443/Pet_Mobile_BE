@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Danh Sách Báo Cáo Thú Cưng | Pet Helper</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2d6a4f;
+      --primary-dark: #1b4332;
+      --primary-light: #40916c;
+      --accent: #d8f3dc;
+      --bg: #f1f8f5;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+    }
+
+    /* Tab active */
+    .tab-btn.active {
+      background-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(45, 106, 79, 0.25);
+    }
+
+    .tab-btn {
+      transition: all 0.2s ease;
+    }
+
+    /* Card hover */
+    .report-card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+    }
+
+    .report-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(45, 106, 79, 0.15);
+    }
+
+    /* Badge */
+    .badge-lost {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .badge-found {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+
+    /* Modal */
+    #detailModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    #detailModal.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 20px;
+      max-width: 560px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+      animation: modalIn 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* Skeleton loader */
+    .skeleton {
+      background: linear-gradient(90deg, #e8f5e9 25%, #d8f3dc 50%, #e8f5e9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    /* Pagination */
+    .page-btn {
+      transition: all 0.15s;
+    }
+
+    .page-btn.active {
+      background-color: var(--primary);
+      color: #fff;
+    }
+
+    .page-btn:hover:not(.active):not(:disabled) {
+      background-color: var(--accent);
+      color: var(--primary-dark);
+    }
+
+    .page-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Empty state */
+    .empty-state {
+      opacity: 0.7;
+    }
+
+    /* Image gallery in modal */
+    .img-thumb {
+      width: 72px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.15s;
+    }
+
+    .img-thumb.active,
+    .img-thumb:hover {
+      border-color: var(--primary);
+    }
+  </style>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <link rel="stylesheet" href="/stylesheets/staticHeader.css">
+  <style id="gtranslate-css">
+    .lang-switcher {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .lang-switcher-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 8px;
+      padding: 5px 10px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.18s;
+      white-space: nowrap;
+    }
+
+    .lang-switcher-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .lang-switcher-btn svg {
+      width: 14px;
+      height: 14px;
+      opacity: .8;
+    }
+
+    .lang-switcher-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      min-width: 140px;
+      z-index: 9999;
+      overflow: hidden;
+    }
+
+    .lang-switcher-dropdown.open {
+      display: block;
+    }
+
+    .lang-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #374151;
+      cursor: pointer;
+      transition: background 0.15s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+    }
+
+    .lang-option:hover {
+      background: #f1f5f9;
+    }
+
+    .lang-option.active {
+      background: #f0fdf4;
+      color: #166534;
+      font-weight: 600;
+    }
+
+    .lang-option .flag {
+      font-size: 16px;
+    }
+
+    .goog-te-banner-frame,
+    .skiptranslate {
+      display: none !important;
+    }
+
+    body {
+      top: 0 !important;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen">
+    <header class="header">
+        <div class="top-bar">
+            <a href="/" class="logo-group">
+                <div class="logo-circle">
+                    <img src="/images/the_logo.webp" alt="logo" id="the_logo">
+                </div>
+                <div class="web-name">PET HELPER</div>
+            </a>
+            <!-- <div class="search-box">
+                <span style="margin-right: 10px;">🔍</span>
+                <span class="search-text">Tìm thú cưng, bài viết...</span>
+            </div> -->
+            <div class="user-actions">
+                <div class="auth-user-actions is-auth-hidden" id="headerAuthUserState">
+                    <div class="user-dropdown" id="headerUserDropdown">
+                        <span id="userDropdownBtn" style="cursor: pointer;">
+                            <span id="headerDisplayNameText">Tài khoản</span> ▼
+                        </span>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-header">
+                                <strong id="headerDropdownDisplayName">Tài khoản</strong>
+                                <span class="user-role" id="headerUserRole">👤 User</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="/profile" class="dropdown-item">👤 Tài khoản</a>
+                            <a href="/my-favorites" class="dropdown-item">❤️
+                                Thú cưng đã yêu thích</a>
+                            <a href="/my-reports" class="dropdown-item">📋
+                                Báo cáo của tôi</a>
+                            <a href="/adopt/admin/add" class="dropdown-item role-staff-only is-auth-hidden">🐾 Thêm thú
+                                cưng</a>
+                            <a href="/admin/reports" class="dropdown-item role-staff-only is-auth-hidden">📋 Duyệt báo
+                                cáo</a>
+                            <a href="/admin" class="dropdown-item role-admin-only is-auth-hidden">⚙️ Quản trị</a>
+                            <a href="/admin-shop" class="dropdown-item role-admin-only is-auth-hidden">🛒 Quản lý cửa
+                                hàng</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item logout" id="logoutBtn" onclick="handleLogout(event)">🚪
+                                Đăng xuất</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-guest-actions is-auth-visible" id="headerAuthGuestState">
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('login'); } return false;"><span>Đăng
+                            nhập</span></a>
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('register'); } return false;"><span>Đăng
+                            ký</span></a>
+                </div>
+                <span onclick="toggleCart()" style="cursor:pointer;">Giỏ hàng <span
+                        id="cart-count-display">(0)</span></span>
+                <div class="lang-switcher" id="langSwitcher">
+                    <button class="lang-switcher-btn" onclick="toggleLangDropdown(event)" id="langBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" />
+                        </svg>
+                        <span id="langBtnLabel">VI</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </button>
+                    <div class="lang-switcher-dropdown" id="langDropdown">
+                        <button class="lang-option active" onclick="setLang('vi','VI')" data-lang="vi"><span
+                                class="flag">🇻🇳</span> Tiếng Việt</button>
+                        <button class="lang-option" onclick="setLang('/en','EN')" data-lang="en"><span
+                                class="flag">🇺🇸</span> English</button>
+                        <button class="lang-option" onclick="setLang('/zh-TW','中文')" data-lang="zh-TW"><span
+                                class="flag">🇹🇼</span> 中文</button>
+                        <button class="lang-option" onclick="setLang('/ja','日本語')" data-lang="ja"><span
+                                class="flag">🇯🇵</span> 日本語</button>
+                    </div>
+                </div>
+            </div>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Mở menu">
+                <span class="hamburger-line"></span><span class="hamburger-line"></span><span
+                    class="hamburger-line"></span>
+            </button>
+        </div>
+        <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+        <nav class="main-nav" id="mainNav">
+            <button class="mobile-nav-close" id="mobileNavClose" aria-label="Đóng menu">✕</button>
+            <ul>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Nhận nuôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/adopt">Xem vật nuôi có thể nhận nuôi</a></li>
+                        <li><a href="/snap" style="color: #ea580c; font-weight: bold;">PetSnap (Tìm kiếm ngẫu
+                                hứng!)</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Thất lạc <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/lost" onclick="window.location.href='/lost'; return false;">Báo mất thú cưng</a>
+                        </li>
+                        <li><a href="/found" onclick="window.location.href='/found'; return false;">Báo tin nhặt
+                                được</a>
+                        </li>
+                        <li><a href="/reports/list" onclick="window.location.href='/reports/list'; return false;">Xem
+                                báo cáo thất lạc</a>
+                        </li>
+                        <li><a href="/tips" onclick="window.location.href='/tips'; return false;">Mẹo chăm sóc thú
+                                cưng</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Dịch vụ <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/booking">Đặt lịch tiêm phòng</a></li>
+                        <li><a href="/shop">Danh mục đồ ăn/ đồ dùng</a></li>
+                    </ul>
+                </li>
+                <li><a href="/news">Tin tức</a></li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Về chúng tôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="#contact-section">Liên hệ với chúng tôi</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+  <!-- MAIN -->
+  <div class="max-w-5xl mx-auto px-4 py-8 mt-4">
+
+    <!-- TABS -->
+    <div class="flex gap-3 mb-8 bg-white rounded-2xl p-2 shadow-sm border border-green-100 w-fit mx-auto">
+      <button id="tabLost" class="tab-btn active font-semibold text-sm px-6 py-2.5 rounded-xl"
+        onclick="switchTab('lost')">
+        🔍 Thú cưng thất lạc
+      </button>
+      <button id="tabFound" class="tab-btn font-semibold text-sm px-6 py-2.5 rounded-xl text-gray-600"
+        onclick="switchTab('found')">
+        ✅ Đã tìm thấy
+      </button>
+    </div>
+
+    <!-- COUNT INFO -->
+    <div class="flex items-center justify-between mb-5">
+      <p id="countInfo" class="text-sm text-gray-500">Đang tải...</p>
+      <div class="flex items-center gap-2 text-sm text-gray-400">
+      </div>
+    </div>
+
+    <!-- GRID -->
+    <div id="reportGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 min-h-[320px]">
+      <!-- Skeleton placeholders -->
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div id="emptyState" class="hidden empty-state flex flex-col items-center justify-center py-24 text-center">
+      <div class="text-6xl mb-4">🐾</div>
+      <p class="text-gray-500 font-medium text-lg">Chưa có báo cáo nào</p>
+      <p class="text-gray-400 text-sm mt-1">Hãy là người đầu tiên đăng tin!</p>
+    </div>
+
+    <!-- PAGINATION -->
+    <div id="pagination" class="hidden flex items-center justify-center gap-2 mt-10 flex-wrap">
+      <button id="prevBtn" class="page-btn px-4 py-2 rounded-xl border border-gray-200 bg-white text-sm font-medium"
+        onclick="goPage(currentPage - 1)">← Trước</button>
+      <div id="pageNumbers" class="flex gap-1 flex-wrap justify-center"></div>
+      <button id="nextBtn" class="page-btn px-4 py-2 rounded-xl border border-gray-200 bg-white text-sm font-medium"
+        onclick="goPage(currentPage + 1)">Sau →</button>
+    </div>
+
+  </div>
+
+  <!-- DETAIL MODAL -->
+  <div id="detailModal" onclick="closeModal(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div id="modalHeader" class="px-6 py-4 flex items-center justify-between rounded-t-2xl text-white"
+        style="background:var(--primary);">
+        <div class="flex items-center gap-3">
+          <span id="modalBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-white/20 tracking-wider"></span>
+          <h2 id="modalTitle" class="font-bold text-lg"></h2>
+        </div>
+        <button onclick="closeModalDirect()"
+          class="text-white/80 hover:text-white hover:bg-white/20 rounded-full w-8 h-8 flex items-center justify-center transition-colors text-lg font-bold">✕</button>
+      </div>
+
+      <!-- Main image -->
+      <div class="px-6 pt-5">
+        <img id="modalMainImg" src="" alt="" class="w-full h-56 object-cover rounded-xl bg-gray-100" />
+        <div id="modalThumbs" class="flex gap-2 mt-2 flex-wrap"></div>
+      </div>
+
+      <!-- Info -->
+      <div id="modalBody" class="px-6 py-5 space-y-3 text-sm text-gray-700"></div>
+
+      <!-- Footer liên hệ -->
+      <div id="modalFooter" class="px-6 py-4 border-t border-gray-100 flex gap-3 flex-wrap">
+        <a id="modalPhoneBtn" href="#"
+          class="flex-1 text-center bg-[#2d6a4f] hover:bg-[#1b4332] text-white font-bold py-3 px-4 rounded-xl transition-colors text-sm">📞
+          Gọi điện liên hệ</a>
+        <a id="modalEmailBtn" href="#"
+          class="flex-1 text-center border border-[#2d6a4f] text-[#2d6a4f] hover:bg-green-50 font-bold py-3 px-4 rounded-xl transition-colors text-sm">✉️
+          Gửi Email</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // ===================== STATE =====================
+      let currentType = 'lost';
+      let currentPage = 1;
+      let totalPages = 1;
+      const LIMIT = 12;
+
+      // ===================== TABS =====================
+      window.switchTab = function (type) {
+        currentType = type;
+        currentPage = 1;
+        document.getElementById('tabLost').classList.toggle('active', type === 'lost');
+        document.getElementById('tabFound').classList.toggle('active', type === 'found');
+        document.getElementById('tabLost').classList.toggle('text-gray-600', type !== 'lost');
+        document.getElementById('tabFound').classList.toggle('text-gray-600', type !== 'found');
+        loadReports();
+      };
+
+      // ===================== PAGINATION =====================
+      window.currentPage = 1;
+      window.goPage = function (page) {
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+        window.currentPage = page;
+        loadReports();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      function renderPagination(total, current) {
+        totalPages = total;
+        const pag = document.getElementById('pagination');
+        const nums = document.getElementById('pageNumbers');
+        const prev = document.getElementById('prevBtn');
+        const next = document.getElementById('nextBtn');
+
+        if (total <= 1) { pag.classList.add('hidden'); return; }
+        pag.classList.remove('hidden');
+
+        prev.disabled = current <= 1;
+        next.disabled = current >= total;
+
+        nums.innerHTML = '';
+        let start = Math.max(1, current - 2);
+        let end = Math.min(total, current + 2);
+        if (start > 1) nums.innerHTML += `<button class="page-btn px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm" onclick="goPage(1)">1</button>${start > 2 ? '<span class="px-1 text-gray-400">…</span>' : ''}`;
+        for (let i = start; i <= end; i++) {
+          nums.innerHTML += `<button class="page-btn px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm ${i === current ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+        }
+        if (end < total) nums.innerHTML += `${end < total - 1 ? '<span class="px-1 text-gray-400">…</span>' : ''}<button class="page-btn px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm" onclick="goPage(${total})">${total}</button>`;
+      }
+
+      // ===================== SKELETON =====================
+      function showSkeleton() {
+        const grid = document.getElementById('reportGrid');
+        grid.innerHTML = Array(6).fill(0).map(() => `
+      <div class="bg-white rounded-2xl overflow-hidden border border-green-50">
+        <div class="skeleton h-44 w-full"></div>
+        <div class="p-4 space-y-2">
+          <div class="skeleton h-4 w-3/4"></div>
+          <div class="skeleton h-3 w-1/2"></div>
+          <div class="skeleton h-3 w-2/3"></div>
+        </div>
+      </div>`).join('');
+        document.getElementById('emptyState').classList.add('hidden');
+        document.getElementById('pagination').classList.add('hidden');
+      }
+
+      // ===================== LOAD REPORTS =====================
+      function loadReports() {
+        showSkeleton();
+        document.getElementById('countInfo').textContent = 'Đang tải...';
+
+        fetch(`/api/v1/reports?type=${currentType}&page=${currentPage}&limit=${LIMIT}`, { credentials: 'include' })
+          .then(function (res) { return res.json(); })
+          .then(function (payload) {
+            if (!payload.success) throw new Error(payload.message || 'Lỗi');
+            const data = payload.data;
+            const reports = data.data || data.reports || [];
+            const total = data.total || 0;
+            const pages = data.totalPages || Math.ceil(total / LIMIT) || 1;
+
+            const typeLabel = currentType === 'lost' ? 'thất lạc' : 'đã tìm thấy';
+            document.getElementById('countInfo').textContent = total > 0
+              ? `Tìm thấy ${total} báo cáo thú cưng ${typeLabel}`
+              : '';
+
+            if (reports.length === 0) {
+              document.getElementById('reportGrid').innerHTML = '';
+              document.getElementById('emptyState').classList.remove('hidden');
+              document.getElementById('pagination').classList.add('hidden');
+              return;
+            }
+
+            document.getElementById('emptyState').classList.add('hidden');
+            renderGrid(reports);
+            renderPagination(pages, currentPage);
+          })
+          .catch(function () {
+            document.getElementById('reportGrid').innerHTML = `
+          <div class="col-span-3 text-center py-16 text-gray-400">
+            <div class="text-4xl mb-3">⚠️</div>
+            <p>Không thể tải dữ liệu. Vui lòng thử lại.</p>
+          </div>`;
+            document.getElementById('countInfo').textContent = '';
+          });
+      }
+
+      // ===================== RENDER CARDS =====================
+      function getFirstImage(report) {
+        if (report.image) return report.image;
+        if (report.images && report.images.length > 0) return report.images[0].imagePath || report.images[0].image_path || '';
+        return '';
+      }
+
+      function formatGender(g) {
+        if (g === 'male') return 'Đực';
+        if (g === 'female') return 'Cái';
+        return 'Chưa rõ';
+      }
+
+      const reportMap = {};
+
+      function renderGrid(reports) {
+        const grid = document.getElementById('reportGrid');
+        grid.innerHTML = reports.map(function (r) {
+          reportMap[r.id] = r;
+          const img = getFirstImage(r);
+          const isLost = r.type === 'lost';
+          const badgeClass = isLost ? 'badge-lost' : 'badge-found';
+          const badgeText = isLost ? 'THẤT LẠC' : 'TÌM THẤY';
+          const location = r.address || r.found_location || '';
+          const petType = r.pet_type || '';
+          const species = r.species || '';
+          const color = r.color || '';
+
+          return `
+        <div class="report-card bg-white rounded-2xl overflow-hidden border border-green-50 shadow-sm"
+             onclick="openModal(${r.id})">
+          <div class="relative h-44 bg-gray-100 overflow-hidden">
+            ${img
+              ? `<img src="${img}" alt="Ảnh thú cưng" class="w-full h-full object-cover" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center text-5xl bg-green-50\\'>🐾</div>'">`
+              : `<div class="w-full h-full flex items-center justify-center text-5xl bg-green-50">🐾</div>`
+            }
+            <span class="absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full ${badgeClass}">${badgeText}</span>
+          </div>
+          <div class="p-4">
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <p class="font-bold text-gray-800 text-base leading-snug">${petType}${species ? ' · ' + species : ''}</p>
+            </div>
+            ${color ? `<p class="text-xs text-gray-500 mb-1">🎨 Màu: ${color}</p>` : ''}
+            ${location ? `<p class="text-xs text-gray-500 mb-1 truncate">📍 ${location}</p>` : ''}
+            <p class="text-xs text-gray-400 mt-2">Liên hệ: ${r.phone || '—'}</p>
+          </div>
+        </div>`;
+        }).join('');
+      }
+
+      // ===================== MODAL =====================
+      window.openModal = function (id) {
+        const r = reportMap[id];
+        if (!r) return;
+        const isLost = r.type === 'lost';
+        const images = r.images || (r.image ? [{ imagePath: r.image }] : []);
+
+        document.getElementById('modalBadge').textContent = isLost ? 'THẤT LẠC' : 'TÌM THẤY';
+        document.getElementById('modalTitle').textContent = r.pet_type ? r.pet_type + (r.species ? ' · ' + r.species : '') : 'Chi tiết báo cáo';
+
+        // Images
+        const mainImg = document.getElementById('modalMainImg');
+        if (images.length > 0) {
+          mainImg.src = images[0].imagePath || images[0].image_path || '';
+          mainImg.style.display = 'block';
+        } else {
+          mainImg.style.display = 'none';
+        }
+
+        const thumbsEl = document.getElementById('modalThumbs');
+        if (images.length > 1) {
+          thumbsEl.innerHTML = images.map(function (img, i) {
+            const src = img.imagePath || img.image_path || '';
+            return `<img src="${src}" class="img-thumb ${i === 0 ? 'active' : ''}" alt="" onclick="switchMainImg(this,'${src}')">`;
+          }).join('');
+        } else {
+          thumbsEl.innerHTML = '';
+        }
+
+        // Body info
+        const rows = [];
+        if (isLost) {
+          if (r.reporter_name) rows.push(['👤 Tên bé', r.reporter_name]);
+          if (r.species) rows.push(['🐾 Giống', r.species]);
+          if (r.color) rows.push(['🎨 Màu sắc', r.color]);
+          if (r.gender) rows.push(['♂♀ Giới tính', formatGender(r.gender)]);
+          if (r.address) rows.push(['📍 Vị trí mất', r.address]);
+          if (r.description) rows.push(['📝 Mô tả', r.description]);
+          if (r.phone) rows.push(['📞 Liên hệ', r.phone]);
+          if (r.email) rows.push(['✉️ Email', r.email]);
+        } else {
+          if (r.color) rows.push(['🎨 Màu lông', r.color]);
+          if (r.gender) rows.push(['♂♀ Giới tính', formatGender(r.gender)]);
+          if (r.found_location) rows.push(['📍 Nơi phát hiện', r.found_location]);
+          if (r.description) rows.push(['📝 Tình trạng', r.description]);
+          if (r.reporter_name) rows.push(['👤 Người tìm thấy', r.reporter_name]);
+          if (r.phone) rows.push(['📞 Liên hệ', r.phone]);
+          if (r.email) rows.push(['✉️ Email', r.email]);
+        }
+
+        document.getElementById('modalBody').innerHTML = rows.map(function (row) {
+          return `<div class="flex gap-3 py-2 border-b border-gray-50 last:border-0">
+        <span class="text-gray-400 w-36 flex-shrink-0 text-xs pt-0.5">${row[0]}</span>
+        <span class="text-gray-800 font-medium text-sm flex-1">${row[1]}</span>
+      </div>`;
+        }).join('');
+
+        // Nút liên hệ
+        const phoneBtn = document.getElementById('modalPhoneBtn');
+        const emailBtn = document.getElementById('modalEmailBtn');
+        if (r.phone) {
+          phoneBtn.href = 'tel:' + r.phone;
+          phoneBtn.textContent = '📞 Gọi ' + r.phone;
+          phoneBtn.style.display = '';
+        } else {
+          phoneBtn.style.display = 'none';
+        }
+        if (r.email) {
+          emailBtn.href = 'mailto:' + r.email;
+          emailBtn.textContent = '✉️ ' + r.email;
+          emailBtn.style.display = '';
+        } else {
+          emailBtn.style.display = 'none';
+        }
+
+        document.getElementById('detailModal').classList.add('open');
+        document.body.style.overflow = 'hidden';
+      };
+
+      window.switchMainImg = function (thumb, src) {
+        document.getElementById('modalMainImg').src = src;
+        document.querySelectorAll('.img-thumb').forEach(function (t) { t.classList.remove('active'); });
+        thumb.classList.add('active');
+      };
+
+      window.closeModal = function (e) {
+        if (e.target === document.getElementById('detailModal')) closeModalDirect();
+      };
+
+      window.closeModalDirect = function () {
+        document.getElementById('detailModal').classList.remove('open');
+        document.body.style.overflow = '';
+      };
+
+      function formatGender(g) {
+        if (g === 'male') return 'Đực';
+        if (g === 'female') return 'Cái';
+        return 'Chưa rõ';
+      }
+
+      // ===================== INIT =====================
+      loadReports();
+    })();
+  </script>
+  <div id="auth-overlay-mount"></div>
+  <script src="/javascripts/authOverlayLoader.js" defer></script>
+  <script src="/javascripts/staticHeader.js"></script>
+  <script src="/javascripts/staticFooter.js"></script>
+  <div id="google_translate_element" style="display:none"></div>
+  <script>
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({ pageLanguage: 'vi', includedLanguages: 'vi,en,zh-TW,ja', autoDisplay: false }, 'google_translate_element');
+    }
+    function setLang(lang, label) {
+      document.getElementById('langBtnLabel').textContent = label;
+      document.querySelectorAll('.lang-option').forEach(function (el) {
+        el.classList.toggle('active', el.dataset.lang === (lang === 'vi' ? 'vi' : lang.replace('/', '')));
+      });
+      document.getElementById('langDropdown').classList.remove('open');
+      if (lang === 'vi') {
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname;
+        location.reload(); return;
+      }
+      var val = '/vi' + lang;
+      document.cookie = 'googtrans=' + val + '; path=/';
+      document.cookie = 'googtrans=' + val + '; path=/; domain=' + location.hostname;
+      location.reload();
+    }
+    function toggleLangDropdown(e) {
+      e.stopPropagation();
+      document.getElementById('langDropdown').classList.toggle('open');
+    }
+    document.addEventListener('click', function () {
+      var dd = document.getElementById('langDropdown');
+      if (dd) dd.classList.remove('open');
+    });
+    (function () {
+      var m = document.cookie.match(/googtrans=\/vi\/([^;]+)/);
+      if (!m) return;
+      var map = { 'en': 'EN', 'zh-TW': '中文', 'ja': '日本語' };
+      if (map[m[1]]) {
+        document.getElementById('langBtnLabel').textContent = map[m[1]];
+        document.querySelectorAll('.lang-option').forEach(function (el) {
+          el.classList.toggle('active', el.dataset.lang === m[1]);
+        });
+      }
+    })();
+  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Report API v1 Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 24px auto;
+      padding: 0 16px;
+      line-height: 1.4;
+    }
+
+    h1,
+    h2 {
+      margin-bottom: 12px;
+    }
+
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+      color: #333;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      cursor: pointer;
+      background: #1f6f4a;
+      color: white;
+      border: none;
+      font-weight: 600;
+    }
+
+    button.secondary {
+      background: #0f4c81;
+    }
+
+    pre {
+      background: #111;
+      color: #f6f6f6;
+      border-radius: 8px;
+      padding: 12px;
+      overflow: auto;
+      min-height: 120px;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: #666;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Report API v1 Test Page</h1>
+  <p>Use this page to test <code>POST /api/v1/reports</code> and <code>GET /api/v1/reports</code>.</p>
+
+  <div class="card">
+    <h2>Submit Report</h2>
+    <form id="reportForm">
+      <div class="row">
+        <div>
+          <label for="type">Type</label>
+          <select id="type" name="type">
+            <option value="lost">lost</option>
+            <option value="found">found</option>
+          </select>
+        </div>
+        <div>
+          <label for="phone">Phone (required)</label>
+          <input id="phone" name="phone" type="text" value="0901234567" required />
+        </div>
+      </div>
+
+      <div class="row" id="lostFields">
+        <div>
+          <label for="name">Reporter Name (lost)</label>
+          <input id="name" name="name" type="text" value="Test User" />
+        </div>
+        <div>
+          <label for="pet_type">Pet Type (lost)</label>
+          <input id="pet_type" name="pet_type" type="text" value="dog" />
+        </div>
+      </div>
+
+      <div class="row" id="foundFields" style="display:none;">
+        <div>
+          <label for="finderName">Finder Name (found)</label>
+          <input id="finderName" name="finderName" type="text" value="Finder User" />
+        </div>
+        <div>
+          <label for="species">Species (found)</label>
+          <input id="species" name="species" type="text" value="dog" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="location">Location</label>
+          <input id="location" name="location" type="text" value="District 1" />
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" value="test@example.com" />
+        </div>
+      </div>
+
+      <div>
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="3">Test report from report-test.html</textarea>
+      </div>
+
+      <div style="margin-top:10px;">
+        <label for="images">Images (at least 1 file required)</label>
+        <input id="images" name="images" type="file" accept="image/*" multiple required />
+      </div>
+
+      <div style="margin-top:12px;">
+        <button type="submit">Submit Report via API</button>
+      </div>
+      <p class="hint">For a valid POST, select at least one image file.</p>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Load Public Reports</h2>
+    <div class="row">
+      <div>
+        <label for="queryType">Type</label>
+        <select id="queryType">
+          <option value="">all</option>
+          <option value="lost">lost</option>
+          <option value="found">found</option>
+        </select>
+      </div>
+      <div>
+        <label for="limit">Limit</label>
+        <input id="limit" type="number" value="5" min="1" max="50" />
+      </div>
+    </div>
+    <button id="loadReportsBtn" class="secondary">GET /api/v1/reports</button>
+  </div>
+
+  <div class="card">
+    <h2>Response</h2>
+    <pre id="output">No request yet.</pre>
+  </div>
+
+  <script>
+    const outputEl = document.getElementById("output");
+    const typeEl = document.getElementById("type");
+    const lostFieldsEl = document.getElementById("lostFields");
+    const foundFieldsEl = document.getElementById("foundFields");
+
+    function printResult(title, data) {
+      outputEl.textContent = `${title}\n\n${JSON.stringify(data, null, 2)}`;
+    }
+
+    function toggleTypeFields() {
+      const isLost = typeEl.value === "lost";
+      lostFieldsEl.style.display = isLost ? "grid" : "none";
+      foundFieldsEl.style.display = isLost ? "none" : "grid";
+    }
+
+    typeEl.addEventListener("change", toggleTypeFields);
+    toggleTypeFields();
+
+    document.getElementById("reportForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      try {
+        const formData = new FormData(event.target);
+        const response = await fetch("/api/v1/reports", {
+          method: "POST",
+          body: formData,
+        });
+        const json = await response.json();
+
+        printResult(`POST /api/v1/reports (status ${response.status})`, json);
+      } catch (error) {
+        printResult("POST /api/v1/reports failed", {
+          success: false,
+          message: error.message,
+          data: null,
+        });
+      }
+    });
+
+    document.getElementById("loadReportsBtn").addEventListener("click", async () => {
+      try {
+        const type = document.getElementById("queryType").value;
+        const limit = document.getElementById("limit").value;
+        const params = new URLSearchParams();
+
+        if (type) params.set("type", type);
+        params.set("limit", limit || "5");
+        params.set("page", "1");
+
+        const response = await fetch(`/api/v1/reports?${params.toString()}`);
+        const json = await response.json();
+        printResult(`GET /api/v1/reports (status ${response.status})`, json);
+      } catch (error) {
+        printResult("GET /api/v1/reports failed", {
+          success: false,
+          message: error.message,
+          data: null,
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

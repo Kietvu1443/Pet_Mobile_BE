@@ -1,0 +1,14 @@
+@startuml
+left to right direction
+actor User
+
+rectangle "Hệ thống" {
+  (Yêu thích thú cưng) as fav
+  (Kiểm tra đăng nhập) as auth
+
+  fav --> auth : <<include>>
+}
+
+User --> fav
+
+@enduml

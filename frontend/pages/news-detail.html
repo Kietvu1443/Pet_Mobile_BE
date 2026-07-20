@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Tin Tức | Pet Helper</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/staticHeader.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            background: #f5faf7;
+        }
+
+        .detail-wrap {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 36px 16px 60px;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .breadcrumb a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        /* Article */
+        .article-card {
+            background: #fff;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(45, 106, 79, 0.1);
+            margin-bottom: 28px;
+        }
+
+        .article-hero {
+            width: 100%;
+            max-height: 420px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .article-hero-placeholder {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, #d8f3dc, #b7e4c7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .article-body {
+            padding: 32px;
+        }
+
+        .article-meta-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .article-category {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: #d8f3dc;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .article-date {
+            font-size: 0.82rem;
+            color: #aaa;
+        }
+
+        .article-author {
+            font-size: 0.82rem;
+            color: #888;
+        }
+
+        .article-title {
+            font-size: 1.9rem;
+            font-weight: 900;
+            color: #1a1a2e;
+            line-height: 1.35;
+            margin-bottom: 20px;
+        }
+
+        .article-content {
+            font-size: 1.02rem;
+            color: #333;
+            line-height: 1.85;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* Action bar */
+        .action-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 18px 32px;
+            border-top: 1px solid #f0f4f2;
+            background: #fafcfb;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 18px;
+            border-radius: 20px;
+            border: 2px solid #e0f0e8;
+            background: #fff;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: #444;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .action-btn.liked {
+            background: #fee2e2;
+            border-color: #f87171;
+            color: #dc2626;
+        }
+
+        .action-btn.followed {
+            background: #d8f3dc;
+            border-color: #4ade80;
+            color: #15803d;
+        }
+
+        .action-count {
+            font-size: 0.82rem;
+            color: #aaa;
+            margin-left: auto;
+        }
+
+        /* Comments */
+        .comments-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(45, 106, 79, 0.08);
+            padding: 28px 32px;
+        }
+
+        .comments-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e8f4ed;
+            padding-bottom: 12px;
+        }
+
+        /* Comment input */
+        .comment-input-wrap {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .comment-input-wrap textarea {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1.5px solid #e0f0e8;
+            border-radius: 12px;
+            font-size: 0.92rem;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .comment-input-wrap textarea:focus {
+            border-color: var(--primary-color);
+        }
+
+        .comment-submit-btn {
+            padding: 10px 18px;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.88rem;
+            white-space: nowrap;
+        }
+
+        .comment-submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .login-prompt {
+            font-size: 0.88rem;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+
+        .login-prompt a {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        /* Comment item */
+        .comment-item {
+            border-bottom: 1px solid #f0f4f2;
+            padding: 16px 0;
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .comment-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), #52b788);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .comment-avatar.sm {
+            width: 28px;
+            height: 28px;
+            font-size: 0.78rem;
+        }
+
+        .comment-author {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #222;
+        }
+
+        .comment-avatar.sm {
+            width: 28px;
+            height: 28px;
+            font-size: 0.78rem;
+        }
+
+        .comment-time {
+            font-size: 0.78rem;
+            color: #bbb;
+        }
+
+        /* Xem thêm */
+        .comment-content {
+            font-size: 0.93rem;
+            color: #333;
+            line-height: 1.6;
+            margin-left: 46px;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .comment-content.collapsed {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .comment-readmore {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.82rem;
+            color: var(--primary-color);
+            font-weight: 700;
+            padding: 0;
+            margin-left: 46px;
+            margin-bottom: 6px;
+        }
+
+        .comment-mention {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .comment-content.collapsed {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .comment-readmore {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.82rem;
+            color: var(--primary-color);
+            font-weight: 700;
+            padding: 0;
+            margin-left: 46px;
+            margin-bottom: 6px;
+        }
+
+        .comment-mention {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .comment-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-left: 46px;
+        }
+
+        .comment-like-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: #aaa;
+            font-weight: 600;
+            padding: 0;
+            transition: color 0.15s;
+        }
+
+        .comment-like-btn:hover,
+        .comment-like-btn.liked {
+            color: #dc2626;
+        }
+
+        .comment-reply-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: #aaa;
+            font-weight: 600;
+            padding: 0;
+        }
+
+        .comment-reply-btn:hover {
+            color: var(--primary-color);
+        }
+
+        /* ── Replies: Facebook-style thread ── */
+        .replies-wrap {
+            display: none;
+            margin-top: 6px;
+        }
+
+        .replies-wrap.open {
+            display: block;
+        }
+
+        /* Container cấp 2 — có đường kẻ dọc bên trái */
+        .replies-tree {
+            position: relative;
+            margin-left: 18px;
+            padding-left: 16px;
+            border-left: 2px solid #d8ead2;
+            margin-top: 4px;
+        }
+
+        /* Từng reply node */
+        .reply-node {
+            position: relative;
+            padding-top: 10px;
+        }
+
+        /* Đường ngang nối từ border-left thẳng vào giữa avatar (avatar sm = 28px) */
+        .reply-node::before {
+            content: '';
+            position: absolute;
+            left: -16px;
+            top: 23px;
+            /* padding-top(10) + avatar_center(14) - 1 */
+            width: 16px;
+            /* khít đến avatar */
+            height: 2px;
+            background: #d8ead2;
+        }
+
+        /* Đường dọc chỉ kéo đến nút reply cuối, không dài vô tận */
+        .replies-tree {
+            padding-bottom: 2px;
+        }
+
+        /* Node cuối: cắt đường dọc ngang avatar, không kéo xuống thêm */
+        .reply-node:last-child::after {
+            content: '';
+            position: absolute;
+            left: -18px;
+            top: 25px;
+            width: 2px;
+            bottom: 0;
+            background: #fff;
+            /* che đường dọc phần dưới node cuối */
+        }
+
+        .reply-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Header của reply: avatar + tên + thời gian */
+        .reply-node .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        /* Bubble chứa nội dung reply */
+        .reply-bubble {
+            background: #f4faf6;
+            border-radius: 0 12px 12px 12px;
+            padding: 8px 14px;
+            margin-left: 36px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            color: #333;
+            line-height: 1.55;
+            word-break: break-word;
+            position: relative;
+        }
+
+        /* Badge ↩ mention nằm trong bubble */
+        .reply-bubble .reply-mention-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #1a7a4a;
+            background: #d1f0e0;
+            border-radius: 4px;
+            padding: 1px 6px;
+            margin-bottom: 3px;
+            margin-left: 0;
+        }
+
+        /* Actions dưới bubble */
+        .reply-node .comment-actions {
+            margin-left: 36px;
+            margin-bottom: 2px;
+        }
+
+        /* Cấp 3: border nhạt hơn, thụt thêm */
+        .reply-content>.replies-tree {
+            border-left-color: #e8f4ed;
+            margin-left: 14px;
+        }
+
+        /* Flat từ cấp 4+: không thụt thêm */
+        .replies-tree-flat {
+            margin-left: 0 !important;
+            border-left-color: #eef7f1 !important;
+        }
+
+        .reply-content>.replies-tree-flat {
+            margin-left: 0 !important;
+        }
+
+        .reply-content>.replies-tree .replies-tree {
+            margin-left: 0;
+        }
+
+        /* Nút mở/đóng replies của comment gốc */
+        .toggle-replies-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-left: 46px;
+            margin-top: 6px;
+            padding: 0;
+        }
+
+        .toggle-replies-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* Sub-thread: nút thu gọn riêng cho từng cấp 2 có ≥2 con */
+        .sub-thread-wrap {
+            overflow: hidden;
+        }
+
+        .sub-thread-wrap.collapsed .sub-thread-items {
+            display: none;
+        }
+
+        .sub-thread-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.78rem;
+            color: var(--primary-color);
+            font-weight: 700;
+            padding: 4px 0 4px 0;
+            margin-left: 36px;
+            margin-top: 2px;
+        }
+
+        .sub-thread-toggle:hover {
+            text-decoration: underline;
+        }
+
+        .sub-thread-toggle .arrow {
+            font-size: 0.65rem;
+            transition: transform 0.2s;
+        }
+
+        .sub-thread-wrap.collapsed .sub-thread-toggle .arrow {
+            transform: rotate(-90deg);
+        }
+
+        /* Char counter */
+        .comment-input-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 4px;
+        }
+
+        .char-counter {
+            font-size: 0.75rem;
+            color: #bbb;
+        }
+
+        .char-counter.warn {
+            color: #f59e0b;
+        }
+
+        .char-counter.over {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        /* Reply input */
+        .reply-input-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 10px;
+            margin-left: 0;
+        }
+
+        .reply-input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Container cấp 2 — có đường kẻ dọc bên trái */
+        .replies-tree {
+            position: relative;
+            margin-left: 18px;
+            padding-left: 16px;
+            border-left: 2px solid #d8ead2;
+            margin-top: 4px;
+        }
+
+        /* Từng reply node */
+        .reply-node {
+            position: relative;
+            padding-top: 10px;
+        }
+
+        /* Đường ngang nối từ border-left thẳng vào giữa avatar (avatar sm = 28px) */
+        .reply-node::before {
+            content: '';
+            position: absolute;
+            left: -16px;
+            top: 23px;
+            /* padding-top(10) + avatar_center(14) - 1 */
+            width: 16px;
+            /* khít đến avatar */
+            height: 2px;
+            background: #d8ead2;
+        }
+
+        /* Đường dọc chỉ kéo đến nút reply cuối, không dài vô tận */
+        .replies-tree {
+            padding-bottom: 2px;
+        }
+
+        /* Node cuối: cắt đường dọc ngang avatar, không kéo xuống thêm */
+        .reply-node:last-child::after {
+            content: '';
+            position: absolute;
+            left: -18px;
+            top: 25px;
+            width: 2px;
+            bottom: 0;
+            background: #fff;
+            /* che đường dọc phần dưới node cuối */
+        }
+
+        .reply-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Header của reply: avatar + tên + thời gian */
+        .reply-node .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        /* Bubble chứa nội dung reply */
+        .reply-bubble {
+            background: #f4faf6;
+            border-radius: 0 12px 12px 12px;
+            padding: 8px 14px;
+            margin-left: 36px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            color: #333;
+            line-height: 1.55;
+            word-break: break-word;
+            position: relative;
+        }
+
+        /* Badge ↩ mention nằm trong bubble */
+        .reply-bubble .reply-mention-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #1a7a4a;
+            background: #d1f0e0;
+            border-radius: 4px;
+            padding: 1px 6px;
+            margin-bottom: 3px;
+            margin-left: 0;
+        }
+
+        /* Actions dưới bubble */
+        .reply-node .comment-actions {
+            margin-left: 36px;
+            margin-bottom: 2px;
+        }
+
+        /* Cấp 3: border nhạt hơn, thụt thêm */
+        .reply-content>.replies-tree {
+            border-left-color: #e8f4ed;
+            margin-left: 14px;
+        }
+
+        /* Flat từ cấp 4+: không thụt thêm */
+        .replies-tree-flat {
+            margin-left: 0 !important;
+            border-left-color: #eef7f1 !important;
+        }
+
+        .reply-content>.replies-tree-flat {
+            margin-left: 0 !important;
+        }
+
+        .reply-content>.replies-tree .replies-tree {
+            margin-left: 0;
+        }
+
+        /* Nút mở/đóng replies của comment gốc */
+        .toggle-replies-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-left: 46px;
+            margin-top: 6px;
+            padding: 0;
+        }
+
+        .toggle-replies-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* Sub-thread: nút thu gọn riêng cho từng cấp 2 có ≥2 con */
+        .sub-thread-wrap {
+            overflow: hidden;
+        }
+
+        .sub-thread-wrap.collapsed .sub-thread-items {
+            display: none;
+        }
+
+        .sub-thread-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.78rem;
+            color: var(--primary-color);
+            font-weight: 700;
+            padding: 4px 0 4px 0;
+            margin-left: 36px;
+            margin-top: 2px;
+        }
+
+        .sub-thread-toggle:hover {
+            text-decoration: underline;
+        }
+
+        .sub-thread-toggle .arrow {
+            font-size: 0.65rem;
+            transition: transform 0.2s;
+        }
+
+        .sub-thread-wrap.collapsed .sub-thread-toggle .arrow {
+            transform: rotate(-90deg);
+        }
+
+        /* Char counter */
+        .comment-input-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 4px;
+        }
+
+        .char-counter {
+            font-size: 0.75rem;
+            color: #bbb;
+        }
+
+        .char-counter.warn {
+            color: #f59e0b;
+        }
+
+        .char-counter.over {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        /* Reply input */
+        .reply-input-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 10px;
+            margin-left: 0;
+        }
+
+        .reply-input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .reply-input-wrap textarea {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1.5px solid #e0f0e8;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+        }
+
+        .reply-input-wrap textarea:focus {
+            border-color: var(--primary-color);
+        }
+
+        .reply-submit-btn {
+            padding: 8px 14px;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.82rem;
+            white-space: nowrap;
+            align-self: flex-start;
+        }
+
+        .no-comments {
+            text-align: center;
+            color: #bbb;
+            padding: 30px 0;
+            font-size: 0.95rem;
+        }
+
+        /* reply-mention-badge — style nằm trong .reply-bubble (xem trên) */
+        /* Reply item bên trong replies-wrap không cần margin-left thêm */
+        .replies-wrap>.comment-item .comment-content {
+            margin-left: 36px;
+        }
+
+        .replies-wrap>.comment-item .comment-actions {
+            margin-left: 36px;
+        }
+
+        .replies-wrap>.comment-item .comment-readmore {
+            margin-left: 36px;
+        }
+
+        .replies-wrap>.comment-item .reply-input-wrap {
+            margin-left: 36px;
+        }
+
+        /* Badge ↩ tên khi reply vào reply */
+        .reply-mention-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            background: #e8f5e9;
+            border-radius: 10px;
+            padding: 2px 8px;
+            margin-left: 38px;
+            margin-bottom: 4px;
+        }
+
+        /* Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #e8f5e9 25%, #d8f3dc 50%, #e8f5e9 75%);
+            background-size: 200%;
+            animation: shimmer 1.4s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0
+            }
+
+            100% {
+                background-position: -200% 0
+            }
+        }
+
+        @media (max-width: 600px) {
+            .article-body {
+                padding: 20px 16px;
+            }
+
+            .action-bar {
+                padding: 14px 16px;
+            }
+
+            .comments-card {
+                padding: 20px 16px;
+            }
+
+            .article-title {
+                font-size: 1.45rem;
+            }
+        }
+    </style>
+    <style id="gtranslate-css">
+        /* Custom language switcher */
+        .lang-switcher {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .lang-switcher-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 8px;
+            padding: 5px 10px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.18s;
+            white-space: nowrap;
+        }
+
+        .lang-switcher-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .lang-switcher-btn svg {
+            width: 14px;
+            height: 14px;
+            opacity: .8;
+        }
+
+        .lang-switcher-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            min-width: 140px;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .lang-switcher-dropdown.open {
+            display: block;
+        }
+
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
+            transition: background 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .lang-option:hover {
+            background: #f1f5f9;
+        }
+
+        .lang-option.active {
+            background: #f0fdf4;
+            color: #166534;
+            font-weight: 600;
+        }
+
+        .lang-option .flag {
+            font-size: 16px;
+        }
+
+        /* Ẩn thanh Google Translate */
+        .goog-te-banner-frame,
+        .skiptranslate {
+            display: none !important;
+        }
+
+        body {
+            top: 0 !important;
+        }
+
+        iframe.skiptranslate {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="top-bar">
+            <a href="/" class="logo-group">
+                <div class="logo-circle">
+                    <img src="/images/the_logo.webp" alt="logo" id="the_logo">
+                </div>
+                <div class="web-name">PET HELPER</div>
+            </a>
+            <div class="user-actions">
+                <div class="auth-user-actions is-auth-hidden" id="headerAuthUserState">
+                    <div class="user-dropdown" id="headerUserDropdown">
+                        <span id="userDropdownBtn" style="cursor:pointer;">
+                            <span id="headerDisplayNameText">Tài khoản</span> ▼
+                        </span>
+                        <div class="user-dropdown-menu" id="userDropdownMenu"></div>
+                    </div>
+                </div>
+                <div class="auth-guest-actions is-auth-visible" id="headerAuthGuestState">
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if(typeof overlayActivateTab==='function'){overlayActivateTab('login');} return false;"><span>Đăng
+                            nhập</span></a>
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if(typeof overlayActivateTab==='function'){overlayActivateTab('register');} return false;"><span>Đăng
+                            ký</span></a>
+                </div>
+                <span onclick="toggleCart()" style="cursor:pointer;">Giỏ hàng <span
+                        id="cart-count-display">(0)</span></span>
+                <div class="lang-switcher" id="langSwitcher">
+                    <button class="lang-switcher-btn" onclick="toggleLangDropdown(event)" id="langBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" />
+                        </svg>
+                        <span id="langBtnLabel">VI</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </button>
+                    <div class="lang-switcher-dropdown" id="langDropdown">
+                        <button class="lang-option active" onclick="setLang('vi','VI')" data-lang="vi"><span
+                                class="flag">🇻🇳</span> Tiếng Việt</button>
+                        <button class="lang-option" onclick="setLang('/en','EN')" data-lang="en"><span
+                                class="flag">🇺🇸</span> English</button>
+                        <button class="lang-option" onclick="setLang('/zh-TW','中文')" data-lang="zh-TW"><span
+                                class="flag">🇹🇼</span> 中文</button>
+                        <button class="lang-option" onclick="setLang('/ja','日本語')" data-lang="ja"><span
+                                class="flag">🇯🇵</span> 日本語</button>
+                    </div>
+                </div>
+                <button class="hamburger-btn" id="hamburgerBtn" aria-label="Mở menu">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+            </div>
+            <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+            <nav class="main-nav" id="mainNav">
+                <button class="mobile-nav-close" id="mobileNavClose" aria-label="Đóng menu">✕</button>
+                <ul>
+                    <li>
+                        <a href="#" class="has-dropdown nav-item">Nhận nuôi <span class="nav-arrow">▼</span></a>
+                        <ul class="nav-dropdown">
+                            <li><a href="/adopt">Xem vật nuôi có thể nhận nuôi</a></li>
+                            <li><a href="/snap" style="color:#ea580c;font-weight:bold;">PetSnap</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#" class="has-dropdown nav-item">Thất lạc <span class="nav-arrow">▼</span></a>
+                        <ul class="nav-dropdown">
+                            <li><a href="/lost">Báo mất thú cưng</a></li>
+                            <li><a href="/found">Báo tin nhặt được</a></li>
+                            <li><a href="/reports/list">Xem báo cáo thất lạc</a></li>
+                            <li><a href="/tips">Mẹo chăm sóc thú cưng</a></li>
+
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#" class="has-dropdown nav-item">Dịch vụ <span class="nav-arrow">▼</span></a>
+                        <ul class="nav-dropdown">
+                            <li><a href="/booking">Đặt lịch tiêm phòng</a></li>
+                            <li><a href="/shop">Danh mục đồ dùng</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="/news">Tin tức</a></li>
+                    <li>
+                        <a href="#" class="has-dropdown nav-item">Về chúng tôi <span class="nav-arrow">▼</span></a>
+                        <ul class="nav-dropdown">
+                            <li><a href="#contact-section">Liên hệ</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+    </header>
+
+    <div class="detail-wrap">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="/">Trang chủ</a> › <a href="/news">Tin tức</a> › <span id="bcTitle">Đang tải...</span>
+        </div>
+
+        <!-- Article skeleton -->
+        <div id="articleSkeleton" class="article-card">
+            <div class="skeleton" style="height:320px;border-radius:0"></div>
+            <div class="article-body">
+                <div class="skeleton" style="height:18px;width:30%;margin-bottom:16px"></div>
+                <div class="skeleton" style="height:36px;width:85%;margin-bottom:10px"></div>
+                <div class="skeleton" style="height:36px;width:60%;margin-bottom:24px"></div>
+                <div class="skeleton" style="height:14px;margin-bottom:8px"></div>
+                <div class="skeleton" style="height:14px;margin-bottom:8px"></div>
+                <div class="skeleton" style="height:14px;width:70%;margin-bottom:8px"></div>
+            </div>
+        </div>
+
+        <!-- Article content -->
+        <div id="articleWrap" style="display:none">
+            <div class="article-card">
+                <img id="articleImg" class="article-hero" src="" alt="" style="display:none">
+                <div id="articleImgPlaceholder" class="article-hero-placeholder">🐾</div>
+                <div class="article-body">
+                    <div class="article-meta-top">
+                        <span class="article-category" id="articleCategory"></span>
+                        <span class="article-date" id="articleDate"></span>
+                        <span class="article-author" id="articleAuthor"></span>
+                    </div>
+                    <h1 class="article-title" id="articleTitle"></h1>
+                    <div class="article-content" id="articleContent"></div>
+                </div>
+                <div class="action-bar">
+                    <button class="action-btn" id="btnLike" onclick="toggleLike()">❤️ <span
+                            id="likeLabel">Thích</span></button>
+                    <button class="action-btn" id="btnFollow" onclick="toggleFollow()">🔔 <span id="followLabel">Quan
+                            tâm</span></button>
+                    <span class="action-count" id="actionCount"></span>
+                </div>
+            </div>
+
+            <!-- Comments -->
+            <div class="comments-card">
+                <div class="comments-title">💬 Bình luận (<span id="commentCount">0</span>)</div>
+
+                <!-- Input (chỉ hiện khi đăng nhập) -->
+                <div id="commentInputArea">
+                    <div id="loginPromptArea" class="login-prompt">
+                        <a href="#"
+                            onclick="openOverlay('auth-overlay'); if(typeof overlayActivateTab==='function'){overlayActivateTab('login');} return false;">Đăng
+                            nhập</a> để bình luận.
+                    </div>
+                    <div id="commentFormArea" style="display:none">
+                        <div class="comment-input-wrap">
+                            <textarea id="commentInput" rows="2" placeholder="Viết bình luận..." maxlength="300"
+                                oninput="updateCharCounter('commentInput','commentCharCount')"></textarea>
+                            <button class="comment-submit-btn" onclick="submitComment(null)">Gửi</button>
+                        </div>
+                        <div class="comment-input-footer">
+                            <span class="char-counter" id="commentCharCount">0 / 300</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comments list -->
+                <div id="commentsList"></div>
+            </div>
+        </div>
+
+        <!-- 404 -->
+        <div id="articleNotFound" style="display:none;text-align:center;padding:80px 0;color:#aaa;">
+            <div style="font-size:4rem;margin-bottom:16px;">📰</div>
+            <h2 style="color:#555;">Không tìm thấy bài tin</h2>
+            <a href="/news" style="color:var(--primary-color);font-weight:700;">← Quay lại Tin tức</a>
+        </div>
+    </div>
+
+    <div id="auth-overlay-mount"></div>
+    <script src="/javascripts/authOverlayLoader.js" defer></script>
+    <script src="/javascripts/staticHeader.js"></script>
+    <script src="/javascripts/staticFooter.js"></script>
+
+    <script>
+        (function () {
+            const CATEGORY_LABELS = {
+                community: '🐾 Cộng đồng',
+                health: '💉 Sức khỏe',
+                adoption: '🏠 Nhận nuôi',
+                knowledge: '📚 Kiến thức',
+                rescue: '🆘 Cứu hộ',
+            };
+
+            // Lấy news ID từ URL
+            const newsId = Number(location.pathname.split('/').pop());
+            let currentUser = null;
+            let newsData = null;
+
+            // ── Auth state ────────────────────────────────────────────────────
+            // Hook vào staticHeader để bắt kịp nếu gọi sau
+            const origApplyUser = window.applyHeaderUserState;
+            window.applyHeaderUserState = function (user) {
+                if (origApplyUser) origApplyUser(user);
+                currentUser = user;
+                updateAuthUI();
+            };
+
+            // Gọi thẳng API để không bị miss nếu hook đến trễ
+            async function initAuth() {
+                try {
+                    const res = await fetch('/api/v1/auth/me', {
+                        credentials: 'same-origin',
+                        headers: { Accept: 'application/json' }
+                    });
+                    if (res.ok) {
+                        const json = await res.json();
+                        if (json.data && json.data.user) {
+                            currentUser = json.data.user;
+                        } else if (json.user) {
+                            currentUser = json.user;
+                        }
+                    }
+                } catch (e) { /* không đăng nhập */ }
+                updateAuthUI();
+            }
+
+            function updateAuthUI() {
+                const loginArea = document.getElementById('loginPromptArea');
+                const commentArea = document.getElementById('commentFormArea');
+                if (currentUser) {
+                    if (loginArea) loginArea.style.display = 'none';
+                    if (commentArea) commentArea.style.display = 'block';
+                } else {
+                    if (loginArea) loginArea.style.display = 'block';
+                    if (commentArea) commentArea.style.display = 'none';
+                }
+            }
+
+            // ── Time ago ──────────────────────────────────────────────────────
+            function timeAgo(dateStr) {
+                const diff = (Date.now() - new Date(dateStr)) / 1000;
+                if (diff < 3600) return Math.floor(diff / 60) + ' phút trước';
+                if (diff < 86400) return Math.floor(diff / 3600) + ' giờ trước';
+                if (diff < 604800) return Math.floor(diff / 86400) + ' ngày trước';
+                return new Date(dateStr).toLocaleDateString('vi-VN');
+            }
+
+            function avatarLetter(name) {
+                return (name || '?').charAt(0).toUpperCase();
+            }
+            function avatarHtml(name, avatarUrl, sizeClass) {
+                const cls = 'comment-avatar' + (sizeClass ? ' ' + sizeClass : '');
+                const letter = (name || '?').charAt(0).toUpperCase();
+                if (avatarUrl) {
+                    return `<img src="${esc(avatarUrl)}" class="${cls}" style="object-fit:cover;border-radius:50%" alt="${esc(name)}" onerror="this.outerHTML=&quot;<div class=\\&quot;${cls}\\&quot;>${letter}</div>&quot;">`;
+                }
+                return `<div class="${cls}">${letter}</div>`;
+            }
+
+            // Khởi tạo auth ngay khi script chạy
+            initAuth();
+
+            // ── Load article ──────────────────────────────────────────────────
+            async function loadArticle() {
+                if (!newsId) { showNotFound(); return; }
+                try {
+                    const res = await fetch('/api/v1/news/' + newsId, { credentials: 'include' });
+                    const payload = await res.json();
+                    if (!payload.success || !payload.data.news) { showNotFound(); return; }
+
+                    newsData = payload.data.news;
+                    renderArticle(newsData);
+                    loadComments();
+                } catch (e) {
+                    showNotFound();
+                }
+            }
+
+            function renderArticle(n) {
+                document.title = n.title + ' | Pet Helper';
+                document.getElementById('bcTitle').textContent = n.title.length > 40 ? n.title.slice(0, 40) + '…' : n.title;
+
+                if (n.image) {
+                    const img = document.getElementById('articleImg');
+                    img.src = n.image;
+                    img.alt = n.title;
+                    img.style.display = 'block';
+                    document.getElementById('articleImgPlaceholder').style.display = 'none';
+                }
+
+                document.getElementById('articleCategory').textContent = CATEGORY_LABELS[n.category] || n.category;
+                document.getElementById('articleDate').textContent = '📅 ' + timeAgo(n.created_at);
+                document.getElementById('articleAuthor').textContent = '✍️ ' + (n.author_name || 'Ẩn danh');
+                document.getElementById('articleTitle').textContent = n.title;
+                document.getElementById('articleContent').textContent = n.content;
+
+                // Like & Follow buttons
+                updateLikeBtn(n.is_liked, n.like_count);
+                updateFollowBtn(n.is_followed, n.follow_count);
+                document.getElementById('actionCount').textContent = '👁 ' + (n.view_count || 0) + ' lượt xem · 💬 ' + (n.comment_count || 0);
+
+                document.getElementById('articleSkeleton').style.display = 'none';
+                document.getElementById('articleWrap').style.display = 'block';
+            }
+
+            function showNotFound() {
+                document.getElementById('articleSkeleton').style.display = 'none';
+                document.getElementById('articleNotFound').style.display = 'block';
+            }
+
+            // ── Like ──────────────────────────────────────────────────────────
+            function updateLikeBtn(liked, count) {
+                const btn = document.getElementById('btnLike');
+                btn.classList.toggle('liked', liked);
+                document.getElementById('likeLabel').textContent = 'Thích' + (count ? ' (' + count + ')' : '');
+            }
+
+            window.toggleLike = async function () {
+                if (!currentUser) {
+                    openOverlay('auth-overlay');
+                    if (typeof overlayActivateTab === 'function') overlayActivateTab('login');
+                    return;
+                }
+                try {
+                    const res = await fetch('/api/v1/news/' + newsId + '/like', { method: 'POST', credentials: 'include' });
+                    const payload = await res.json();
+                    if (!payload.success) return;
+                    const liked = payload.data.liked;
+                    const prevCount = newsData.like_count || 0;
+                    newsData.like_count = liked ? prevCount + 1 : Math.max(0, prevCount - 1);
+                    newsData.is_liked = liked;
+                    updateLikeBtn(liked, newsData.like_count);
+                } catch (e) { }
+            };
+
+            // ── Follow ────────────────────────────────────────────────────────
+            function updateFollowBtn(followed, count) {
+                const btn = document.getElementById('btnFollow');
+                btn.classList.toggle('followed', followed);
+                document.getElementById('followLabel').textContent = followed ? 'Đang quan tâm' : 'Quan tâm';
+            }
+
+            window.toggleFollow = async function () {
+                if (!currentUser) {
+                    openOverlay('auth-overlay');
+                    if (typeof overlayActivateTab === 'function') overlayActivateTab('login');
+                    return;
+                }
+                try {
+                    const res = await fetch('/api/v1/news/' + newsId + '/follow', { method: 'POST', credentials: 'include' });
+                    const payload = await res.json();
+                    if (!payload.success) return;
+                    newsData.is_followed = payload.data.followed;
+                    updateFollowBtn(newsData.is_followed);
+                } catch (e) { }
+            };
+
+            // ── Comments ──────────────────────────────────────────────────────
+            async function loadComments() {
+                try {
+                    const res = await fetch('/api/v1/news/' + newsId + '/comments', { credentials: 'include' });
+                    const payload = await res.json();
+                    if (!payload.success) return;
+                    renderComments(payload.data.comments || []);
+                } catch (e) { }
+            }
+
+            const COMMENT_MAX = 300;
+            const COLLAPSE_LEN = 150;
+
+            window.updateCharCounter = function (textareaId, counterId) {
+                const ta = document.getElementById(textareaId);
+                const el = document.getElementById(counterId);
+                if (!ta || !el) return;
+                const len = ta.value.length;
+                el.textContent = len + ' / ' + COMMENT_MAX;
+                el.className = 'char-counter' + (len > COMMENT_MAX * 0.9 ? (len >= COMMENT_MAX ? ' over' : ' warn') : '');
+            };
+
+            function renderComments(comments) {
+                document.getElementById('commentCount').textContent = comments.reduce((acc, c) => acc + 1 + (c.replies ? c.replies.length : 0), 0);
+                const list = document.getElementById('commentsList');
+                if (!comments.length) {
+                    list.innerHTML = '<div class="no-comments">Chưa có bình luận nào. Hãy là người đầu tiên! 💬</div>';
+                    return;
+                }
+                list.innerHTML = comments.map(c => renderCommentItem(c)).join('');
+            }
+
+            function renderContent(text) {
+                // Highlight @mention và xử lý xuống dòng
+                return esc(text)
+                    .replace(/@([^\s<]+)/g, '<span class="comment-mention">@$1</span>')
+                    .replace(/\n/g, '<br>');
+            }
+
+            function renderCommentItem(c) {
+                const isLong = (c.content || '').length > COLLAPSE_LEN;
+                const contentHtml = isLong
+                    ? `<div class="comment-content collapsed" id="ccontent${c.id}">${renderContent(c.content)}</div>
+                   <button class="comment-readmore" onclick="toggleReadMore(${c.id})">Xem thêm</button>`
+                    : `<div class="comment-content" id="ccontent${c.id}">${renderContent(c.content)}</div>`;
+
+                // Backend trả cây lồng nhau (nested replies) → cần flatten ra trước khi build lại
+                // Hàm flatten đệ quy: duyệt hết mọi cấp con cháu thành mảng phẳng
+                function flattenNested(arr) {
+                    const result = [];
+                    (arr || []).forEach(r => {
+                        result.push(r);
+                        if (r.replies && r.replies.length) {
+                            flattenNested(r.replies).forEach(x => result.push(x));
+                        }
+                    });
+                    return result;
+                }
+
+                const flatReplies = flattenNested(c.replies || []);
+                const replyMap = {}; // id → node
+                const level2 = []; // replies trực tiếp vào comment gốc
+
+                // Build map với field children (dùng nội bộ frontend)
+                flatReplies.forEach(r => { replyMap[r.id] = { ...r, children: [] }; });
+
+                // Phân loại: cấp 2 (parent là comment gốc) hoặc cấp 3+ (parent là reply)
+                flatReplies.forEach(r => {
+                    const node = replyMap[r.id];
+                    if (!r.parent_id || r.parent_id === c.id) {
+                        level2.push(node);
+                    } else if (replyMap[r.parent_id]) {
+                        replyMap[r.parent_id].children.push(node);
+                    } else {
+                        level2.push(node);
+                    }
+                });
+
+                const replyCount = flatReplies.length;
+                const repliesHtml = replyCount > 0
+                    ? `<button class="toggle-replies-btn" id="toggleReplies${c.id}" onclick="toggleReplies(${c.id})">▶ Xem ${replyCount} phản hồi</button>
+                   <div class="replies-wrap" id="repliesWrap${c.id}">
+                       <div class="replies-tree">
+                           ${level2.map(r => renderReplyItem(r, c.id, 2)).join('')}
+                       </div>
+                   </div>`
+                    : `<div class="replies-wrap open" id="repliesWrap${c.id}"><div class="replies-tree" id="repliesTree${c.id}"></div></div>`;
+
+                const replyInput = `
+                <div id="replyInput${c.id}" class="reply-input-wrap" style="display:none">
+                    <div class="reply-input-row">
+                        <textarea rows="2" placeholder="Trả lời ${esc(c.author_name)}..." maxlength="${COMMENT_MAX}"
+                            id="replyText${c.id}" oninput="updateCharCounter('replyText${c.id}','replyCount${c.id}')"></textarea>
+                        <button class="reply-submit-btn" onclick="submitComment(${c.id})">Gửi</button>
+                    </div>
+                    <div class="comment-input-footer">
+                        <span class="char-counter" id="replyCount${c.id}">0 / ${COMMENT_MAX}</span>
+                    </div>
+                </div>`;
+
+                return `
+                <div class="comment-item" id="comment${c.id}">
+                    <div class="comment-header">
+                        ${avatarHtml(c.author_name, c.author_avatar)}
+                        <span class="comment-author">${esc(c.author_name)}</span>
+                        <span class="comment-time">${timeAgo(c.created_at)}</span>
+                    </div>
+                    ${contentHtml}
+                    <div class="comment-actions">
+                        <button class="comment-like-btn ${c.is_liked ? 'liked' : ''}" id="clike${c.id}" onclick="toggleCommentLike(${c.id})">
+                            ❤️ ${c.like_count || 0}
+                        </button>
+                        <button class="comment-reply-btn" onclick="toggleReplyInput(${c.id})">↩ Trả lời</button>
+                    </div>
+                    ${replyInput}
+                    ${repliesHtml}
+                </div>`;
+            }
+
+            function renderReplyItem(r, rootId, depth) {
+                depth = depth || 2;
+
+                // Tách @mention ở đầu content → badge ↩ tên
+                const mentionMatch = (r.content || '').match(/^@([^\s]+)\s*/);
+                let mentionBadge = '';
+                let displayContent = r.content || '';
+                if (mentionMatch) {
+                    mentionBadge = `<span class="reply-mention-badge">↩ ${esc(mentionMatch[1])}</span>`;
+                    displayContent = r.content.slice(mentionMatch[0].length);
+                }
+
+                const children = r.children || [];
+                let subRepliesHtml = '';
+                if (children.length > 0) {
+                    const treeClass = depth >= 3 ? 'replies-tree replies-tree-flat' : 'replies-tree';
+                    const childrenHtml = children.map(child => renderReplyItem(child, rootId, Math.min(depth + 1, 3))).join('');
+                    if (depth === 2 && children.length >= 2) {
+                        // Cấp 2 có ≥2 con → có nút thu gọn riêng, mặc định collapsed
+                        const subId = 'sub' + r.id;
+                        subRepliesHtml = `
+                        <div class="sub-thread-wrap collapsed" id="${subId}">
+                            <button class="sub-thread-toggle" onclick="toggleSubThread('${subId}', ${children.length})">
+                                <span class="arrow">▼</span>
+                                <span class="label">Xem ${children.length} phản hồi</span>
+                            </button>
+                            <div class="${treeClass} sub-thread-items">${childrenHtml}</div>
+                        </div>`;
+                    } else {
+                        // Chỉ 1 con hoặc cấp 3+ → hiện thẳng
+                        subRepliesHtml = `<div class="${treeClass}">${childrenHtml}</div>`;
+                    }
+                }
+
+                // Bubble: mention badge + content (+ xem thêm nếu dài)
+                const isLong = displayContent.length > COLLAPSE_LEN;
+                const bubbleInner = isLong
+                    ? `${mentionBadge}<div id="ccontent${r.id}" style="-webkit-line-clamp:3;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;">${renderContent(displayContent)}</div>
+                   <button class="comment-readmore" onclick="toggleReadMore(${r.id})">Xem thêm</button>`
+                    : `${mentionBadge}<div id="ccontent${r.id}">${renderContent(displayContent)}</div>`;
+
+                return `
+                <div class="reply-node" id="comment${r.id}">
+                    <div class="reply-content">
+                        <div class="comment-header">
+                            ${avatarHtml(r.author_name, r.author_avatar, 'sm')}
+                            <span class="comment-author">${esc(r.author_name)}</span>
+                            <span class="comment-time">${timeAgo(r.created_at)}</span>
+                        </div>
+                        <div class="reply-bubble">${bubbleInner}</div>
+                        <div class="comment-actions">
+                            <button class="comment-like-btn ${r.is_liked ? 'liked' : ''}" id="clike${r.id}" onclick="toggleCommentLike(${r.id})">
+                                ❤️ ${r.like_count || 0}
+                            </button>
+                            <button class="comment-reply-btn" onclick="replyToReply(${rootId}, '${esc(r.author_name)}', ${r.id})">↩ Trả lời</button>
+                        </div>
+                        ${subRepliesHtml}
+                    </div>
+                </div>`;
+            }
+
+            function esc(str) {
+                return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            }
+
+            window.toggleReadMore = function (commentId) {
+                const el = document.getElementById('ccontent' + commentId);
+                const btn = el ? el.nextElementSibling : null;
+                if (!el || !btn) return;
+                const collapsed = el.classList.toggle('collapsed');
+                btn.textContent = collapsed ? 'Xem thêm' : 'Thu gọn';
+            };
+
+            // Toggle sub-thread của 1 reply cấp 2
+            window.toggleSubThread = function (subId, count) {
+                const wrap = document.getElementById(subId);
+                if (!wrap) return;
+                const isCollapsed = wrap.classList.toggle('collapsed');
+                const label = wrap.querySelector('.label');
+                if (label) label.textContent = isCollapsed ? `Xem ${count} phản hồi` : 'Thu gọn';
+            };
+
+            window.toggleReplies = function (commentId) {
+                const wrap = document.getElementById('repliesWrap' + commentId);
+                const btn = document.getElementById('toggleReplies' + commentId);
+                if (!wrap || !btn) return;
+                const isOpen = wrap.classList.toggle('open');
+                const count = wrap.querySelectorAll('.reply-node').length;
+                btn.textContent = isOpen ? ('▼ Ẩn phản hồi') : ('▶ Xem ' + count + ' phản hồi');
+            };
+
+            // Reply vào reply → mở ô reply của comment gốc + điền @tên + lưu replyId để submit đúng parent
+            window.replyToReply = function (rootCommentId, mentionName, replyId) {
+                if (!currentUser) {
+                    openOverlay('auth-overlay');
+                    if (typeof overlayActivateTab === 'function') overlayActivateTab('login');
+                    return;
+                }
+                const wrap = document.getElementById('repliesWrap' + rootCommentId);
+                if (wrap && !wrap.classList.contains('open')) toggleReplies(rootCommentId);
+                const el = document.getElementById('replyInput' + rootCommentId);
+                if (!el) return;
+                el.style.display = 'flex';
+                el.style.flexDirection = 'column';
+                // Lưu replyId vào dataset để submitComment biết parent_id thực sự
+                el.dataset.replyParentId = replyId || '';
+                const ta = document.getElementById('replyText' + rootCommentId);
+                if (ta) {
+                    ta.value = '@' + mentionName + ' ';
+                    ta.focus();
+                    ta.setSelectionRange(ta.value.length, ta.value.length);
+                    updateCharCounter('replyText' + rootCommentId, 'replyCount' + rootCommentId);
+                }
+            };
+
+            // ── Submit comment ────────────────────────────────────────────────
+            window.submitComment = async function (parentId) {
+                if (!currentUser) {
+                    openOverlay('auth-overlay');
+                    if (typeof overlayActivateTab === 'function') overlayActivateTab('login');
+                    return;
+                }
+                const input = parentId
+                    ? document.getElementById('replyText' + parentId)
+                    : document.getElementById('commentInput');
+                const content = input ? input.value.trim() : '';
+                if (!content || content.length > COMMENT_MAX) return;
+
+                try {
+                    const body = { content };
+                    if (parentId) {
+                        // Nếu đang reply vào reply (replyParentId được set), dùng id đó
+                        const inputWrap = document.getElementById('replyInput' + parentId);
+                        const replyParentId = inputWrap && inputWrap.dataset.replyParentId
+                            ? Number(inputWrap.dataset.replyParentId)
+                            : parentId;
+                        body.parent_id = replyParentId;
+                        // Reset sau khi dùng
+                        if (inputWrap) delete inputWrap.dataset.replyParentId;
+                    }
+                    const res = await fetch('/api/v1/news/' + newsId + '/comments', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify(body),
+                    });
+                    const payload = await res.json();
+                    if (!payload.success) return;
+                    input.value = '';
+                    if (parentId) {
+                        document.getElementById('replyInput' + parentId).style.display = 'none';
+                        updateCharCounter('replyText' + parentId, 'replyCount' + parentId);
+                    } else {
+                        updateCharCounter('commentInput', 'commentCharCount');
+                    }
+                    loadComments();
+                } catch (e) { }
+            };
+
+            // ── Toggle reply input ────────────────────────────────────────────
+            window.toggleReplyInput = function (commentId) {
+                if (!currentUser) {
+                    openOverlay('auth-overlay');
+                    if (typeof overlayActivateTab === 'function') overlayActivateTab('login');
+                    return;
+                }
+                const el = document.getElementById('replyInput' + commentId);
+                if (!el) return;
+                const isOpen = el.style.display !== 'none';
+                el.style.display = isOpen ? 'none' : 'flex';
+                el.style.flexDirection = 'column';
+                if (!isOpen) document.getElementById('replyText' + commentId).focus();
+            };
+
+            // ── Like comment ──────────────────────────────────────────────────
+            window.toggleCommentLike = async function (commentId) {
+                if (!currentUser) {
+                    openOverlay('auth-overlay');
+                    if (typeof overlayActivateTab === 'function') overlayActivateTab('login');
+                    return;
+                }
+                try {
+                    const res = await fetch('/api/v1/news/comments/' + commentId + '/like', {
+                        method: 'POST', credentials: 'include'
+                    });
+                    const payload = await res.json();
+                    if (!payload.success) return;
+                    const btn = document.getElementById('clike' + commentId);
+                    if (!btn) return;
+                    const liked = payload.data.liked;
+                    const prev = parseInt(btn.textContent.replace(/\D/g, '')) || 0;
+                    btn.textContent = '❤️ ' + (liked ? prev + 1 : Math.max(0, prev - 1));
+                    btn.classList.toggle('liked', liked);
+                } catch (e) { }
+            };
+
+            // ── Init ──────────────────────────────────────────────────────────
+            loadArticle();
+        })();
+    </script>
+    <!-- Google Translate engine -->
+    <div id="google_translate_element" style="display:none"></div>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ pageLanguage: 'vi', includedLanguages: 'vi,en,zh-TW,ja', autoDisplay: false }, 'google_translate_element');
+        }
+        function setLang(lang, label) {
+            document.getElementById('langBtnLabel').textContent = label;
+            document.querySelectorAll('.lang-option').forEach(function (el) {
+                el.classList.toggle('active', el.dataset.lang === (lang === 'vi' ? 'vi' : lang.replace('/', '')));
+            });
+            document.getElementById('langDropdown').classList.remove('open');
+            if (lang === 'vi') {
+                document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname;
+                location.reload(); return;
+            }
+            var val = '/vi' + lang;
+            document.cookie = 'googtrans=' + val + '; path=/';
+            document.cookie = 'googtrans=' + val + '; path=/; domain=' + location.hostname;
+            location.reload();
+        }
+        function toggleLangDropdown(e) {
+            e.stopPropagation();
+            document.getElementById('langDropdown').classList.toggle('open');
+        }
+        document.addEventListener('click', function () {
+            var dd = document.getElementById('langDropdown');
+            if (dd) dd.classList.remove('open');
+        });
+        (function () {
+            var m = document.cookie.match(/googtrans=\/vi\/([^;]+)/);
+            if (!m) return;
+            var map = { 'en': 'EN', 'zh-TW': '中文', 'ja': '日本語' };
+            if (map[m[1]]) {
+                document.getElementById('langBtnLabel').textContent = map[m[1]];
+                document.querySelectorAll('.lang-option').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.lang === m[1]);
+                });
+            }
+        })();
+    </script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+
+</html>

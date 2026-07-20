@@ -1,0 +1,987 @@
+openapi: 3.0.0
+info:
+  title: Pet Helper API Documentation
+  version: 1.0.0
+  description: Tài liệu API cho dự án Pet Helper. Hỗ trợ xác thực bằng JWT.
+servers:
+  - url: http://localhost:3000
+    description: Local Development Server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: Đã xảy ra lỗi
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+    description: Authentication API
+  - name: Admin
+    description: Admin management API
+  - name: Pets
+    description: Pets management API
+  - name: PetSnap
+    description: PetSnap interactions API
+  - name: Favorites
+    description: User favorite pets management API
+  - name: AdoptionRequests
+    description: Adoption requests management API
+  - name: News
+    description: News and Articles API
+  - name: Reports
+    description: Reports management API
+  - name: Orders
+    description: E-commerce Orders API
+  - name: Products
+    description: E-commerce Products API
+  - name: Reviews
+    description: Product reviews management API
+
+paths:
+  # --- Auth ---
+  /api/v1/auth/register:
+    post:
+      summary: Register a new user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password, email]
+              properties:
+                username: { type: string }
+                password: { type: string }
+                email: { type: string }
+                phone: { type: string }
+      responses:
+        201: { description: User registered successfully }
+        400: { description: Invalid input }
+
+  /api/v1/auth/login:
+    post:
+      summary: Login user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string }
+        401: { description: Unauthorized }
+
+  /api/v1/auth/logout:
+    post:
+      summary: Logout user
+      tags: [Auth]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: Logout successful }
+
+  /api/v1/auth/me:
+    get:
+      summary: Get current user info
+      tags: [Auth]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: User details }
+        401: { description: Unauthorized }
+
+  /api/v1/auth/profile:
+    patch:
+      summary: Update profile
+      tags: [Auth]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        200: { description: Profile updated }
+
+  /api/v1/auth/avatar:
+    post:
+      summary: Upload avatar
+      tags: [Auth]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar: { type: string, format: binary }
+      responses:
+        200: { description: Avatar uploaded }
+
+  /api/v1/auth/background:
+    post:
+      summary: Upload background
+      tags: [Auth]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                background: { type: string, format: binary }
+      responses:
+        200: { description: Background uploaded }
+
+  # --- Admin ---
+  /api/v1/admin/users:
+    get:
+      summary: Get all users
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: List of users }
+
+  /api/v1/admin/users/{id}/role:
+    patch:
+      summary: Update user role
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role: { type: integer }
+      responses:
+        200: { description: User role updated }
+
+  /api/v1/admin/users/{id}/status:
+    patch:
+      summary: Update user status
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: integer }
+      responses:
+        200: { description: User status updated }
+
+  /api/v1/admin/reports:
+    get:
+      summary: Get all reports
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: List of reports }
+
+  /api/v1/admin/reports/{id}:
+    patch:
+      summary: Handle report (resolve/reject/ban)
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action: { type: string }
+      responses:
+        200: { description: Report handled }
+
+  /api/v1/admin/housing-reviews/{id}/status:
+    patch:
+      summary: Approve or reject a housing review
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [approved, rejected]
+                admin_notes:
+                  type: string
+      responses:
+        200: { description: Housing review status updated }
+
+  /api/v1/admin/shelters/{id}/status:
+    patch:
+      summary: Approve or reject a shelter
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [approved, rejected]
+                admin_notes:
+                  type: string
+      responses:
+        200: { description: Shelter status updated }
+
+  # --- Pets ---
+  /api/v1/pets:
+    get:
+      summary: Get all pets
+      tags: [Pets]
+      responses:
+        200: { description: List of pets }
+    post:
+      summary: Create a new pet
+      tags: [Pets]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image: { type: string, format: binary }
+                name: { type: string }
+                type: { type: string }
+      responses:
+        201: { description: Pet created }
+
+  /api/v1/pets/{id}:
+    get:
+      summary: Get pet details
+      tags: [Pets]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Pet details }
+        404: { description: Pet not found }
+    patch:
+      summary: Update a pet
+      tags: [Pets]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image: { type: string, format: binary }
+                name: { type: string }
+                type: { type: string }
+      responses:
+        200: { description: Pet updated }
+    delete:
+      summary: Delete a pet
+      tags: [Pets]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Pet deleted }
+
+  /api/v1/pets/{id}/like:
+    post:
+      summary: Like a pet
+      tags: [Pets]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Pet liked }
+
+  # --- PetSnap ---
+  /api/v1/pet-snap:
+    get:
+      summary: Get next pet snap
+      tags: [PetSnap]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: Next pet snap }
+
+  /api/v1/pet-snap/{id}/like:
+    post:
+      summary: Like a pet snap
+      tags: [PetSnap]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Pet snap liked }
+
+  /api/v1/pet-snap/{id}/dislike:
+    post:
+      summary: Dislike a pet snap
+      tags: [PetSnap]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Pet snap disliked }
+
+  # --- Favorites ---
+  /api/v1/favorites/{petId}:
+    post:
+      summary: Add pet to favorites
+      tags: [Favorites]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: petId
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Pet added to favorites }
+    delete:
+      summary: Remove pet from favorites
+      tags: [Favorites]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: petId
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Pet removed from favorites }
+
+  /api/v1/favorites/my:
+    get:
+      summary: Get my favorite pets
+      tags: [Favorites]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: List of favorite pets }
+
+  # --- AdoptionRequests ---
+  /api/v1/adoption-requests:
+    post:
+      summary: Create an adoption request
+      tags: [AdoptionRequests]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [petId, note]
+              properties:
+                petId: { type: string }
+                note: { type: string }
+      responses:
+        201: { description: Adoption request created }
+
+  /api/v1/adoption-requests/my:
+    get:
+      summary: Get my adoption requests
+      tags: [AdoptionRequests]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: List of my adoption requests }
+
+  /api/v1/adoption-requests/admin:
+    get:
+      summary: Get all adoption requests for admin
+      tags: [AdoptionRequests]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: List of adoption requests }
+
+  /api/v1/adoption-requests/{id}/status:
+    patch:
+      summary: Update adoption request status
+      tags: [AdoptionRequests]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: integer }
+      responses:
+        200: { description: Adoption request status updated }
+
+  # --- News ---
+  /api/v1/news:
+    get:
+      summary: Get public news
+      tags: [News]
+      responses:
+        200: { description: List of news }
+    post:
+      summary: Submit new news article
+      tags: [News]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image: { type: string, format: binary }
+                title: { type: string }
+                content: { type: string }
+      responses:
+        201: { description: News submitted }
+
+  /api/v1/news/featured:
+    get:
+      summary: Get featured news
+      tags: [News]
+      responses:
+        200: { description: List of featured news }
+
+  /api/v1/news/my:
+    get:
+      summary: Get my news
+      tags: [News]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: List of my news }
+
+  /api/v1/news/followed:
+    get:
+      summary: Get followed news
+      tags: [News]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: List of followed news }
+
+  /api/v1/news/comments/{commentId}/like:
+    post:
+      summary: Like a comment
+      tags: [News]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: commentId
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Comment liked }
+
+  /api/v1/news/{id}:
+    get:
+      summary: Get news by id
+      tags: [News]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: News details }
+
+  /api/v1/news/{id}/comments:
+    get:
+      summary: Get comments for news
+      tags: [News]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: List of comments }
+    post:
+      summary: Add a comment to news
+      tags: [News]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content: { type: string }
+      responses:
+        201: { description: Comment added }
+
+  /api/v1/news/{id}/like:
+    post:
+      summary: Toggle news like
+      tags: [News]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Like toggled }
+
+  /api/v1/news/{id}/follow:
+    post:
+      summary: Toggle news follow
+      tags: [News]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Follow toggled }
+
+  /api/v1/admin/news:
+    get:
+      summary: Get all news (Admin)
+      tags: [News]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: List of all news }
+
+  /api/v1/admin/news/{id}/status:
+    patch:
+      summary: Update news status (Admin)
+      tags: [News]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: integer }
+      responses:
+        200: { description: Status updated }
+
+  /api/v1/admin/news/{id}:
+    delete:
+      summary: Delete news (Admin)
+      tags: [News]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: News deleted }
+
+  # --- Reports ---
+  /api/v1/reports:
+    post:
+      summary: Submit a new report
+      tags: [Reports]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items: { type: string, format: binary }
+                description: { type: string }
+                type: { type: string }
+      responses:
+        201: { description: Report submitted }
+    get:
+      summary: Get public reports
+      tags: [Reports]
+      responses:
+        200: { description: List of public reports }
+
+  /api/v1/reports/my:
+    get:
+      summary: Get my reports
+      tags: [Reports]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: List of my reports }
+
+  /api/v1/admin/reports:
+    get:
+      summary: Get all reports (Admin)
+      tags: [Reports]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: List of all reports }
+
+  /api/v1/admin/reports/{id}/status:
+    patch:
+      summary: Update report status (Admin)
+      tags: [Reports]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: integer }
+      responses:
+        200: { description: Report status updated }
+
+  /api/v1/admin/reports/{id}/revert:
+    patch:
+      summary: Revert report status (Admin)
+      tags: [Reports]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Report status reverted }
+
+  /api/v1/admin/reports/{id}:
+    delete:
+      summary: Delete report (Admin)
+      tags: [Reports]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Report deleted }
+
+  # --- Orders ---
+  /api/v1/orders:
+    post:
+      summary: Create an order
+      tags: [Orders]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer: { type: object }
+                items:
+                  type: array
+                  items: { type: object }
+      responses:
+        200: { description: Order created }
+    get:
+      summary: Get all orders (Admin)
+      tags: [Orders]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: List of all orders }
+
+  /api/v1/orders/my:
+    get:
+      summary: Get my orders
+      tags: [Orders]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: List of my orders }
+
+  /api/v1/orders/my/{id}/detail:
+    get:
+      summary: Get my order details
+      tags: [Orders]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Order details }
+
+  /api/v1/orders/user/{user_id}:
+    get:
+      summary: Get orders by user id
+      tags: [Orders]
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: List of user orders }
+
+  /api/v1/orders/{id}:
+    put:
+      summary: Update order status
+      tags: [Orders]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string }
+      responses:
+        200: { description: Order updated }
+
+  /api/v1/orders/admin/session/start:
+    post:
+      summary: Start admin session
+      tags: [Orders]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: Session started }
+
+  # --- Products ---
+  /api/v1/products:
+    get:
+      summary: Get all products
+      tags: [Products]
+      parameters:
+        - in: query
+          name: category
+          schema: { type: string }
+        - in: query
+          name: search
+          schema: { type: string }
+      responses:
+        200: { description: List of products }
+    post:
+      summary: Add product
+      tags: [Products]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: Product added }
+
+  /api/v1/products/{id}:
+    get:
+      summary: Get product details
+      tags: [Products]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Product details }
+
+  /api/v1/products/{id}/like-status:
+    get:
+      summary: Check like status
+      tags: [Products]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: user_id
+          schema: { type: string }
+      responses:
+        200: { description: Like status }
+
+  /api/v1/products/{id}/like:
+    post:
+      summary: Toggle like for a product
+      tags: [Products]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Like toggled }
+
+  /api/v1/products/admin/all:
+    get:
+      summary: Get all products (Admin)
+      tags: [Products]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200: { description: List of all products }
+
+  # --- Reviews ---
+  /api/v1/reviews:
+    post:
+      summary: Add a review
+      tags: [Reviews]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id: { type: integer }
+                user_id: { type: integer }
+                rating: { type: integer }
+                comment: { type: string }
+      responses:
+        200: { description: Review added }
+
+  /api/v1/reviews/{product_id}:
+    get:
+      summary: Get reviews for a product
+      tags: [Reviews]
+      parameters:
+        - in: path
+          name: product_id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: List of reviews }
+
+  /api/v1/reviews/like/{review_id}:
+    post:
+      summary: Like a review
+      tags: [Reviews]
+      parameters:
+        - in: path
+          name: review_id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id: { type: integer }
+      responses:
+        200: { description: Liked review }
+
+  /api/v1/reviews/admin/all:
+    get:
+      summary: Get all reviews (Admin)
+      tags: [Reviews]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: product_id
+          schema: { type: integer }
+        - in: query
+          name: rating
+          schema: { type: string }
+      responses:
+        200: { description: List of all reviews }
+
+  /api/v1/reviews/admin/{id}:
+    delete:
+      summary: Delete a review (Admin)
+      tags: [Reviews]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Review deleted }

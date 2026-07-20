@@ -1,0 +1,20 @@
+@startuml
+left to right direction
+actor User
+
+
+  (Mua đồ chơi/phụ kiện) as shop
+  (Xác thực người dùng) as auth
+  (Quản lý giỏ hàng) as cart
+  (Thanh toán) as payment
+  (Lưu đơn hàng) as save
+
+  shop --> auth : <<include>>
+  shop --> cart : <<include>>
+  shop --> payment : <<include>>
+  shop --> save : <<include>>
+
+
+User --> shop
+
+@enduml

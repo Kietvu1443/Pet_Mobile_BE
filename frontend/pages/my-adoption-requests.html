@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yêu Cầu Nhận Nuôi Của Tôi - Pet Helper</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/auth.css">
+    <link rel="stylesheet" href="/stylesheets/staticHeader.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .page-wrap {
+            background: #f4fbf7;
+            min-height: calc(100vh - 140px);
+            padding: 36px 16px;
+        }
+
+        .my-adoption-container {
+            max-width: 1040px;
+            margin: 0 auto;
+        }
+
+        .my-adoption-header {
+            margin-bottom: 18px;
+        }
+
+        .my-adoption-header h1 {
+            margin: 0 0 8px;
+            color: #1f5133;
+        }
+
+        .my-adoption-header p {
+            margin: 0;
+            color: #5f6f67;
+        }
+
+        .status-note {
+            display: none;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .status-note.warning {
+            display: block;
+            background: #fff7ed;
+            color: #9a3412;
+        }
+
+        .status-note.error {
+            display: block;
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .status-note.success {
+            display: block;
+            background: #ecfdf3;
+            color: #166534;
+        }
+
+        .request-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 18px;
+        }
+
+        .request-card {
+            background: #fff;
+            border: 1px solid #e5efe8;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(14, 54, 34, 0.05);
+        }
+
+        .request-card img {
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+            background: #f3f4f6;
+        }
+
+        .request-card-body {
+            padding: 14px;
+        }
+
+        .request-card h3 {
+            margin: 0 0 6px;
+            color: #1f5133;
+            font-size: 1.07rem;
+        }
+
+        .request-meta {
+            margin: 0 0 10px;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .request-message {
+            margin: 0;
+            color: #1f2937;
+            font-size: 0.95rem;
+            line-height: 1.45;
+        }
+
+        .request-footer {
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .request-status {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .request-status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .request-status.approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .request-status.rejected {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .request-date {
+            color: #64748b;
+            font-size: 0.82rem;
+        }
+
+        .empty-box {
+            display: none;
+            background: #fff;
+            border: 1px dashed #b9d2c0;
+            border-radius: 14px;
+            padding: 36px 20px;
+            text-align: center;
+            color: #5f6f67;
+        }
+
+        .empty-box.show {
+            display: block;
+        }
+
+        .loading-box {
+            background: #e8f5ec;
+            color: #1f5133;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        /* ── Return button ─────────────────────── */
+        .btn-return {
+            margin-top: 10px;
+            width: 100%;
+            padding: 8px 12px;
+            background: #fff7ed;
+            border: 1.5px solid #f59e0b;
+            color: #92400e;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: background 0.18s;
+        }
+        .btn-return:hover { background: #fef3c7; }
+        .btn-return:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+        .return-pending-label {
+            margin-top: 10px;
+            display: block;
+            text-align: center;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #b45309;
+            background: #fef3c7;
+            padding: 5px 8px;
+            border-radius: 6px;
+        }
+        .return-completed-label {
+            margin-top: 10px;
+            display: block;
+            text-align: center;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #166534;
+            background: #dcfce7;
+            padding: 5px 8px;
+            border-radius: 6px;
+        }
+
+        /* ── Timeline ──────────────────────────── */
+        .timeline {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            margin-top: 10px;
+            margin-bottom: 4px;
+        }
+        .tl-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        .tl-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: #d1d5db;
+            z-index: 0;
+        }
+        .tl-step.done:not(:last-child)::after { background: #22c55e; }
+        .tl-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #d1d5db;
+            margin: 0 auto 4px;
+            position: relative;
+            z-index: 1;
+        }
+        .tl-step.done .tl-dot { background: #22c55e; }
+        .tl-step.active .tl-dot { background: #f59e0b; box-shadow: 0 0 0 3px #fef3c7; }
+        .tl-step.rejected .tl-dot, .tl-step.cancelled .tl-dot { background: #ef4444; }
+        .tl-label { font-size: 0.68rem; color: #6b7280; line-height: 1.2; }
+        .tl-step.done .tl-label { color: #166534; font-weight: 600; }
+        .tl-step.active .tl-label { color: #92400e; font-weight: 700; }
+        .tl-step.rejected .tl-label, .tl-step.cancelled .tl-label { color: #b91c1c; font-weight: 700; }
+
+        /* ── Modal ─────────────────────────────── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.5);
+            z-index: 1200;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-box {
+            background: #fff;
+            border-radius: 16px;
+            width: 540px;
+            max-width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+        }
+        .modal-header-r {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .modal-header-r h2 { margin: 0; font-size: 1.1rem; color: #1f5133; }
+        .modal-body-r { padding: 20px; }
+        .modal-footer-r {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            padding: 14px 20px;
+            border-top: 1px solid #e5e7eb;
+            background: #f9fafb;
+            border-radius: 0 0 16px 16px;
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            box-sizing: border-box;
+        }
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #22c55e;
+        }
+        .image-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .image-preview-item {
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            background: #f3f4f6;
+            position: relative;
+        }
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .char-count {
+            font-size: 0.78rem;
+            color: #9ca3af;
+            text-align: right;
+            margin-top: 3px;
+        }
+        .btn-modal-cancel {
+            border: 1px solid #d1d5db;
+            background: #fff;
+            color: #374151;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-modal-submit {
+            background: #1f5133;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        .btn-modal-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+        .notice-box {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            color: #92400e;
+            margin-bottom: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="top-bar">
+            <a href="/" class="logo-group">
+                <div class="logo-circle">
+                    <img src="/images/the_logo.webp" alt="logo" id="the_logo">
+                </div>
+                <div class="web-name">PET HELPER</div>
+            </a>
+            <div class="user-actions">
+                <div class="auth-user-actions is-auth-hidden" id="headerAuthUserState">
+                    <div class="user-dropdown" id="headerUserDropdown">
+                        <span id="userDropdownBtn" style="cursor: pointer;">
+                            <span id="headerDisplayNameText">Tài khoản</span> ▼
+                        </span>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-header">
+                                <strong id="headerDropdownDisplayName">Tài khoản</strong>
+                                <span class="user-role" id="headerUserRole">👤 User</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="/profile" class="dropdown-item">👤 Tài khoản</a>
+                            <a href="/favorites" class="dropdown-item">❤️ Thú cưng đã yêu thích</a>
+                            <a href="/my-reports" class="dropdown-item">📋 Báo cáo của tôi</a>
+                            <a href="/my-adoption-requests" class="dropdown-item">🏠 Yêu cầu nhận nuôi</a>
+                            <a href="/adopt/admin/add" class="dropdown-item role-staff-only is-auth-hidden">🐾 Thêm thú
+                                cưng</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item logout" id="logoutBtn" onclick="handleLogout(event)">🚪
+                                Đăng xuất</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-guest-actions is-auth-visible" id="headerAuthGuestState">
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('login'); } return false;"><span>Đăng
+                            nhập</span></a>
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('register'); } return false;"><span>Đăng
+                            ký</span></a>
+                </div>
+                <span>Giỏ hàng <span id="cart-count-display">(0)</span></span>
+                <span class="lang-switch">VN / EN</span>
+            </div>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Mở menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+
+        <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+
+        <nav class="main-nav" id="mainNav">
+            <button class="mobile-nav-close" id="mobileNavClose" aria-label="Đóng menu">✕</button>
+            <ul>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Nhận nuôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/adopt">Xem vật nuôi có thể nhận nuôi</a></li>
+                        <li><a href="/snap" style="color: #ea580c; font-weight: bold;">PetSnap(Tìm kiếm thú cưng ngẫu
+                                hứng!)</a></li>
+                    </ul>
+                </li>
+                <li><a href="/reports">Thất lạc</a></li>
+                <li><a href="/about">Về chúng tôi</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="auth-overlay-mount"></div>
+    <script src="/javascripts/authOverlayLoader.js" defer></script>
+
+    <main class="page-wrap">
+        <section class="my-adoption-container">
+            <div class="my-adoption-header">
+                <h1>Yêu Cầu Nhận Nuôi Của Tôi</h1>
+                <p>Theo dõi tình trạng các yêu cầu nhận nuôi bạn đã gửi. Nhấn <strong>"Trả thú cưng"</strong> nếu không thể tiếp tục nuôi.</p>
+            </div>
+
+            <div id="statusNote" class="status-note"></div>
+            <div id="loadingBox" class="loading-box">Đang tải danh sách yêu cầu nhận nuôi...</div>
+            <div id="emptyBox" class="empty-box">Bạn chưa gửi yêu cầu nhận nuôi nào.</div>
+            <div id="requestList" class="request-list"></div>
+        </section>
+    </main>
+
+    <!-- ══ Modal: Gửi yêu cầu trả thú cưng ══ -->
+    <div class="modal-overlay" id="returnModal">
+        <div class="modal-box">
+            <div class="modal-header-r">
+                <h2>🐾 Gửi yêu cầu trả thú cưng</h2>
+                <button class="btn-modal-cancel" id="closeReturnModal">✕</button>
+            </div>
+            <div class="modal-body-r">
+                <div class="notice-box">
+                    ⚠️ Yêu cầu sẽ được trạm xét duyệt online trước, sau đó hẹn lịch bàn giao thực tế. Vui lòng cung cấp thông tin chính xác và trung thực.
+                </div>
+                <div class="form-group">
+                    <label for="returnReason">Lý do trả *</label>
+                    <select id="returnReason">
+                        <option value="">-- Chọn lý do --</option>
+                        <option value="financial">💰 Tài chính khó khăn</option>
+                        <option value="allergy">🤧 Dị ứng với thú cưng</option>
+                        <option value="housing">🏠 Thay đổi nơi ở / không được nuôi</option>
+                        <option value="behavior">🐕 Hành vi khó kiểm soát</option>
+                        <option value="medical">🏥 Sức khỏe cá nhân</option>
+                        <option value="other">📝 Lý do khác</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="returnDetail">Mô tả chi tiết * <span style="font-weight:400;color:#9ca3af">(10-1000 ký tự)</span></label>
+                    <textarea id="returnDetail" rows="4" maxlength="1000" placeholder="Vui lòng mô tả chi tiết lý do bạn không thể tiếp tục nuôi thú cưng..."></textarea>
+                    <div class="char-count"><span id="returnDetailCount">0</span>/1000</div>
+                </div>
+                <div class="form-group">
+                    <label>Ảnh minh chứng thực tế <span style="font-weight:400;color:#9ca3af">(1-3 ảnh, tối đa 5MB/ảnh)</span></label>
+                    <input type="file" id="returnImages" accept="image/*" multiple style="display:none">
+                    <button type="button" onclick="document.getElementById('returnImages').click()" style="padding:7px 14px;border:1.5px dashed #d1d5db;border-radius:8px;background:#f9fafb;cursor:pointer;font-size:0.88rem;">📷 Chọn ảnh</button>
+                    <div class="image-preview-grid" id="imagePreviewGrid"></div>
+                </div>
+            </div>
+            <div class="modal-footer-r">
+                <button class="btn-modal-cancel" id="cancelReturnModal">Hủy</button>
+                <button class="btn-modal-submit" id="submitReturnBtn">Gửi yêu cầu trả</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="/" class="logo">
+                    <span style="font-size: 1.5rem;">🐾</span>
+                    <span>Pet Helper</span>
+                </a>
+                <p>Nền tảng hỗ trợ và bảo vệ vật nuôi hàng đầu Việt Nam. Cùng nhau xây dựng cộng đồng yêu thương động
+                    vật - Green Project 2026.</p>
+            </div>
+
+            <div class="footer-links">
+                <h4>Dịch vụ</h4>
+                <ul>
+                    <li><a href="/adopt">Nhận nuôi thú cưng</a></li>
+                    <li><a href="/reports">Báo cáo thất lạc</a></li>
+                    <li><a href="/shop">Cửa hàng</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Liên hệ</h4>
+                <ul>
+                    <li>📧 support@pethelper.vn</li>
+                    <li>📞 1900-XXXX</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 Pet Helper Green Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/javascripts/staticHeader.js"></script>
+    <script src="/javascripts/staticFooter.js"></script>
+
+    <script>
+        const statusNote = document.getElementById('statusNote');
+        const loadingBox = document.getElementById('loadingBox');
+        const emptyBox = document.getElementById('emptyBox');
+        const requestList = document.getElementById('requestList');
+
+        const statusLabels = {
+            pending: 'Chờ duyệt',
+            approved: 'Đã duyệt',
+            rejected: 'Đã từ chối',
+        };
+
+        // ── Timeline helper ──────────────────────────────────────────────────
+        const TIMELINE_STEPS = [
+            { key: 'pending', label: 'Đã gửi' },
+            { key: 'approved_online', label: 'Duyệt online' },
+            { key: 'completed', label: 'Hoàn tất' },
+        ];
+        const TERMINAL_NEGATIVE = { rejected: 'Từ chối', cancelled: 'Đã hủy' };
+
+        const buildTimeline = (returnRecord) => {
+            if (!returnRecord) return '';
+            const st = returnRecord.status;
+            if (st === 'rejected' || st === 'cancelled') {
+                return `<div class="timeline"><div class="tl-step ${st}"><div class="tl-dot"></div><div class="tl-label">${TERMINAL_NEGATIVE[st]}</div></div></div>`;
+            }
+            const stepOrder = ['pending','approved_online','completed'];
+            const currentIdx = stepOrder.indexOf(st);
+            return `<div class="timeline">${TIMELINE_STEPS.map((s, i) => {
+                let cls = '';
+                if (i < currentIdx) cls = 'done';
+                else if (i === currentIdx) cls = 'active';
+                return `<div class="tl-step ${cls}"><div class="tl-dot"></div><div class="tl-label">${s.label}</div></div>`;
+            }).join('')}</div>`;
+        };
+
+        const escapeHtml = (value) => String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
+        // ── Return request cache (petId -> return record) ─────────────────────
+        let myReturnMap = {}; // key: pet_id, value: {status}
+
+        async function loadMyReturns() {
+            try {
+                const res = await fetch('/api/v1/pet-returns/my', {
+                    credentials: 'same-origin',
+                    headers: { Accept: 'application/json' },
+                });
+                if (!res.ok) return;
+                const payload = await res.json();
+                const returns = payload?.data?.returns || [];
+                myReturnMap = {};
+                returns.forEach(r => { myReturnMap[r.pet_id] = r; });
+            } catch (_) {}
+        }
+
+        const setNote = (type, message) => {
+            statusNote.className = 'status-note';
+            statusNote.textContent = '';
+            if (!message) return;
+            statusNote.classList.add(type);
+            statusNote.textContent = message;
+        };
+
+        const setLoading = (isLoading) => {
+            loadingBox.style.display = isLoading ? 'block' : 'none';
+        };
+
+        const openLoginOverlay = () => {
+            if (typeof window.openLoginOverlaySafely === 'function') {
+                window.openLoginOverlaySafely();
+                return;
+            }
+            if (typeof openOverlay === 'function') {
+                openOverlay('auth-overlay');
+            }
+            if (typeof overlayActivateTab === 'function') {
+                overlayActivateTab('login');
+            }
+        };
+
+        const renderRequests = (requests) => {
+            requestList.innerHTML = '';
+
+            if (!Array.isArray(requests) || requests.length === 0) {
+                emptyBox.classList.add('show');
+                return;
+            }
+
+            emptyBox.classList.remove('show');
+            requestList.innerHTML = requests.map((item) => {
+                const status = String(item.status || 'pending');
+                const createdAt = item.created_at
+                    ? new Date(item.created_at).toLocaleDateString('vi-VN')
+                    : '-';
+                const imageUrl = item.pet_image || 'https://via.placeholder.com/640x360?text=No+Image';
+
+                // ── Return status indicator ──────────────────────────────────
+                let returnHtml = '';
+                if (status === 'approved') {
+                    const ret = myReturnMap[item.pet_id];
+                    if (!ret) {
+                        returnHtml = `<button class="btn-return" data-pet-id="${escapeHtml(item.pet_id)}" data-adoption-id="${escapeHtml(item.id)}">🔄 Trả thú cưng</button>`;
+                    } else if (ret.status === 'completed') {
+                        returnHtml = `<span class="return-completed-label">✅ Đã trả thú cưng thành công</span>${buildTimeline(ret)}`;
+                    } else if (ret.status === 'rejected' || ret.status === 'cancelled') {
+                        returnHtml = `<button class="btn-return" data-pet-id="${escapeHtml(item.pet_id)}" data-adoption-id="${escapeHtml(item.id)}">🔄 Gửi lại yêu cầu trả</button>`;
+                    } else {
+                        returnHtml = `<span class="return-pending-label">⏳ Yêu cầu trả: ${escapeHtml(ret.status === 'pending' ? 'Đang chờ duyệt' : 'Đã duyệt online – chờ bàn giao')}</span>${buildTimeline(ret)}`;
+                    }
+                }
+
+                return `
+                    <article class="request-card">
+                        <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(item.pet_name || 'Pet')}">
+                        <div class="request-card-body">
+                            <h3>${escapeHtml(item.pet_name || 'Không rõ tên thú cưng')}</h3>
+                            <p class="request-meta">Loài: ${escapeHtml(item.pet_type || '-')}</p>
+                            <p class="request-message">${escapeHtml(item.message || 'Không có ghi chú')}</p>
+                            <div class="request-footer">
+                                <span class="request-status ${escapeHtml(status)}">${escapeHtml(statusLabels[status] || 'Không rõ')}</span>
+                                <span class="request-date">${escapeHtml(createdAt)}</span>
+                            </div>
+                            ${returnHtml}
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            // Gán sự kiện cho các nút trả
+            requestList.querySelectorAll('.btn-return').forEach(btn => {
+                btn.addEventListener('click', () => openReturnModal(btn.dataset.petId));
+            });
+        };
+
+        const parseJsonSafe = async (response) => {
+            try {
+                return await response.json();
+            } catch (error) {
+                return null;
+            }
+        };
+
+        async function loadMyRequests() {
+            setLoading(true);
+            setNote('', '');
+            emptyBox.classList.remove('show');
+
+            try {
+                const meResponse = await fetch('/api/v1/auth/me', {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' },
+                    credentials: 'same-origin',
+                });
+
+                if (meResponse.status === 401) {
+                    setNote('warning', 'Vui lòng đăng nhập để xem yêu cầu nhận nuôi của bạn.');
+                    openLoginOverlay();
+                    requestList.innerHTML = '';
+                    return;
+                }
+
+                if (!meResponse.ok) {
+                    setNote('error', 'Không thể xác minh trạng thái đăng nhập.');
+                    requestList.innerHTML = '';
+                    return;
+                }
+
+                // Load returns map trước để renderRequests có đủ dữ liệu
+                await loadMyReturns();
+
+                const response = await fetch('/api/v1/adoption-requests/my', {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' },
+                    credentials: 'same-origin',
+                });
+
+                const payload = await parseJsonSafe(response);
+
+                if (response.status === 401) {
+                    setNote('warning', 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+                    openLoginOverlay();
+                    requestList.innerHTML = '';
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error((payload && payload.message) || 'Không thể tải danh sách yêu cầu nhận nuôi.');
+                }
+
+                const requests = payload && payload.data ? payload.data.requests : [];
+                renderRequests(requests);
+            } catch (error) {
+                requestList.innerHTML = '';
+                setNote('error', error.message || 'Không thể tải dữ liệu. Vui lòng thử lại.');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // ── Return Modal Logic ──────────────────────────────────────────────
+        let currentReturnPetId = null;
+        let isSubmittingReturn = false;
+        const returnModal = document.getElementById('returnModal');
+        const closeReturnModal = document.getElementById('closeReturnModal');
+        const cancelReturnModal = document.getElementById('cancelReturnModal');
+        const submitReturnBtn = document.getElementById('submitReturnBtn');
+        const returnReason = document.getElementById('returnReason');
+        const returnDetail = document.getElementById('returnDetail');
+        const returnImages = document.getElementById('returnImages');
+        const imagePreviewGrid = document.getElementById('imagePreviewGrid');
+        const returnDetailCount = document.getElementById('returnDetailCount');
+
+        function openReturnModal(petId) {
+            currentReturnPetId = petId;
+            returnReason.value = '';
+            returnDetail.value = '';
+            returnDetailCount.textContent = '0';
+            returnImages.value = '';
+            imagePreviewGrid.innerHTML = '';
+            returnModal.classList.add('show');
+        }
+
+        function closeModal() {
+            returnModal.classList.remove('show');
+            currentReturnPetId = null;
+        }
+
+        closeReturnModal.addEventListener('click', closeModal);
+        cancelReturnModal.addEventListener('click', closeModal);
+        returnModal.addEventListener('click', (e) => { if (e.target === returnModal) closeModal(); });
+
+        returnDetail.addEventListener('input', () => {
+            returnDetailCount.textContent = returnDetail.value.length;
+        });
+
+        returnImages.addEventListener('change', () => {
+            imagePreviewGrid.innerHTML = '';
+            const files = Array.from(returnImages.files).slice(0, 3);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const div = document.createElement('div');
+                    div.className = 'image-preview-item';
+                    div.innerHTML = `<img src="${e.target.result}" alt="preview">`;
+                    imagePreviewGrid.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        submitReturnBtn.addEventListener('click', async () => {
+            if (isSubmittingReturn) return;
+            if (!returnReason.value) {
+                Swal.fire({ icon: 'warning', title: 'Thiếu thông tin', text: 'Vui lòng chọn lý do trả thú cưng.', confirmButtonColor: '#1f5133' });
+                return;
+            }
+            if (returnDetail.value.trim().length < 10) {
+                Swal.fire({ icon: 'warning', title: 'Mô tả quá ngắn', text: 'Vui lòng mô tả chi tiết ít nhất 10 ký tự.', confirmButtonColor: '#1f5133' });
+                return;
+            }
+
+            const confirmed = await Swal.fire({
+                icon: 'question',
+                title: 'Xác nhận gửi yêu cầu trả?',
+                text: 'Yêu cầu sẽ được gửi đến trạm để xét duyệt. Bạn có chắc chắn không?',
+                showCancelButton: true,
+                confirmButtonText: 'Gửi yêu cầu',
+                cancelButtonText: 'Không',
+                confirmButtonColor: '#1f5133',
+            });
+            if (!confirmed.isConfirmed) return;
+
+            isSubmittingReturn = true;
+            submitReturnBtn.disabled = true;
+            submitReturnBtn.textContent = 'Đang gửi...';
+
+            try {
+                const formData = new FormData();
+                formData.append('petId', currentReturnPetId);
+                formData.append('reasonCategory', returnReason.value);
+                formData.append('reasonDetail', returnDetail.value.trim());
+                const files = Array.from(returnImages.files).slice(0, 3);
+                files.forEach(f => formData.append('images', f));
+
+                const res = await fetch('/api/v1/pet-returns', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    body: formData,
+                });
+                const payload = await res.json().catch(() => null);
+
+                if (!res.ok) {
+                    throw new Error(payload?.message || 'Không thể gửi yêu cầu trả.');
+                }
+
+                closeModal();
+                Swal.fire({ icon: 'success', title: 'Đã gửi!', text: 'Yêu cầu trả thú cưng đã được gửi. Trạm sẽ liên hệ với bạn sớm.', confirmButtonColor: '#1f5133' });
+                await loadMyRequests();
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Lỗi', text: err.message, confirmButtonColor: '#1f5133' });
+            } finally {
+                isSubmittingReturn = false;
+                submitReturnBtn.disabled = false;
+                submitReturnBtn.textContent = 'Gửi yêu cầu trả';
+            }
+        });
+
+        loadMyRequests();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "User" as user
+
+
+
+  (Xem thông tin cá nhân) as view_profile
+  (Cập nhật thông tin cá nhân) as update_profile
+  (Kiểm tra dữ liệu hợp lệ) as validate
+
+  update_profile --> validate : <<include>>
+
+user --> view_profile
+user --> update_profile
+
+@enduml

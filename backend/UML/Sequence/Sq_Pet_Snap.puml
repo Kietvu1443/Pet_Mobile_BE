@@ -1,0 +1,33 @@
+@startuml
+actor User
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+== Load danh sách ban đầu ==
+
+User -> FE : Mở PetSnap
+FE -> BE : GET /petsnap
+
+BE -> DB : Lấy danh sách pet chưa swipe
+BE --> FE : Trả danh sách pet
+
+loop Mỗi lần swipe
+    User -> FE : Swipe (Left/Right)
+
+    alt Swipe Right (Like)
+        FE -> BE : POST /pet-like
+        BE -> DB : Lưu pet_like
+        BE --> FE : OK
+    else Swipe Left (Skip)
+        FE -> BE : POST /petsnap/skip
+        BE --> FE : OK
+    end
+
+    FE -> BE : GET pet tiếp theo
+    BE -> DB : Lấy pet tiếp theo
+    BE --> FE : Trả pet
+    FE --> User : Hiển thị pet mới
+end
+
+@enduml

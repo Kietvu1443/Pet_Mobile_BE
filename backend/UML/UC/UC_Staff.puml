@@ -1,0 +1,36 @@
+@startuml
+actor Staff
+
+  rectangle "Quản lý thú cưng" {
+    (Thêm thú cưng)
+    (Xoá thú cưng)
+    (Cập nhật thú cưng)
+    (Ẩn/khóa thú cưng)
+  }
+
+  rectangle "Quản lý nhận nuôi" {
+    (Xem yêu cầu nhận nuôi)
+    (Xét duyệt nhận nuôi)
+    (Từ chối nhận nuôi)
+  }
+
+  rectangle "Quản lý báo cáo" {
+    (Xem báo cáo)
+    (Xét duyệt báo cáo)
+    (Từ chối báo cáo)
+  }
+
+Staff --> (Thêm thú cưng)
+Staff --> (Xoá thú cưng)
+Staff --> (Cập nhật thú cưng)
+Staff --> (Ẩn/khóa thú cưng)
+
+Staff --> (Xem yêu cầu nhận nuôi)
+Staff --> (Xét duyệt nhận nuôi)
+Staff --> (Từ chối nhận nuôi)
+
+Staff --> (Xem báo cáo)
+Staff --> (Xét duyệt báo cáo)
+Staff --> (Từ chối báo cáo)
+
+@enduml

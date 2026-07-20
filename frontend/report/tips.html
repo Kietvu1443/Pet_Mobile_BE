@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mẹo Tìm Kiếm Thú Cưng Thất Lạc | Pet Helper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/staticHeader.css">
+    <style>
+        :root {
+            --primary: #2d6a4f;
+            --primary-light: #40916c;
+            --bg: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: #1f2937;
+        }
+
+        .tips-hero {
+            background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
+            padding: 80px 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tips-hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://www.transparenttextures.com/patterns/cubes.png');
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .tip-card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border: 1px solid #f1f5f9;
+        }
+
+        .tip-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(45, 106, 79, 0.1);
+            border-color: #dcfce7;
+        }
+
+        .tip-icon {
+            width: 56px;
+            height: 56px;
+            background: #f0fdf4;
+            color: var(--primary);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .cta-box {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            border: 2px dashed #cbd5e1;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        /* Standardized Header Lang Switcher Fix */
+        .lang-switcher-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            min-width: 140px;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        .lang-switcher-dropdown.open { display: block; }
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
+            transition: background 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+        .lang-option:hover { background: #f1f5f9; }
+        .lang-option.active { background: #f0fdf4; color: #166534; font-weight: 600; }
+        
+        .goog-te-banner-frame, .skiptranslate { display: none !important; }
+        body { top: 0 !important; }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="top-bar">
+            <a href="/" class="logo-group">
+                <div class="logo-circle">
+                    <img src="/images/the_logo.webp" alt="logo" id="the_logo">
+                </div>
+                <div class="web-name">PET HELPER</div>
+            </a>
+            <div class="user-actions">
+                <div class="auth-user-actions is-auth-hidden" id="headerAuthUserState">
+                    <div class="user-dropdown" id="headerUserDropdown">
+                        <span id="userDropdownBtn" style="cursor: pointer;">
+                            <span id="headerDisplayNameText">Tài khoản</span> ▼
+                        </span>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-header">
+                                <strong id="headerDropdownDisplayName">Tài khoản</strong>
+                                <span class="user-role" id="headerUserRole">👤 User</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="/profile" class="dropdown-item">👤 Tài khoản</a>
+                            <a href="/my-favorites" class="dropdown-item">❤️ Thú cưng đã yêu thích</a>
+                            <a href="/my-reports" class="dropdown-item">📋 Báo cáo của tôi</a>
+                            <a href="/adopt/admin/add" class="dropdown-item role-staff-only is-auth-hidden">🐾 Thêm thú cưng</a>
+                            <a href="/admin/reports" class="dropdown-item role-staff-only is-auth-hidden">📋 Duyệt báo cáo</a>
+                            <a href="/admin/adoption-requests" class="dropdown-item role-staff-only is-auth-hidden">🏠 Xét duyệt nhận nuôi</a>
+                            <a href="/admin" class="dropdown-item role-admin-only is-auth-hidden">⚙️ Quản trị</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item logout" id="logoutBtn" onclick="handleLogout(event)">🚪 Đăng xuất</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-guest-actions is-auth-visible" id="headerAuthGuestState">
+                    <a href="#" onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('login'); } return false;"><span>Đăng nhập</span></a>
+                    <a href="#" onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('register'); } return false;"><span>Đăng ký</span></a>
+                </div>
+                <span onclick="toggleCart()" style="cursor:pointer;">Giỏ hàng <span id="cart-count-display">(0)</span></span>
+                <div class="lang-switcher" id="langSwitcher">
+                    <button class="lang-switcher-btn" onclick="toggleLangDropdown(event)" id="langBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" /></svg>
+                        <span id="langBtnLabel">VI</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px"><path d="M6 9l6 6 6-6" /></svg>
+                    </button>
+                    <div class="lang-switcher-dropdown" id="langDropdown">
+                        <button class="lang-option active" onclick="setLang('vi','VI')" data-lang="vi"><span class="flag">🇻🇳</span> Tiếng Việt</button>
+                        <button class="lang-option" onclick="setLang('/en','EN')" data-lang="en"><span class="flag">🇺🇸</span> English</button>
+                        <button class="lang-option" onclick="setLang('/zh-TW','中文')" data-lang="zh-TW"><span class="flag">🇹🇼</span> 中文</button>
+                        <button class="lang-option" onclick="setLang('/ja','日本語')" data-lang="ja"><span class="flag">🇯🇵</span> 日本語</button>
+                    </div>
+                </div>
+            </div>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Mở menu">
+                <span class="hamburger-line"></span><span class="hamburger-line"></span><span class="hamburger-line"></span>
+            </button>
+        </div>
+        <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+        <nav class="main-nav" id="mainNav">
+            <button class="mobile-nav-close" id="mobileNavClose" aria-label="Đóng menu">✕</button>
+            <ul>
+                <li><a href="#" class="has-dropdown nav-item">Nhận nuôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/adopt">Xem vật nuôi có thể nhận nuôi</a></li>
+                        <li><a href="/snap" style="color: #ea580c; font-weight: bold;">PetSnap (Tìm kiếm ngẫu hứng!)</a></li>
+                    </ul>
+                </li>
+                <li><a href="#" class="has-dropdown nav-item">Thất lạc <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/lost">Báo mất thú cưng</a></li>
+                        <li><a href="/found">Báo tin nhặt được</a></li>
+                        <li><a href="/reports/list">Xem báo cáo thất lạc</a></li>
+                        <li><a href="/tips">Mẹo tìm kiếm hiệu quả</a></li>
+                    </ul>
+                </li>
+                <li><a href="#" class="has-dropdown nav-item">Dịch vụ <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/booking">Đặt lịch tiêm phòng</a></li>
+                        <li><a href="/shop">Danh mục đồ ăn/ đồ dùng</a></li>
+                    </ul>
+                </li>
+                <li><a href="/news">Tin tức</a></li>
+                <li><a href="#" class="has-dropdown nav-item">Về chúng tôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown"><li><a href="#contact-section">Liên hệ với chúng tôi</a></li></ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="tips-hero">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">Mẹo Tìm Kiếm Thú Cưng</h1>
+                <p class="text-lg md:text-xl opacity-90 leading-relaxed mb-8">
+                    Đừng hoảng loạn! Hãy bình tĩnh, hít thở sâu và áp dụng những quy tắc "giờ vàng" dưới đây để tăng cơ hội đoàn tụ với thú cưng của bạn.
+                </p>
+                <div class="flex justify-center gap-4">
+                    <a href="/lost" class="bg-white text-[#2d6a4f] px-8 py-3 rounded-full font-bold shadow-lg hover:bg-opacity-90 transition-all">Báo mất ngay</a>
+                    <a href="/reports/list" class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-full font-bold hover:bg-white hover:text-[#2d6a4f] transition-all">Xem tin báo</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="max-w-6xl mx-auto px-4 py-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Tip 1 -->
+                <div class="tip-card">
+                    <div class="tip-icon">📍</div>
+                    <h3 class="text-xl font-bold mb-3">Quy tắc 500m</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Thú cưng khi mới lạc thường hoảng sợ và có xu hướng lẩn trốn trong bán kính 500m xung quanh nơi thất lạc. Hãy tìm kỹ trong các ngõ ngách, gầm xe, và bụi rậm.
+                    </p>
+                </div>
+
+                <!-- Tip 2 -->
+                <div class="tip-card">
+                    <div class="tip-icon">🌐</div>
+                    <h3 class="text-xl font-bold mb-3">Sức mạnh cộng đồng</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Đăng tin lên các nhóm Facebook cộng đồng khu vực, Zalo, và nền tảng Pet Helper. Càng nhiều người biết, cơ hội tìm thấy thú cưng càng cao.
+                    </p>
+                </div>
+
+                <!-- Tip 3 -->
+                <div class="tip-card">
+                    <div class="tip-icon">📹</div>
+                    <h3 class="text-xl font-bold mb-3">Trích xuất Camera</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Liên hệ với hàng xóm hoặc các cửa hàng có camera giám sát để xem hướng di chuyển cuối cùng của thú cưng. Điều này cực kỳ quan trọng để thu hẹp vùng tìm kiếm.
+                    </p>
+                </div>
+
+                <!-- Tip 4 -->
+                <div class="tip-card">
+                    <div class="tip-icon">🍱</div>
+                    <h3 class="text-xl font-bold mb-3">Dẫn dụ bằng mùi hương</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Đặt bát ăn, nước uống hoặc ổ nằm quen thuộc trước cửa nhà. Thú cưng có khứu giác rất nhạy và có thể tìm đường về nhờ mùi hương quen thuộc.
+                    </p>
+                </div>
+
+                <!-- Tip 5 -->
+                <div class="tip-card">
+                    <div class="tip-icon">🌙</div>
+                    <h3 class="text-xl font-bold mb-3">Thời gian "Vàng"</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Hãy đi tìm vào lúc sáng sớm hoặc đêm muộn. Đây là thời điểm yên tĩnh nhất, tiếng gọi của bạn sẽ vang xa hơn và thú cưng cũng ít sợ hãi hơn.
+                    </p>
+                </div>
+
+                <!-- Tip 6 -->
+                <div class="tip-card">
+                    <div class="tip-icon">📄</div>
+                    <h3 class="text-xl font-bold mb-3">Tờ rơi truyền thống</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Đừng quên dán tờ rơi tại các hiệu thuốc, cửa hàng tiện lợi và cột điện xung quanh. Một tờ rơi có hình ảnh rõ nét là phương pháp thủ công nhưng hiệu quả.
+                    </p>
+                </div>
+            </div>
+
+            <div class="cta-box">
+                <h2 class="text-2xl font-bold mb-4">Bạn vẫn chưa tìm thấy người bạn nhỏ?</h2>
+                <p class="text-gray-500 mb-8 max-w-2xl mx-auto">
+                    Chúng tôi luôn ở đây để hỗ trợ bạn. Hãy sử dụng tính năng "Báo mất thú cưng" để tin tức được lan tỏa nhanh nhất đến cộng đồng yêu thú cưng.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="/lost" class="bg-[#2d6a4f] text-white px-10 py-4 rounded-xl font-bold hover:shadow-xl transition-all">Tạo báo cáo mất thú cưng</a>
+                    <a href="/found" class="bg-white border-2 border-[#2d6a4f] text-[#2d6a4f] px-10 py-4 rounded-xl font-bold hover:bg-[#f0fdf4] transition-all">Tôi nhặt được thú cưng</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="auth-overlay-mount"></div>
+    <script src="/javascripts/authOverlayLoader.js" defer></script>
+    <script src="/javascripts/staticHeader.js"></script>
+    <script src="/javascripts/staticFooter.js"></script>
+    <div id="google_translate_element" style="display:none"></div>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ pageLanguage: 'vi', includedLanguages: 'vi,en,zh-TW,ja', autoDisplay: false }, 'google_translate_element');
+        }
+        function setLang(lang, label) {
+            document.getElementById('langBtnLabel').textContent = label;
+            document.querySelectorAll('.lang-option').forEach(function (el) {
+                el.classList.toggle('active', el.dataset.lang === (lang === 'vi' ? 'vi' : lang.replace('/', '')));
+            });
+            document.getElementById('langDropdown').classList.remove('open');
+            if (lang === 'vi') {
+                document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname;
+                location.reload(); return;
+            }
+            var val = '/vi' + lang;
+            document.cookie = 'googtrans=' + val + '; path=/';
+            document.cookie = 'googtrans=' + val + '; path=/; domain=' + location.hostname;
+            location.reload();
+        }
+        function toggleLangDropdown(e) { e.stopPropagation(); document.getElementById('langDropdown').classList.toggle('open'); }
+        document.addEventListener('click', function () {
+            var dd = document.getElementById('langDropdown');
+            if (dd) dd.classList.remove('open');
+        });
+        (function () {
+            var m = document.cookie.match(/googtrans=\/vi\/([^;]+)/);
+            if (!m) return;
+            var map = { 'en': 'EN', 'zh-TW': '中文', 'ja': '日本語' };
+            if (map[m[1]]) {
+                document.getElementById('langBtnLabel').textContent = map[m[1]];
+                document.querySelectorAll('.lang-option').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.lang === m[1]);
+                });
+            }
+        })();
+    </script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+
+</html>

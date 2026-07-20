@@ -1,0 +1,15 @@
+@startuml
+left to right direction
+actor User
+
+rectangle "Quy trình Nhận nuôi" {
+  (Gửi yêu cầu nhận nuôi) as req_adopt
+  (Theo dõi trạng thái yêu cầu) as track_adopt
+  (Xác thực thông tin) as verify
+}
+
+User --> req_adopt
+User --> track_adopt
+req_adopt ..> verify : <<include>>
+
+@enduml

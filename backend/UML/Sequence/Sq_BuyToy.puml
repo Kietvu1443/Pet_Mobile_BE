@@ -1,0 +1,24 @@
+@startuml
+actor User
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+User -> FE : Chọn sản phẩm + số lượng
+FE -> BE : POST /orders
+
+BE -> BE : Kiểm tra token
+BE -> DB : Kiểm tra tồn kho
+
+alt Còn hàng
+    BE -> DB : Tạo order
+    BE -> DB : Giảm số lượng
+
+    BE --> FE : Thành công
+    FE --> User : "Đặt hàng thành công"
+else Hết hàng
+    BE --> FE : Lỗi "Hết hàng"
+    FE --> User : Hiển thị lỗi
+end
+
+@enduml

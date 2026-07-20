@@ -1,0 +1,29 @@
+@startuml
+actor User
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+User -> FE : Nhập email + password
+FE -> BE : POST /login
+
+BE -> DB : Tìm user theo email
+
+alt User tồn tại
+    BE -> BE : So sánh password
+
+    alt Password đúng
+        BE -> BE : Tạo token (JWT/session)
+        BE --> FE : Trả token + user info
+        FE --> User : Đăng nhập thành công
+    else Sai password
+        BE --> FE : Lỗi "Sai mật khẩu"
+        FE --> User : Hiển thị lỗi
+    end
+
+else Không tồn tại user
+    BE --> FE : Lỗi "Không tìm thấy tài khoản"
+    FE --> User : Hiển thị lỗi
+end
+
+@enduml

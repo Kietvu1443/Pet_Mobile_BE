@@ -1,0 +1,16 @@
+@startuml
+actor User
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+User -> FE : Vào trang cá nhân
+FE -> BE : GET /profile
+
+BE -> BE : Kiểm tra token
+BE -> DB : Lấy thông tin user
+
+BE --> FE : Trả dữ liệu
+FE --> User : Hiển thị thông tin
+
+@enduml

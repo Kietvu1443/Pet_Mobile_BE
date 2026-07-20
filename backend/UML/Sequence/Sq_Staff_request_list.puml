@@ -1,0 +1,16 @@
+@startuml
+actor Staff
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+Staff -> FE : Mở trang yêu cầu nhận nuôi
+FE -> BE : GET /adoption-requests
+
+BE -> BE : Kiểm tra quyền staff
+BE -> DB : Lấy danh sách request (pending)
+
+BE --> FE : Trả dữ liệu
+FE --> Staff : Hiển thị danh sách
+
+@enduml

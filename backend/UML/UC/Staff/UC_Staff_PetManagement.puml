@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+actor Staff
+
+  (Quản lý thú cưng) as manage
+  (Xác thực) as auth
+  (Thêm thú cưng) as add
+  (Cập nhật thú cưng) as update
+  (Xoá thú cưng) as delete
+
+  manage --> auth : <<include>>
+  manage --> add : <<include>>
+  manage --> update : <<include>>
+  manage --> delete : <<include>>
+
+Staff --> manage
+
+@enduml

@@ -1,0 +1,36 @@
+@startuml
+actor Admin
+
+  rectangle "Quản lý Staff" {
+    (Thêm staff)
+    (Xoá staff)
+    (Cập nhật staff)
+    (Phân quyền)
+    (Thu hồi quyền)
+  }
+
+  rectangle "Quản lý User" {
+    (Xem danh sách user)
+    (Khoá tài khoản)
+    (Mở khoá tài khoản)
+  }
+
+  rectangle "Hệ thống" {
+    (Xem thống kê)
+    (Xem log)
+  }
+
+Admin --> (Thêm staff)
+Admin --> (Xoá staff)
+Admin --> (Cập nhật staff)
+Admin --> (Phân quyền)
+Admin --> (Thu hồi quyền)
+
+Admin --> (Xem danh sách user)
+Admin --> (Khoá tài khoản)
+Admin --> (Mở khoá tài khoản)
+
+Admin --> (Xem thống kê)
+Admin --> (Xem log)
+
+@enduml

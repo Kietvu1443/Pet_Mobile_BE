@@ -1,0 +1,19 @@
+@startuml State_User
+
+title Sơ đồ trạng thái tài khoản người dùng
+
+[*] --> Unverified : Đăng ký
+Unverified --> Verified : Xác thực Email (OTP)
+
+state "Account Status" as Status {
+    [*] --> Active
+    Active --> Banned : Admin khóa (vi phạm)
+    Banned --> Active : Admin mở khóa
+}
+
+note right of Banned
+  Người dùng không thể đăng nhập
+  hoặc sử dụng chức năng
+end note
+
+@enduml

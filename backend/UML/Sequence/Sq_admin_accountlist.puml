@@ -1,0 +1,16 @@
+@startuml
+actor Admin
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+Admin -> FE : Mở trang quản lý user
+FE -> BE : GET /admin/users
+
+BE -> BE : Kiểm tra quyền admin
+BE -> DB : Lấy danh sách user
+
+BE --> FE : Trả dữ liệu
+FE --> Admin : Hiển thị danh sách
+
+@enduml

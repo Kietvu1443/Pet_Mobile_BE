@@ -1,0 +1,19 @@
+@startuml
+actor User
+participant FE
+participant BE
+database DB
+
+User -> FE : Mở PetSnap
+FE -> BE : GET pet list
+BE -> DB : Lấy thú cưng
+DB --> BE
+BE --> FE
+
+loop Quẹt
+  User -> FE : Swipe (like/dislike)
+  FE -> BE : Gửi hành động
+  BE -> DB : Lưu lịch sử
+end
+
+@enduml

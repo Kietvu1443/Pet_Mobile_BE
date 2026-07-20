@@ -1,0 +1,22 @@
+@startuml
+left to right direction
+actor Admin
+
+
+  (Quản lý tài khoản) as manage
+  (Xác thực) as auth
+  (Xem danh sách tài khoản) as view
+  (Cập nhật thông tin) as update
+  (Khoá/Mở khoá tài khoản) as lock
+  (Phân quyền) as role
+
+  manage --> auth : <<include>>
+  manage --> view : <<include>>
+  manage --> update : <<include>>
+  manage --> lock : <<include>>
+  manage --> role : <<include>>
+
+
+Admin --> manage
+
+@enduml

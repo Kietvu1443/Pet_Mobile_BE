@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Wisdom Sheep</title>
+
+    <style>
+        :root {
+            --primary: #2d6a4f;
+            --primary-light: #40916c;
+            --bg: #f4f8f5;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(circle at top left, #d8f3dc 0%, transparent 30%),
+                radial-gradient(circle at bottom right, #b7e4c7 0%, transparent 25%),
+                linear-gradient(135deg, #f8fafc 0%, #eefbf3 100%);
+            padding: 24px;
+            overflow: hidden;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 700px;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 28px;
+            padding: 48px 40px;
+            text-align: center;
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.06),
+                0 2px 10px rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+
+        .sheep {
+            font-size: 72px;
+            margin-bottom: 16px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 1rem;
+            margin-bottom: 32px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #f1fdf5 0%, #edf7f1 100%);
+            border: 1px solid #d8f3dc;
+            border-radius: 18px;
+            padding: 24px;
+            color: var(--text);
+            line-height: 1.8;
+            font-size: 1.05rem;
+            margin-bottom: 32px;
+        }
+
+        .highlight {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .home-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 14px;
+            font-weight: 700;
+            transition: all .25s ease;
+            box-shadow: 0 8px 20px rgba(45, 106, 79, 0.25);
+        }
+
+        .home-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(45, 106, 79, 0.35);
+        }
+
+        .footer {
+            margin-top: 32px;
+            color: var(--muted);
+            font-size: .95rem;
+        }
+
+        .dot {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(64, 145, 108, 0.08);
+        }
+
+        .dot-1 {
+            width: 120px;
+            height: 120px;
+            top: -30px;
+            right: -30px;
+        }
+
+        .dot-2 {
+            width: 90px;
+            height: 90px;
+            bottom: -20px;
+            left: -20px;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .card {
+                padding: 36px 24px;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .info-box {
+                font-size: .98rem;
+            }
+
+            .sheep {
+                font-size: 60px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+
+        <div class="dot dot-1"></div>
+        <div class="dot dot-2"></div>
+
+        <div class="sheep">🐏</div>
+
+        <h1>The Wisdom Sheep</h1>
+
+        <p class="subtitle">
+            Một góc nhỏ dành cho những điều thú vị ✨
+        </p>
+
+        <div class="info-box"></div>
+
+        <a href="/" class="home-btn">
+            🏠 Về trang chủ
+        </a>
+
+        <div class="footer">
+            Pet Helper • Kết nối yêu thương 🐾
+        </div>
+
+    </div>
+
+</body>
+<script>
+    const facts = [
+        "Dự án này trước đây được xây dựng bằng EJS nhưng hiện tại do một số vấn đề nên dự án được chuyển sang sử dụng các file HTML thuần chủ yếu để tối ưu hoá API-first",
+        "Kiến trúc API-first giúp frontend và backend tách biệt rõ ràng hơn",
+        "HTML thuần giúp deploy nhanh và giảm phụ thuộc framework",
+        "Pet Helper được tối ưu để dễ mở rộng trong tương lai",
+        "Một số trang hiện tại đã được đồng bộ shared header toàn hệ thống",
+        "staticHeader.js được dùng để quản lý hành vi header dùng chung",
+        "Frontend hiện tại ưu tiên lightweight và tốc độ tải nhanh",
+        "Dự án này được xuất phát từ một bi kịch mất thú cưng yêu quý",
+        "Phép màu luôn xảy ra nếu như hi vọng không mất",
+        "Mèo là một loài động vật thú vị",
+        "Hello world!",
+        "The Wisdom Sheep luôn biết vài điều thú vị",
+        "Embrace the oblivion",
+        "Tập luyện tạo nên thành công"
+    ];
+
+    const factElement = document.querySelector(".info-box");
+
+    function randomFact() {
+        const randomIndex = Math.floor(Math.random() * facts.length);
+
+        factElement.innerHTML = `
+            <p>Bạn có biết không?</p>
+            <br>
+            <p>${facts[randomIndex]}</p>
+        `;
+    }
+
+    randomFact();
+
+    setInterval(randomFact, 5000);
+</script>
+
+</html>

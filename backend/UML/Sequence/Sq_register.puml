@@ -1,0 +1,23 @@
+@startuml
+actor User
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+User -> FE : Nhập thông tin đăng ký
+FE -> BE : POST /register
+
+BE -> DB : Kiểm tra email tồn tại?
+
+alt Email chưa tồn tại
+    BE -> BE : Hash password
+    BE -> DB : Tạo user (verify = false)
+
+    BE --> FE : Đăng ký thành công
+    FE --> User : Thông báo thành công
+else Email đã tồn tại
+    BE --> FE : Lỗi "Email đã tồn tại"
+    FE --> User : Hiển thị lỗi
+end
+
+@enduml

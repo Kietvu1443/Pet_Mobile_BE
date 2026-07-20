@@ -1,0 +1,25 @@
+@startuml
+actor Staff
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+Staff -> FE : Chọn report (Approve/Reject)
+FE -> BE : PUT /reports/{id}
+
+BE -> BE : Kiểm tra quyền staff
+BE -> DB : Lấy thông tin report
+
+alt Approve
+    BE -> DB : Update report = approved
+
+    BE --> FE : Thành công
+    FE --> Staff : "Đã duyệt"
+else Reject
+    BE -> DB : Update report = rejected
+
+    BE --> FE : Thành công
+    FE --> Staff : "Đã từ chối"
+end
+
+@enduml

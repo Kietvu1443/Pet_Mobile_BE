@@ -1,0 +1,15 @@
+@startuml
+actor User
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+User -> FE : Vào trang shop
+FE -> BE : GET /products
+
+BE -> DB : Lấy danh sách sản phẩm
+
+BE --> FE : Trả danh sách
+FE --> User : Hiển thị sản phẩm
+
+@enduml

@@ -1,0 +1,36 @@
+@startuml
+actor User
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+participant "Email Service" as Mail
+
+User -> FE : Nhấn "Nhận nuôi"
+FE -> BE : POST /adoption-request
+
+BE -> BE : Kiểm tra token
+BE -> DB : Check user.verify
+
+alt Chưa verify
+    BE -> BE : Tạo OTP
+    BE -> DB : Lưu email_verifications
+    BE -> Mail : Gửi OTP
+
+    BE --> FE : Yêu cầu nhập OTP
+    FE --> User : Hiển thị form OTP
+
+    User -> FE : Nhập OTP
+    FE -> BE : POST /verify-email
+
+    BE -> DB : Kiểm tra OTP
+
+    alt OTP hợp lệ
+        BE -> DB : Update user.verify = true
+        BE --> FE : Verify thành công
+    else OTP sai / hết hạn
+        BE --> FE : Lỗi OTP
+        FE --> User : Hiển thị lỗi
+    end
+end
+
+@enduml

@@ -1,0 +1,16 @@
+@startuml
+actor Admin
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+Admin -> FE : Mở trang log
+FE -> BE : GET /admin/logs?filter=...
+
+BE -> BE : Kiểm tra quyền admin
+BE -> DB : Lấy log hệ thống
+
+BE --> FE : Trả dữ liệu
+FE --> Admin : Hiển thị log
+
+@enduml

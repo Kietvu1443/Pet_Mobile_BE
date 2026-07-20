@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Bảng tin - Pet Helper">
+    <title>Bảng Tin | Pet Helper</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .page-hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: #fff;
+            padding: 50px 0 40px;
+            margin-bottom: 40px;
+        }
+
+        .page-hero h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .page-hero p {
+            font-size: 1rem;
+            opacity: 0.85;
+        }
+
+        /* --- BÀI NỔI BẬT LỚN --- */
+        .news-featured {
+            display: flex;
+            gap: 0;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(45, 106, 79, 0.12);
+            border: 1px solid #e0f0e8;
+            margin-bottom: 40px;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+
+        .news-featured:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 36px rgba(45, 106, 79, 0.18);
+        }
+
+        .news-featured-img-wrap {
+            flex: 1.2;
+            overflow: hidden;
+            position: relative;
+            min-height: 320px;
+        }
+
+        .news-featured-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .news-featured:hover .news-featured-img-wrap img {
+            transform: scale(1.04);
+        }
+
+        .news-featured-badge {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: var(--primary-color);
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 20px;
+        }
+
+        .news-featured-body {
+            flex: 1;
+            padding: 36px 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .news-featured-category {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .news-featured-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--text-dark);
+            line-height: 1.4;
+            margin-bottom: 14px;
+        }
+
+        .news-featured:hover .news-featured-title {
+            color: var(--secondary-color);
+        }
+
+        .news-featured-desc {
+            font-size: 0.97rem;
+            color: #555;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .news-featured-meta {
+            font-size: 0.83rem;
+            color: #aaa;
+            display: flex;
+            gap: 16px;
+        }
+
+        /* --- CATEGORY FILTER --- */
+        .news-filter-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
+
+        .news-filter-btn {
+            padding: 7px 18px;
+            border-radius: 20px;
+            border: 2px solid #e0f0e8;
+            background: #fff;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .news-filter-btn:hover,
+        .news-filter-btn.active {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        /* --- LƯỚI TIN TỨC --- */
+        .news-grid-main {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .news-card-item {
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(45, 106, 79, 0.08);
+            border: 1px solid #e8f4ed;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.22s, box-shadow 0.22s;
+        }
+
+        .news-card-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 28px rgba(45, 106, 79, 0.16);
+        }
+
+        .news-card-img-wrap {
+            overflow: hidden;
+            height: 190px;
+        }
+
+        .news-card-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.45s ease;
+        }
+
+        .news-card-item:hover .news-card-img-wrap img {
+            transform: scale(1.06);
+        }
+
+        .news-card-body {
+            padding: 18px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .news-card-category {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .news-card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #222;
+            line-height: 1.45;
+            margin-bottom: 10px;
+            flex: 1;
+        }
+
+        .news-card-item:hover .news-card-title {
+            color: var(--secondary-color);
+        }
+
+        .news-card-meta {
+            font-size: 0.78rem;
+            color: #bbb;
+            margin-top: auto;
+        }
+
+        /* --- PAGINATION --- */
+        .news-pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            margin-bottom: 40px;
+        }
+
+        .page-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            border: 2px solid #e0f0e8;
+            background: #fff;
+            color: var(--primary-color);
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .page-btn:hover,
+        .page-btn.active {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .news-grid-main {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .news-featured {
+                flex-direction: column;
+            }
+
+            .news-featured-img-wrap {
+                min-height: 220px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .news-grid-main {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="/stylesheets/staticHeader.css">
+    <style id="gtranslate-css">
+        /* Custom language switcher */
+        .lang-switcher {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .lang-switcher-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 8px;
+            padding: 5px 10px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.18s;
+            white-space: nowrap;
+        }
+
+        .lang-switcher-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .lang-switcher-btn svg {
+            width: 14px;
+            height: 14px;
+            opacity: .8;
+        }
+
+        .lang-switcher-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            min-width: 140px;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .lang-switcher-dropdown.open {
+            display: block;
+        }
+
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
+            transition: background 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .lang-option:hover {
+            background: #f1f5f9;
+        }
+
+        .lang-option.active {
+            background: #f0fdf4;
+            color: #166534;
+            font-weight: 600;
+        }
+
+        .lang-option .flag {
+            font-size: 16px;
+        }
+
+        /* Ẩn thanh Google Translate */
+        .goog-te-banner-frame,
+        .skiptranslate {
+            display: none !important;
+        }
+
+        body {
+            top: 0 !important;
+        }
+
+        iframe.skiptranslate {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="top-bar">
+            <a href="/" class="logo-group">
+                <div class="logo-circle">
+                    <img src="/images/the_logo.webp" alt="logo" id="the_logo">
+                </div>
+                <div class="web-name">PET HELPER</div>
+            </a>
+            <div class="user-actions">
+                <div class="auth-user-actions is-auth-hidden" id="headerAuthUserState">
+                    <div class="user-dropdown" id="headerUserDropdown">
+                        <span id="userDropdownBtn" style="cursor: pointer;">
+                            <span id="headerDisplayNameText">Tài khoản</span> ▼
+                        </span>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-header">
+                                <strong id="headerDropdownDisplayName">Tài khoản</strong>
+                                <span class="user-role" id="headerUserRole">👤 User</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="/profile" class="dropdown-item">👤 Tài khoản</a>
+                            <a href="/my-favorites" class="dropdown-item">❤️ Thú cưng đã yêu thích</a>
+                            <a href="/my-reports" class="dropdown-item">📋 Báo cáo của tôi</a>
+                            <a href="/adopt/admin/add" class="dropdown-item role-staff-only is-auth-hidden">🐾 Thêm thú
+                                cưng</a>
+                            <a href="/admin/reports" class="dropdown-item role-staff-only is-auth-hidden">📋 Duyệt báo
+                                cáo</a>
+                            <a href="/admin/adoption-requests" class="dropdown-item role-staff-only is-auth-hidden">🏠
+                                Xét duyệt nhận nuôi</a>
+                            <a href="/admin" class="dropdown-item role-admin-only is-auth-hidden">⚙️ Quản trị</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item logout" id="logoutBtn" onclick="handleLogout(event)">🚪
+                                Đăng xuất</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-guest-actions is-auth-visible" id="headerAuthGuestState">
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('login'); } return false;"><span>Đăng
+                            nhập</span></a>
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('register'); } return false;"><span>Đăng
+                            ký</span></a>
+                </div>
+                <span onclick="toggleCart()" style="cursor:pointer;">Giỏ hàng <span
+                        id="cart-count-display">(0)</span></span>
+                <div class="lang-switcher" id="langSwitcher">
+                    <button class="lang-switcher-btn" onclick="toggleLangDropdown(event)" id="langBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" />
+                        </svg>
+                        <span id="langBtnLabel">VI</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </button>
+                    <div class="lang-switcher-dropdown" id="langDropdown">
+                        <button class="lang-option active" onclick="setLang('vi','VI')" data-lang="vi"><span
+                                class="flag">🇻🇳</span> Tiếng Việt</button>
+                        <button class="lang-option" onclick="setLang('/en','EN')" data-lang="en"><span
+                                class="flag">🇺🇸</span> English</button>
+                        <button class="lang-option" onclick="setLang('/zh-TW','中文')" data-lang="zh-TW"><span
+                                class="flag">🇹🇼</span> 中文</button>
+                        <button class="lang-option" onclick="setLang('/ja','日本語')" data-lang="ja"><span
+                                class="flag">🇯🇵</span> 日本語</button>
+                    </div>
+                </div>
+                <button class="hamburger-btn" id="hamburgerBtn" aria-label="Mở menu">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+            </div>
+            <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+            <nav class="main-nav" id="mainNav">
+                <button class="mobile-nav-close" id="mobileNavClose" aria-label="Đóng menu">✕</button>
+                <ul>
+                    <li>
+                        <a href="#" class="has-dropdown nav-item">Nhận nuôi <span class="nav-arrow arrow">▼</span></a>
+                        <ul class="nav-dropdown">
+                            <li><a href="/adopt">Xem vật nuôi có thể nhận nuôi</a></li>
+                            <li><a href="/snap" style="color: #ea580c; font-weight: bold;">PetSnap (Tìm kiếm ngẫu
+                                    hứng!)</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#" class="has-dropdown nav-item">Thất lạc <span class="nav-arrow arrow">▼</span></a>
+                        <ul class="nav-dropdown">
+                            <li><a href="/lost">Báo mất thú cưng</a></li>
+                            <li><a href="/found">Báo tin nhặt được</a></li>
+                            <li><a href="/reports/list">Xem báo cáo thất lạc</a></li>
+                            <li><a href="/tips">Mẹo tìm kiếm hiệu quả</a></li>
+
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#" class="has-dropdown nav-item">Dịch vụ <span class="nav-arrow arrow">▼</span></a>
+                        <ul class="nav-dropdown">
+                            <li><a href="/booking">Đặt lịch tiêm phòng</a></li>
+                            <li><a href="/shop">Danh mục đồ ăn/ đồ dùng</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="/news">Tin tức</a></li>
+                    <li>
+                        <a href="#" class="has-dropdown nav-item">Về chúng tôi <span
+                                class="nav-arrow arrow">▼</span></a>
+                        <ul class="nav-dropdown">
+                            <li><a href="#contact-section">Liên hệ với chúng tôi</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+    </header>
+
+    <div class="page-hero">
+        <div class="container">
+            <h1>📰 Bảng Tin</h1>
+            <p>Cập nhật tin tức mới nhất về thú cưng, sức khỏe và cộng đồng Pet Helper</p>
+        </div>
+    </div>
+
+    <main class="container">
+
+        <!-- Bài nổi bật -->
+        <div id="featuredSection">
+            <a href="#" class="news-featured" id="featuredCard" style="display:none">
+                <div class="news-featured-img-wrap">
+                    <span class="news-featured-badge">⭐ Nổi bật</span>
+                    <img id="featuredImg" src="" alt="">
+                </div>
+                <div class="news-featured-body">
+                    <div class="news-featured-category" id="featuredCategory"></div>
+                    <div class="news-featured-title" id="featuredTitle"></div>
+                    <p class="news-featured-desc" id="featuredDesc"></p>
+                    <div class="news-featured-meta">
+                        <span id="featuredDate"></span>
+                        <span id="featuredViews"></span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Bộ lọc danh mục + nút đăng tin -->
+        <div
+            style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:28px;">
+            <div class="news-filter-bar" style="margin-bottom:0">
+                <button class="news-filter-btn active" data-category="">Tất cả</button>
+                <button class="news-filter-btn" data-category="community">🐾 Cộng đồng</button>
+                <button class="news-filter-btn" data-category="health">💉 Sức khỏe</button>
+                <button class="news-filter-btn" data-category="adoption">🏠 Nhận nuôi</button>
+                <button class="news-filter-btn" data-category="knowledge">📚 Kiến thức</button>
+                <button class="news-filter-btn" data-category="rescue">🆘 Cứu hộ</button>
+            </div>
+            <button id="btnDangTin" onclick="openSubmitModal()"
+                style="display:none;padding:8px 20px;background:var(--primary-color);color:#fff;border:none;border-radius:20px;font-weight:700;cursor:pointer;font-size:0.9rem;">✏️
+                Đăng tin</button>
+        </div>
+
+        <!-- Lưới tin tức -->
+        <div class="news-grid-main" id="newsGrid">
+            <!-- Skeleton -->
+            <div
+                style="height:280px;background:linear-gradient(90deg,#e8f5e9 25%,#d8f3dc 50%,#e8f5e9 75%);background-size:200%;border-radius:14px;animation:shimmer 1.4s infinite">
+            </div>
+            <div
+                style="height:280px;background:linear-gradient(90deg,#e8f5e9 25%,#d8f3dc 50%,#e8f5e9 75%);background-size:200%;border-radius:14px;animation:shimmer 1.4s infinite">
+            </div>
+            <div
+                style="height:280px;background:linear-gradient(90deg,#e8f5e9 25%,#d8f3dc 50%,#e8f5e9 75%);background-size:200%;border-radius:14px;animation:shimmer 1.4s infinite">
+            </div>
+        </div>
+        <div id="newsEmpty" style="display:none;text-align:center;padding:60px 0;color:#aaa;">
+            <div style="font-size:3rem;margin-bottom:12px;">📰</div>
+            <p>Chưa có bài tin nào trong mục này.</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="news-pagination" id="newsPagination" style="display:none"></div>
+
+    </main>
+
+    <!-- MODAL ĐĂNG TIN -->
+    <div id="submitModal"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+        <div
+            style="background:#fff;border-radius:16px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+            <div
+                style="background:var(--primary-color);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-radius:16px 16px 0 0;">
+                <h2 style="color:#fff;margin:0;font-size:1.1rem;">✏️ Đăng bài tin mới</h2>
+                <button onclick="closeSubmitModal()"
+                    style="background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;">✕</button>
+            </div>
+            <div style="padding:24px;">
+                <div id="submitAlert"
+                    style="display:none;margin-bottom:16px;padding:12px 14px;border-radius:10px;font-size:0.9rem;font-weight:600;">
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;font-weight:700;margin-bottom:6px;color:#333;">Tiêu đề <span
+                            style="color:red">*</span></label>
+                    <input id="inputTitle" type="text" placeholder="Tiêu đề bài tin..."
+                        style="width:100%;box-sizing:border-box;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:0.95rem;">
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;font-weight:700;margin-bottom:6px;color:#333;">Danh mục <span
+                            style="color:red">*</span></label>
+                    <select id="inputCategory"
+                        style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:0.95rem;">
+                        <option value="">-- Chọn danh mục --</option>
+                        <option value="community">🐾 Cộng đồng</option>
+                        <option value="health">💉 Sức khỏe</option>
+                        <option value="adoption">🏠 Nhận nuôi</option>
+                        <option value="knowledge">📚 Kiến thức</option>
+                        <option value="rescue">🆘 Cứu hộ</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;font-weight:700;margin-bottom:6px;color:#333;">Nội dung <span
+                            style="color:red">*</span></label>
+                    <textarea id="inputContent" rows="6" placeholder="Nội dung bài tin..."
+                        style="width:100%;box-sizing:border-box;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:0.95rem;resize:vertical;"></textarea>
+                </div>
+                <div style="margin-bottom:20px;">
+                    <label style="display:block;font-weight:700;margin-bottom:6px;color:#333;">Ảnh đại diện</label>
+                    <input id="inputImage" type="file" accept="image/*"
+                        style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:0.9rem;">
+                </div>
+                <button id="btnSubmit" onclick="submitNews()"
+                    style="width:100%;padding:12px;background:var(--primary-color);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:1rem;cursor:pointer;">Gửi
+                    bài (chờ duyệt)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer được inject bởi staticFooter.js -->
+    <div id="auth-overlay-mount"></div>
+    <script src="/javascripts/authOverlayLoader.js" defer></script>
+    <script src="/javascripts/staticHeader.js"></script>
+    <script src="/javascripts/staticFooter.js"></script>
+
+    <style>
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0
+            }
+
+            100% {
+                background-position: -200% 0
+            }
+        }
+    </style>
+
+    <script>
+        (function () {
+            const CATEGORY_LABELS = {
+                community: '🐾 Cộng đồng',
+                health: '💉 Sức khỏe',
+                adoption: '🏠 Nhận nuôi',
+                knowledge: '📚 Kiến thức',
+                rescue: '🆘 Cứu hộ',
+            };
+
+            let currentCategory = '';
+            let currentPage = 1;
+            let totalPages = 1;
+
+            // ── Thời gian tương đối ───────────────────────────────────────────
+            function timeAgo(dateStr) {
+                const diff = (Date.now() - new Date(dateStr)) / 1000;
+                if (diff < 3600) return Math.floor(diff / 60) + ' phút trước';
+                if (diff < 86400) return Math.floor(diff / 3600) + ' giờ trước';
+                if (diff < 604800) return Math.floor(diff / 86400) + ' ngày trước';
+                return new Date(dateStr).toLocaleDateString('vi-VN');
+            }
+
+            // ── Featured news ─────────────────────────────────────────────────
+            async function loadFeatured() {
+                try {
+                    const res = await fetch('/api/v1/news/featured?limit=1');
+                    const payload = await res.json();
+                    if (!payload.success) return;
+                    const list = payload.data.news || [];
+                    if (!list.length) return;
+                    const n = list[0];
+                    const card = document.getElementById('featuredCard');
+                    card.href = '/news/' + n.id;
+                    document.getElementById('featuredImg').src = n.image || 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80';
+                    document.getElementById('featuredImg').alt = n.title;
+                    document.getElementById('featuredCategory').textContent = CATEGORY_LABELS[n.category] || n.category;
+                    document.getElementById('featuredTitle').textContent = n.title;
+                    document.getElementById('featuredDesc').textContent = '';
+                    document.getElementById('featuredDate').textContent = '📅 ' + timeAgo(n.created_at);
+                    document.getElementById('featuredViews').textContent = '👁 ' + (n.view_count || 0) + ' lượt xem';
+                    card.style.display = 'flex';
+                } catch (e) { /* silent */ }
+            }
+
+            // ── News grid ─────────────────────────────────────────────────────
+            async function loadNews() {
+                const grid = document.getElementById('newsGrid');
+                const empty = document.getElementById('newsEmpty');
+                const pag = document.getElementById('newsPagination');
+
+                grid.innerHTML = [1, 2, 3].map(() =>
+                    '<div style="height:280px;background:linear-gradient(90deg,#e8f5e9 25%,#d8f3dc 50%,#e8f5e9 75%);background-size:200%;border-radius:14px;animation:shimmer 1.4s infinite"></div>'
+                ).join('');
+                empty.style.display = 'none';
+                pag.style.display = 'none';
+
+                try {
+                    const params = new URLSearchParams({ page: currentPage, limit: 12 });
+                    if (currentCategory) params.set('category', currentCategory);
+                    const res = await fetch('/api/v1/news?' + params);
+                    const payload = await res.json();
+                    if (!payload.success) throw new Error();
+
+                    const { news, totalPages: tp } = payload.data;
+                    totalPages = tp || 1;
+
+                    if (!news || !news.length) {
+                        grid.innerHTML = '';
+                        empty.style.display = 'block';
+                        return;
+                    }
+
+                    grid.innerHTML = news.map(n => `
+                    <a href="/news/${n.id}" class="news-card-item">
+                        <div class="news-card-img-wrap">
+                            <img src="${n.image || 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=500&q=80'}"
+                                 alt="${n.title}"
+                                 onerror="this.src='https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=500&q=80'">
+                        </div>
+                        <div class="news-card-body">
+                            <div class="news-card-category">${CATEGORY_LABELS[n.category] || n.category}</div>
+                            <div class="news-card-title">${n.title}</div>
+                            <div class="news-card-meta">⏱ ${timeAgo(n.created_at)} · 👁 ${n.view_count || 0} · ❤️ ${n.like_count || 0}</div>
+                        </div>
+                    </a>
+                `).join('');
+
+                    renderPagination();
+                } catch (e) {
+                    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#aaa;">Không thể tải tin tức. Vui lòng thử lại.</div>';
+                }
+            }
+
+            // ── Pagination ────────────────────────────────────────────────────
+            function renderPagination() {
+                const pag = document.getElementById('newsPagination');
+                if (totalPages <= 1) { pag.style.display = 'none'; return; }
+                pag.style.display = 'flex';
+
+                let html = `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(${currentPage - 1})">←</button>`;
+                let start = Math.max(1, currentPage - 2);
+                let end = Math.min(totalPages, currentPage + 2);
+                if (start > 1) html += `<button class="page-btn" onclick="goPage(1)">1</button>${start > 2 ? '<span style="padding:0 4px">…</span>' : ''}`;
+                for (let i = start; i <= end; i++) {
+                    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+                }
+                if (end < totalPages) html += `${end < totalPages - 1 ? '<span style="padding:0 4px">…</span>' : ''}<button class="page-btn" onclick="goPage(${totalPages})">${totalPages}</button>`;
+                html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goPage(${currentPage + 1})">→</button>`;
+                pag.innerHTML = html;
+            }
+
+            window.goPage = function (page) {
+                if (page < 1 || page > totalPages) return;
+                currentPage = page;
+                loadNews();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            // ── Category filter ───────────────────────────────────────────────
+            document.querySelectorAll('.news-filter-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('.news-filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentCategory = this.dataset.category;
+                    currentPage = 1;
+                    loadNews();
+                });
+            });
+
+            // ── Nút đăng tin: chỉ hiện khi đã đăng nhập ─────────────────────
+            // Check ngay khi load (trường hợp staticHeader.js đã chạy trước)
+            fetch('/api/v1/auth/me', { credentials: 'include' })
+                .then(r => r.json())
+                .then(p => {
+                    if (p.success && p.data && p.data.user) {
+                        document.getElementById('btnDangTin').style.display = 'inline-block';
+                    }
+                }).catch(() => { });
+
+            // Hook thêm để bắt event sau
+            const origApplyHeaderUserState = window.applyHeaderUserState;
+            window.applyHeaderUserState = function (user) {
+                if (origApplyHeaderUserState) origApplyHeaderUserState(user);
+                document.getElementById('btnDangTin').style.display = 'inline-block';
+            };
+
+            // ── Submit modal ──────────────────────────────────────────────────
+            window.openSubmitModal = function () {
+                document.getElementById('submitModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            };
+            window.closeSubmitModal = function () {
+                document.getElementById('submitModal').style.display = 'none';
+                document.body.style.overflow = '';
+            };
+            document.getElementById('submitModal').addEventListener('click', function (e) {
+                if (e.target === this) closeSubmitModal();
+            });
+
+            window.submitNews = async function () {
+                const title = document.getElementById('inputTitle').value.trim();
+                const category = document.getElementById('inputCategory').value;
+                const content = document.getElementById('inputContent').value.trim();
+                const imageFile = document.getElementById('inputImage').files[0];
+                const alertEl = document.getElementById('submitAlert');
+                const btn = document.getElementById('btnSubmit');
+
+                const showAlert = (msg, isError) => {
+                    alertEl.textContent = msg;
+                    alertEl.style.display = 'block';
+                    alertEl.style.background = isError ? '#fee2e2' : '#dcfce7';
+                    alertEl.style.color = isError ? '#b91c1c' : '#166534';
+                };
+
+                if (!title) return showAlert('Vui lòng nhập tiêu đề.', true);
+                if (!category) return showAlert('Vui lòng chọn danh mục.', true);
+                if (!content) return showAlert('Vui lòng nhập nội dung.', true);
+
+                btn.disabled = true;
+                btn.textContent = 'Đang gửi...';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('title', title);
+                    formData.append('category', category);
+                    formData.append('content', content);
+                    if (imageFile) formData.append('image', imageFile);
+
+                    const res = await fetch('/api/v1/news', { method: 'POST', body: formData, credentials: 'include' });
+                    const payload = await res.json();
+
+                    if (!payload.success) return showAlert(payload.message || 'Gửi thất bại.', true);
+
+                    showAlert('Gửi bài thành công! Bài đang chờ duyệt.', false);
+                    setTimeout(() => { closeSubmitModal(); loadNews(); }, 1500);
+                } catch (e) {
+                    showAlert('Lỗi kết nối. Vui lòng thử lại.', true);
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'Gửi bài (chờ duyệt)';
+                }
+            };
+
+            // ── Init ──────────────────────────────────────────────────────────
+            loadFeatured();
+            loadNews();
+        })();
+    </script>
+
+    <!-- Google Translate engine -->
+    <div id="google_translate_element" style="display:none"></div>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ pageLanguage: 'vi', includedLanguages: 'vi,en,zh-TW,ja', autoDisplay: false }, 'google_translate_element');
+        }
+        function setLang(lang, label) {
+            document.getElementById('langBtnLabel').textContent = label;
+            document.querySelectorAll('.lang-option').forEach(function (el) {
+                el.classList.toggle('active', el.dataset.lang === (lang === 'vi' ? 'vi' : lang.replace('/', '')));
+            });
+            document.getElementById('langDropdown').classList.remove('open');
+            if (lang === 'vi') {
+                document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname;
+                location.reload(); return;
+            }
+            var val = '/vi' + lang;
+            document.cookie = 'googtrans=' + val + '; path=/';
+            document.cookie = 'googtrans=' + val + '; path=/; domain=' + location.hostname;
+            location.reload();
+        }
+        function toggleLangDropdown(e) {
+            e.stopPropagation();
+            document.getElementById('langDropdown').classList.toggle('open');
+        }
+        document.addEventListener('click', function () {
+            var dd = document.getElementById('langDropdown');
+            if (dd) dd.classList.remove('open');
+        });
+        (function () {
+            var m = document.cookie.match(/googtrans=\/vi\/([^;]+)/);
+            if (!m) return;
+            var map = { 'en': 'EN', 'zh-TW': '中文', 'ja': '日本語' };
+            if (map[m[1]]) {
+                document.getElementById('langBtnLabel').textContent = map[m[1]];
+                document.querySelectorAll('.lang-option').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.lang === m[1]);
+                });
+            }
+        })();
+    </script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+
+</html>

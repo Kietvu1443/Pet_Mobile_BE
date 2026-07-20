@@ -1,0 +1,17 @@
+@startuml
+left to right direction
+actor Admin
+
+
+  (Xem thống kê & log) as stats
+  (Xác thực) as auth
+  (Lấy dữ liệu thống kê) as data
+  (Lấy log hệ thống) as log
+
+  stats --> auth : <<include>>
+  stats --> data : <<include>>
+  stats --> log : <<include>>
+
+Admin --> stats
+
+@enduml

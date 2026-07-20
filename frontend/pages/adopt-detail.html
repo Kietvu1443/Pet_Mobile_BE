@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Chi tiết thú cưng - Pet Helper">
+    <title>Chi Tiết Thú Cưng - Pet Helper</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/staticHeader.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style id="gtranslate-css">
+        .lang-switcher {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .lang-switcher-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 8px;
+            padding: 5px 10px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.18s;
+            white-space: nowrap;
+        }
+
+        .lang-switcher-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .lang-switcher-btn svg {
+            width: 14px;
+            height: 14px;
+            opacity: .8;
+        }
+
+        .lang-switcher-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            min-width: 140px;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .lang-switcher-dropdown.open {
+            display: block;
+        }
+
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
+            transition: background 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .lang-option:hover {
+            background: #f1f5f9;
+        }
+
+        .lang-option.active {
+            background: #f0fdf4;
+            color: #166534;
+            font-weight: 600;
+        }
+
+        .lang-option .flag {
+            font-size: 16px;
+        }
+
+        .goog-te-banner-frame,
+        .skiptranslate {
+            display: none !important;
+        }
+
+        body {
+            top: 0 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="top-bar">
+            <a href="/" class="logo-group">
+                <div class="logo-circle">
+                    <img src="/images/the_logo.webp" alt="logo" id="the_logo">
+                </div>
+                <div class="web-name">PET HELPER</div>
+            </a>
+            <div class="user-actions">
+                <div class="auth-user-actions is-auth-hidden" id="headerAuthUserState">
+                    <div class="user-dropdown" id="headerUserDropdown">
+                        <span id="userDropdownBtn" style="cursor: pointer;">
+                            <span id="headerDisplayNameText">Tài khoản</span> ▼
+                        </span>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-header">
+                                <strong id="headerDropdownDisplayName">Tài khoản</strong>
+                                <span class="user-role" id="headerUserRole">👤 User</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="/profile" class="dropdown-item">👤 Tài khoản</a>
+                            <a href="/my-favorites" class="dropdown-item">❤️ Thú cưng đã yêu thích</a>
+                            <a href="/my-reports" class="dropdown-item">📋 Báo cáo của tôi</a>
+                            <a href="/adopt/admin/add" class="dropdown-item role-staff-only is-auth-hidden">🐾 Thêm thú
+                                cưng</a>
+                            <a href="/admin" class="dropdown-item role-admin-only is-auth-hidden">⚙️ Quản trị</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item logout" id="logoutBtn" onclick="handleLogout(event)">🚪
+                                Đăng xuất</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-guest-actions is-auth-visible" id="headerAuthGuestState">
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('login'); } return false;"><span>Đăng
+                            nhập</span></a>
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('register'); } return false;"><span>Đăng
+                            ký</span></a>
+                </div>
+                <span>Giỏ hàng <span id="cart-count-display">(0)</span></span>
+                <div class="lang-switcher" id="langSwitcher">
+                    <button class="lang-switcher-btn" onclick="toggleLangDropdown(event)" id="langBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" />
+                        </svg>
+                        <span id="langBtnLabel">VI</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </button>
+                    <div class="lang-switcher-dropdown" id="langDropdown">
+                        <button class="lang-option active" onclick="setLang('vi','VI')" data-lang="vi"><span
+                                class="flag">🇻🇳</span> Tiếng Việt</button>
+                        <button class="lang-option" onclick="setLang('/en','EN')" data-lang="en"><span
+                                class="flag">🇺🇸</span> English</button>
+                        <button class="lang-option" onclick="setLang('/zh-TW','中文')" data-lang="zh-TW"><span
+                                class="flag">🇹🇼</span> 中文</button>
+                        <button class="lang-option" onclick="setLang('/ja','日本語')" data-lang="ja"><span
+                                class="flag">🇯🇵</span> 日本語</button>
+                    </div>
+                </div>
+            </div>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Mở menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+
+        <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+
+        <nav class="main-nav" id="mainNav">
+            <button class="mobile-nav-close" id="mobileNavClose" aria-label="Đóng menu">✕</button>
+            <ul>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Nhận nuôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/adopt">Xem vật nuôi có thể nhận nuôi</a></li>
+                        <li><a href="/snap" style="color: #ea580c; font-weight: bold;">PetSnap(Tìm kiếm thú cưng ngẫu
+                                hứng!)</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Thất lạc <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/lost">Báo mất thú cưng</a></li>
+                        <li><a href="/found">Báo tin nhặt được</a></li>
+                        <li><a href="/tips">Mẹo tìm kiếm hiệu quả</a></li>
+                        <li><a href="/reports/list">Xem báo cáo thất lạc</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Dịch vụ <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/booking">Đặt lịch tiêm phòng</a></li>
+                        <li><a href="/shop">Danh mục đồ ăn/ đồ dùng</a></li>
+                    </ul>
+                </li>
+                <li><a href="/news">Tin tức</a></li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Về chúng tôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/about">Thông tin về chúng tôi</a></li>
+                        <li><a href="#contact-section">Liên hệ với chúng tôi</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="auth-overlay-mount"></div>
+    <script src="/javascripts/authOverlayLoader.js" defer></script>
+
+    <main class="pet-detail-page">
+        <div class="container">
+            <a href="/adopt" class="back-link">← Quay lại danh sách</a>
+            <div id="petDetailApiLoading"
+                style="display:none; text-align:center; padding:12px; margin-bottom:16px; background:#e7f5ec; color:#1b4332; border-radius:10px;">
+                Đang tải thông tin thú cưng mới nhất...
+            </div>
+            <div id="petDetailApiError"
+                style="display:none; text-align:center; padding:12px; margin-bottom:16px; background:#fff4e5; color:#9a3412; border-radius:10px;">
+                Không thể tải dữ liệu thú cưng từ API. Vui lòng thử lại sau.
+            </div>
+
+            <div class="pet-detail-grid">
+                <div class="pet-image-section">
+                    <img src="https://via.placeholder.com/600x400?text=No+Image" alt="Pet image" class="pet-main-image"
+                        id="mainImage" data-pet-id="" onerror="fallbackPetImage(this, this.dataset.petId)">
+                    <div class="pet-status-badge available" id="petStatusBadge">
+                        🟢 Sẵn sàng nhận nuôi
+                    </div>
+
+                    <div id="petGalleryContainer"></div>
+                </div>
+
+                <div class="pet-info-section">
+                    <span class="pet-species-tag" id="petSpeciesTag">🐰 Khác</span>
+
+                    <h1 class="pet-name" id="petNameTitle">Đang tải...</h1>
+
+                    <p id="petCodeText" style="color: #2d6a4f; font-weight: 600; margin-bottom: 15px; display:none;">
+                    </p>
+
+                    <p class="pet-description" id="petDescriptionText"></p>
+
+                    <div class="pet-details-grid" id="petDetailsGrid"></div>
+
+                    <div class="pet-stats">
+                        <div class="stat-item">
+                            <span class="stat-icon">❤️</span>
+                            <span class="stat-value" id="likesCount">0</span>
+                            <span class="stat-label">Lượt thích</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">👤</span>
+                            <span class="stat-value" id="pendingCount">0</span>
+                            <span class="stat-label">Người quan tâm</span>
+                        </div>
+                    </div>
+
+                    <div class="adopt-actions">
+                        <button class="btn btn-green btn-lg" id="adoptBtn" data-pet-id="" style="display:none;">
+                            🐾 Đăng ký nhận nuôi
+                        </button>
+                        <a href="#" class="btn btn-green btn-lg" id="adoptLoginBtn"
+                            onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('login'); } return false;">
+                            🔐 Đăng nhập để nhận nuôi
+                        </a>
+
+                        <button class="btn-like" id="likeBtn" data-pet-id="" title="Yêu thích" style="display:none;">
+                            <span class="like-heart">🤍</span>
+                        </button>
+
+                        <button class="btn btn-outline-gray" id="shareBtn" data-share-title="Pet Helper"
+                            data-share-text="">
+                            📤 Chia sẻ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="/" class="logo">
+                    <span style="font-size: 1.5rem;">🐾</span>
+                    <span>Pet Helper</span>
+                </a>
+                <p>Nền tảng hỗ trợ và bảo vệ vật nuôi hàng đầu Việt Nam. Cùng nhau xây dựng cộng đồng yêu thương động
+                    vật - Green Project 2026.</p>
+            </div>
+
+            <div class="footer-links">
+                <h4>Dịch vụ</h4>
+                <ul>
+                    <li><a href="/adopt">Nhận nuôi thú cưng</a></li>
+                    <li><a href="/reports">Báo cáo thất lạc</a></li>
+                    <li><a href="/shop">Cửa hàng</a></li>
+                    <li><a href="/tracking">Theo dõi vật nuôi</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Hỗ trợ</h4>
+                <ul>
+                    <li><a href="#">Hướng dẫn</a></li>
+                    <li><a href="#">Câu hỏi thường gặp</a></li>
+                    <li><a href="#contact-section">Liên hệ</a></li>
+                    <li><a href="#">Chính sách</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Liên hệ</h4>
+                <ul>
+                    <li>📧 support@pethelper.vn</li>
+                    <li>📞 1900-XXXX</li>
+                    <li>📍 BDU UNIS Campus</li>
+                    <li>🕐 8:00 - 18:00</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 Pet Helper Green Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/javascripts/staticHeader.js"></script>
+    <script src="/javascripts/staticFooter.js"></script>
+
+    <script>
+        const petDetailApiLoading = document.getElementById('petDetailApiLoading');
+        const petDetailApiError = document.getElementById('petDetailApiError');
+
+        const mainImageEl = document.getElementById('mainImage');
+        const statusBadgeEl = document.getElementById('petStatusBadge');
+        const galleryContainerEl = document.getElementById('petGalleryContainer');
+        const speciesTagEl = document.getElementById('petSpeciesTag');
+        const petNameTitleEl = document.getElementById('petNameTitle');
+        const petCodeTextEl = document.getElementById('petCodeText');
+        const petDescriptionTextEl = document.getElementById('petDescriptionText');
+        const petDetailsGridEl = document.getElementById('petDetailsGrid');
+        const likesCountEl = document.getElementById('likesCount');
+        const shareBtnEl = document.getElementById('shareBtn');
+        const likeBtnEl = document.getElementById('likeBtn');
+        const adoptBtnEl = document.getElementById('adoptBtn');
+        const adoptLoginBtnEl = document.getElementById('adoptLoginBtn');
+
+        let currentAuthUser = null;
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function renderSpeciesTag(petType) {
+            if (petType === 'Chó') return '🐕 Chó';
+            if (petType === 'Mèo') return '🐱 Mèo';
+            return '🐰 ' + (petType || 'Khác');
+        }
+
+        function renderStatusLabel(status) {
+            if (status === 'available') return '🟢 Sẵn sàng nhận nuôi';
+            if (status === 'pending') return '🟡 Đang xử lý';
+            return '🔴 Đã được nhận nuôi';
+        }
+
+        function renderDetailItem(icon, label, value) {
+            if (!value) return '';
+            return `
+                <div class="detail-item">
+                    <span class="detail-icon">${icon}</span>
+                    <div>
+                        <span class="detail-label">${escapeHtml(label)}</span>
+                        <span class="detail-value">${escapeHtml(value)}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDetailsGrid(pet) {
+            return [
+                renderDetailItem('🐾', 'Giống', pet.breed),
+                renderDetailItem('🎂', 'Tuổi', pet.age),
+                renderDetailItem(pet.gender === 'Đực' ? '♂️' : '♀️', 'Giới tính', pet.gender),
+                renderDetailItem('kg', 'Cân nặng', pet.weight),
+                renderDetailItem('🎨', 'Màu sắc', pet.color),
+                renderDetailItem('💉', 'Tiêm phòng', pet.vaccination),
+                renderDetailItem('📞', 'TNV liên hệ', pet.contact_info),
+            ].join('');
+        }
+
+        function renderGallery(images, petName, petId) {
+            if (!Array.isArray(images) || images.length <= 1) {
+                return '';
+            }
+
+            const previewImages = images.slice(0, 5);
+            const extraImages = images.slice(5);
+
+            const previewHtml = previewImages.map((image, index) => {
+                const imagePath = escapeHtml(image.image_path || '');
+                const activeClass = index === 0 ? 'active' : '';
+                return `
+                    <div class="gallery-thumb ${activeClass}" data-image-path="${imagePath}" onclick="changeMainImage(this.dataset.imagePath, this)">
+                        <img src="${imagePath}" alt="${escapeHtml(petName)} - Ảnh ${index + 1}" data-pet-id="${escapeHtml(petId)}" loading="lazy" onerror="fallbackPetImage(this, this.dataset.petId)">
+                    </div>
+                `;
+            }).join('');
+
+            const extraHtml = extraImages.length > 0
+                ? `
+                    <details class="pet-gallery-dropdown">
+                        <summary>Xem thêm ${extraImages.length} ảnh</summary>
+                        <div class="pet-gallery pet-gallery-extra">
+                            ${extraImages.map((image, index) => {
+                    const imagePath = escapeHtml(image.image_path || '');
+                    return `
+                                    <div class="gallery-thumb" data-image-path="${imagePath}" onclick="changeMainImage(this.dataset.imagePath, this)">
+                                        <img src="${imagePath}" alt="${escapeHtml(petName)} - Ảnh ${index + previewImages.length + 1}" data-pet-id="${escapeHtml(petId)}" loading="lazy" onerror="fallbackPetImage(this, this.dataset.petId)">
+                                    </div>
+                                `;
+                }).join('')}
+                        </div>
+                    </details>
+                `
+                : '';
+
+            return `
+                <div class="pet-gallery">
+                    ${previewHtml}
+                </div>
+                ${extraHtml}
+            `;
+        }
+
+        function setDetailLoading(isLoading) {
+            if (!petDetailApiLoading) return;
+            petDetailApiLoading.style.display = isLoading ? 'block' : 'none';
+        }
+
+        function showDetailError(show) {
+            if (!petDetailApiError) return;
+            petDetailApiError.style.display = show ? 'block' : 'none';
+        }
+
+        function getCurrentPetId() {
+            const fromImage = mainImageEl && mainImageEl.dataset && mainImageEl.dataset.petId
+                ? Number(mainImageEl.dataset.petId)
+                : NaN;
+            if (!Number.isNaN(fromImage) && fromImage > 0) {
+                return fromImage;
+            }
+
+            const pathParts = window.location.pathname.split('/').filter(Boolean);
+            const lastPart = Number(pathParts[pathParts.length - 1]);
+            return Number.isNaN(lastPart) ? 0 : lastPart;
+        }
+
+        function syncActionVisibility() {
+            const isAuthenticated = !!currentAuthUser;
+            if (adoptBtnEl) {
+                adoptBtnEl.style.display = isAuthenticated ? 'inline-flex' : 'none';
+            }
+            if (adoptLoginBtnEl) {
+                adoptLoginBtnEl.style.display = isAuthenticated ? 'none' : 'inline-flex';
+            }
+            if (likeBtnEl) {
+                likeBtnEl.style.display = isAuthenticated ? 'inline-flex' : 'none';
+            }
+        }
+
+        async function hydrateCurrentAuthUser() {
+            try {
+                const response = await fetch('/api/v1/auth/me', {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+
+                if (response.status === 401) {
+                    currentAuthUser = null;
+                    syncActionVisibility();
+                    return;
+                }
+
+                const payload = await response.json();
+                if (response.ok && payload && payload.success && payload.data && payload.data.user) {
+                    currentAuthUser = payload.data.user;
+                } else {
+                    currentAuthUser = null;
+                }
+            } catch (error) {
+                currentAuthUser = null;
+            }
+
+            syncActionVisibility();
+        }
+
+        function applyPetData(pet) {
+            const petId = pet.id || getCurrentPetId();
+            const imageList = Array.isArray(pet.images) ? pet.images : [];
+            const firstImagePath = imageList.length > 0
+                ? imageList[0].image_path
+                : (pet.avatar_image || pet.image_url || 'https://via.placeholder.com/600x400?text=No+Image');
+
+            if (mainImageEl) {
+                mainImageEl.src = firstImagePath;
+                mainImageEl.alt = pet.name || 'Pet image';
+                mainImageEl.dataset.petId = String(petId || '');
+            }
+
+            if (statusBadgeEl) {
+                statusBadgeEl.className = `pet-status-badge ${pet.status || ''}`;
+                statusBadgeEl.textContent = renderStatusLabel(pet.status);
+            }
+
+            if (galleryContainerEl) {
+                galleryContainerEl.innerHTML = renderGallery(imageList, pet.name || '', petId || '');
+            }
+
+            if (speciesTagEl) {
+                speciesTagEl.textContent = renderSpeciesTag(pet.pet_type);
+            }
+
+            if (petNameTitleEl) {
+                petNameTitleEl.textContent = pet.name || '';
+            }
+
+            if (petCodeTextEl) {
+                if (pet.pet_code) {
+                    petCodeTextEl.textContent = `Mã HPA: ${pet.pet_code}`;
+                    petCodeTextEl.style.display = '';
+                } else {
+                    petCodeTextEl.textContent = '';
+                    petCodeTextEl.style.display = 'none';
+                }
+            }
+
+            if (petDescriptionTextEl) {
+                petDescriptionTextEl.textContent = pet.description || '';
+            }
+
+            if (petDetailsGridEl) {
+                petDetailsGridEl.innerHTML = renderDetailsGrid(pet);
+            }
+
+            if (likesCountEl && typeof pet.likesCount !== 'undefined') {
+                likesCountEl.textContent = String(pet.likesCount || 0);
+            }
+
+            const pendingCountEl = document.getElementById('pendingCount');
+            if (pendingCountEl && typeof pet.pendingCount !== 'undefined') {
+                pendingCountEl.textContent = String(pet.pendingCount || 0);
+            }
+
+            if (adoptBtnEl && petId) {
+                adoptBtnEl.dataset.petId = String(petId);
+            }
+
+            if (shareBtnEl) {
+                shareBtnEl.dataset.shareTitle = `${pet.name || ''} - Pet Helper`;
+                shareBtnEl.dataset.shareText = pet.description || '';
+            }
+
+            if (likeBtnEl) {
+                likeBtnEl.dataset.petId = String(petId || '');
+                const heart = likeBtnEl.querySelector('.like-heart');
+                if (typeof pet.isLiked === 'boolean') {
+                    if (pet.isLiked) {
+                        likeBtnEl.classList.add('liked');
+                        if (heart) heart.textContent = '❤️';
+                    } else {
+                        likeBtnEl.classList.remove('liked');
+                        if (heart) heart.textContent = '🤍';
+                    }
+                }
+            }
+
+            if (pet.name) {
+                document.title = `${pet.name} - Pet Helper`;
+            }
+        }
+
+        async function hydratePetDetailFromApi() {
+            const petId = getCurrentPetId();
+            if (!petId) {
+                showDetailError(true);
+                return;
+            }
+
+            setDetailLoading(true);
+            showDetailError(false);
+
+            try {
+                const response = await fetch(`/api/v1/pets/${petId}`, {
+                    method: 'GET',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                    credentials: 'same-origin',
+                });
+
+                if (!response.ok) {
+                    throw new Error('API response is not OK');
+                }
+
+                const result = await response.json();
+                if (!result || result.success !== true || !result.data || !result.data.pet) {
+                    throw new Error('Invalid API payload');
+                }
+
+                applyPetData(result.data.pet);
+            } catch (error) {
+                console.warn('[Adopt Detail] Failed to load from API.', error);
+                showDetailError(true);
+            } finally {
+                setDetailLoading(false);
+            }
+        }
+
+        const openLoginOverlay = () => {
+            if (typeof window.openLoginOverlaySafely === 'function') {
+                window.openLoginOverlaySafely();
+                return;
+            }
+            if (typeof openOverlay === 'function') {
+                openOverlay('auth-overlay');
+            }
+            if (typeof overlayActivateTab === 'function') {
+                overlayActivateTab('login');
+            }
+        };
+
+        if (adoptBtnEl) {
+            let isSubmittingAdoption = false;
+
+            const parseAdoptionJson = async (response) => {
+                try {
+                    return await response.json();
+                } catch (error) {
+                    return null;
+                }
+            };
+
+            adoptBtnEl.addEventListener('click', () => {
+                const currentPetName = (petNameTitleEl && petNameTitleEl.textContent)
+                    ? petNameTitleEl.textContent.trim()
+                    : 'thú cưng này';
+
+                if (!currentAuthUser) {
+                    openLoginOverlay();
+                    return;
+                }
+
+                const isUnverified = Number(currentAuthUser.verify) !== 1;
+                if (isUnverified) {
+                    Swal.fire({
+                        title: 'Chưa xác minh email',
+                        text: 'Bạn cần xác minh email trước khi nhận nuôi thú cưng.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#2b663e',
+                        cancelButtonColor: '#64748B',
+                        confirmButtonText: 'Đi xác minh',
+                        cancelButtonText: 'Đóng',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '/profile';
+                        }
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Đăng ký nhận nuôi',
+                    html: `
+                        <p style="margin-bottom: 12px;">Vui lòng cho biết lý do bạn muốn nhận nuôi <b>${currentPetName}</b>:</p>
+                        <textarea id="adoptionMessage" class="swal2-textarea" placeholder="Ví dụ: Tôi có kinh nghiệm nuôi thú cưng và môi trường phù hợp..."></textarea>
+                    `,
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonColor: '#10B981',
+                    cancelButtonColor: '#64748B',
+                    confirmButtonText: 'Gửi đăng ký',
+                    cancelButtonText: 'Hủy',
+                    preConfirm: () => {
+                        const message = document.getElementById('adoptionMessage').value.trim();
+                        if (!message) {
+                            Swal.showValidationMessage('Vui lòng nhập lý do nhận nuôi');
+                            return false;
+                        }
+                        return message;
+                    },
+                }).then(async (result) => {
+                    if (!(result.isConfirmed && result.value)) {
+                        return;
+                    }
+
+                    if (isSubmittingAdoption) {
+                        return;
+                    }
+
+                    if (!adoptBtnEl.dataset.petId) {
+                        Swal.fire({
+                            title: 'Thiếu thông tin thú cưng',
+                            text: 'Không xác định được thú cưng để gửi yêu cầu.',
+                            icon: 'warning',
+                            confirmButtonColor: '#F59E0B',
+                        });
+                        return;
+                    }
+
+                    try {
+                        isSubmittingAdoption = true;
+                        adoptBtnEl.disabled = true;
+                        adoptBtnEl.style.opacity = '0.65';
+
+                        const response = await fetch('/api/v1/adoption-requests', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Accept: 'application/json',
+                            },
+                            credentials: 'same-origin',
+                            body: JSON.stringify({
+                                petId: adoptBtnEl.dataset.petId,
+                                message: result.value,
+                            }),
+                        });
+
+                        const data = await parseAdoptionJson(response);
+
+                        if (response.status === 401) {
+                            openLoginOverlay();
+                            throw new Error('Vui lòng đăng nhập để gửi yêu cầu nhận nuôi.');
+                        }
+
+                        if (!response.ok) {
+                            throw new Error((data && data.message) || 'Không thể gửi yêu cầu nhận nuôi');
+                        }
+
+                        // Cập nhật nút sau khi đăng ký thành công
+                        adoptBtnEl.disabled = true;
+                        adoptBtnEl.style.opacity = '0.75';
+                        adoptBtnEl.innerHTML = '⏳ Đã đăng ký — Chờ duyệt';
+                        adoptBtnEl.style.background = '#6b7280';
+                        adoptBtnEl.style.cursor = 'default';
+
+                        Swal.fire({
+                            title: 'Đăng ký thành công! 🎉',
+                            html: `<p>${(data && data.message) || 'Hồ sơ của bạn đã được gửi và đang chờ xét duyệt.'}</p>
+                                   <p style="margin-top:10px;font-size:0.9rem;color:#6b7280">Bạn có thể theo dõi trạng thái tại trang <a href="/my-adoption-requests" style="color:#10B981;font-weight:700">Yêu cầu nhận nuôi của tôi</a></p>`,
+                            icon: 'success',
+                            confirmButtonColor: '#10B981',
+                            confirmButtonText: 'Xem yêu cầu của tôi',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/my-adoption-requests';
+                            }
+                        });
+                    } catch (error) {
+                        // Nếu 409 = đã đăng ký rồi → đổi nút thay vì báo lỗi
+                        if (error.message && (
+                            error.message.includes('đã gửi') ||
+                            error.message.includes('đã đăng ký') ||
+                            error.message.includes('Conflict')
+                        )) {
+                            adoptBtnEl.disabled = true;
+                            adoptBtnEl.style.opacity = '0.75';
+                            adoptBtnEl.innerHTML = '⏳ Đã đăng ký — Chờ duyệt';
+                            adoptBtnEl.style.background = '#6b7280';
+                            adoptBtnEl.style.cursor = 'default';
+                            Swal.fire({
+                                title: 'Bạn đã đăng ký rồi!',
+                                html: `<p>Bạn đã gửi yêu cầu nhận nuôi cho thú cưng này trước đó.</p>
+                                       <p style="margin-top:10px;font-size:0.9rem;color:#6b7280">Theo dõi trạng thái tại <a href="/my-adoption-requests" style="color:#10B981;font-weight:700">Yêu cầu nhận nuôi của tôi</a></p>`,
+                                icon: 'info',
+                                confirmButtonColor: '#10B981',
+                                confirmButtonText: 'Xem yêu cầu của tôi',
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = '/my-adoption-requests';
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Không thể gửi yêu cầu',
+                                text: error.message || 'Đã xảy ra lỗi, vui lòng thử lại.',
+                                icon: 'error',
+                                confirmButtonColor: '#EF4444',
+                            });
+                        }
+                    } finally {
+                        isSubmittingAdoption = false;
+                        // Không reset lại nút nếu đã đăng ký thành công
+                        if (!adoptBtnEl.innerHTML.includes('Chờ duyệt')) {
+                            adoptBtnEl.disabled = false;
+                            adoptBtnEl.style.opacity = '1';
+                        }
+                    }
+                });
+            });
+        }
+
+        if (shareBtnEl) {
+            shareBtnEl.addEventListener('click', () => {
+                if (navigator.share) {
+                    navigator.share({
+                        title: shareBtnEl.dataset.shareTitle || 'Pet Helper',
+                        text: shareBtnEl.dataset.shareText || '',
+                        url: window.location.href,
+                    });
+                } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Đã sao chép link!',
+                        showConfirmButton: false,
+                        timer: 2000,
+                    });
+                }
+            });
+        }
+
+        function changeMainImage(src, thumbEl) {
+            const mainImg = document.getElementById('mainImage');
+            if (mainImg) {
+                mainImg.style.opacity = '0.3';
+                setTimeout(() => {
+                    mainImg.src = src;
+                    mainImg.onload = () => {
+                        mainImg.style.opacity = '1';
+                    };
+                }, 150);
+            }
+            document.querySelectorAll('.gallery-thumb').forEach((thumb) => thumb.classList.remove('active'));
+            if (thumbEl) thumbEl.classList.add('active');
+        }
+
+        if (likeBtnEl) {
+            let isProcessing = false;
+
+            const safeParseJson = async (response) => {
+                try {
+                    return await response.json();
+                } catch (error) {
+                    return null;
+                }
+            };
+
+            const rollbackLikeUi = (wasLiked, oldCount, heartSpan, likesElement) => {
+                if (wasLiked) {
+                    likeBtnEl.classList.add('liked');
+                    heartSpan.textContent = '❤️';
+                    likesElement.textContent = oldCount;
+                    return;
+                }
+
+                likeBtnEl.classList.remove('liked');
+                heartSpan.textContent = '🤍';
+                likesElement.textContent = oldCount;
+            };
+
+            likeBtnEl.addEventListener('click', async () => {
+                if (isProcessing) return;
+                isProcessing = true;
+                likeBtnEl.disabled = true;
+                likeBtnEl.style.opacity = '0.6';
+
+                const petId = likeBtnEl.dataset.petId;
+                if (!petId) {
+                    isProcessing = false;
+                    likeBtnEl.disabled = false;
+                    likeBtnEl.style.opacity = '1';
+                    return;
+                }
+
+                const wasLiked = likeBtnEl.classList.contains('liked');
+                const endpoint = `/api/v1/favorites/${petId}`;
+                const method = wasLiked ? 'DELETE' : 'POST';
+
+                const heartSpan = likeBtnEl.querySelector('.like-heart');
+                const likesElement = document.getElementById('likesCount');
+                const oldCount = parseInt(likesElement.textContent, 10) || 0;
+
+                if (wasLiked) {
+                    likeBtnEl.classList.remove('liked');
+                    heartSpan.textContent = '🤍';
+                    likesElement.textContent = Math.max(0, oldCount - 1);
+                } else {
+                    likeBtnEl.classList.add('liked');
+                    heartSpan.textContent = '❤️';
+                    likesElement.textContent = oldCount + 1;
+                }
+
+                try {
+                    const response = await fetch(endpoint, {
+                        method,
+                        headers: {
+                            Accept: 'application/json',
+                        },
+                        credentials: 'same-origin',
+                    });
+                    const data = await safeParseJson(response);
+
+                    if (response.status === 401) {
+                        const authError = new Error('AUTH_REQUIRED');
+                        authError.code = 401;
+                        throw authError;
+                    }
+
+                    if (!response.ok) {
+                        throw new Error((data && data.message) || 'Không thể thực hiện');
+                    }
+
+                    const payload = data && data.data ? data.data : (data || {});
+                    const nextTotalLikes = Number(payload.totalLikes);
+                    const nextIsLiked = typeof payload.isLiked === 'boolean' ? payload.isLiked : !wasLiked;
+
+                    likesElement.textContent = Number.isNaN(nextTotalLikes)
+                        ? String(oldCount)
+                        : String(nextTotalLikes);
+
+                    if (nextIsLiked) {
+                        likeBtnEl.classList.add('liked');
+                        heartSpan.textContent = '❤️';
+                    } else {
+                        likeBtnEl.classList.remove('liked');
+                        heartSpan.textContent = '🤍';
+                    }
+                } catch (error) {
+                    rollbackLikeUi(wasLiked, oldCount, heartSpan, likesElement);
+
+                    if (error && error.code === 401) {
+                        openLoginOverlay();
+
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'info',
+                            title: 'Vui lòng đăng nhập để yêu thích thú cưng',
+                            showConfirmButton: false,
+                            timer: 2200,
+                        });
+                        return;
+                    }
+
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: error.message || 'Không thể thực hiện',
+                        showConfirmButton: false,
+                        timer: 2000,
+                    });
+                } finally {
+                    isProcessing = false;
+                    likeBtnEl.disabled = false;
+                    likeBtnEl.style.opacity = '1';
+                }
+            });
+        }
+
+        syncActionVisibility();
+        hydrateCurrentAuthUser();
+        hydratePetDetailFromApi();
+
+        // Kiểm tra xem user đã đăng ký nhận nuôi con này chưa
+        async function checkAdoptionStatus() {
+            const petId = getCurrentPetId();
+            if (!petId || !adoptBtnEl) return;
+
+            try {
+                const res = await fetch('/api/v1/adoption-requests/my', {
+                    credentials: 'same-origin',
+                    headers: { Accept: 'application/json' },
+                    __skipUnauthorizedHandler: true
+                });
+                if (!res.ok) return; // Chưa đăng nhập hoặc lỗi → bỏ qua
+
+                const json = await res.json();
+                const requests = (json.data && json.data.requests) || (json.data && json.data.data) || [];
+
+                const existing = requests.find(r =>
+                    String(r.pet_id) === String(petId) && r.status !== 'rejected'
+                );
+
+                if (existing) {
+                    adoptBtnEl.disabled = true;
+                    adoptBtnEl.style.opacity = '0.75';
+                    adoptBtnEl.style.background = '#6b7280';
+                    adoptBtnEl.style.cursor = 'default';
+                    if (existing.status === 'approved') {
+                        adoptBtnEl.innerHTML = '✅ Đã được duyệt nhận nuôi';
+                    } else {
+                        adoptBtnEl.innerHTML = '⏳ Đã đăng ký — Chờ duyệt';
+                    }
+                }
+            } catch (e) {
+                // Bỏ qua lỗi, không ảnh hưởng trải nghiệm
+            }
+        }
+
+        checkAdoptionStatus();
+    </script>
+
+    <style>
+        .pet-detail-page {
+            padding: 40px 0 80px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--primary);
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .pet-detail-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 50px;
+            align-items: start;
+        }
+
+        .pet-image-section {
+            position: relative;
+            width: 100%;
+            max-width: 30rem;
+        }
+
+        .pet-info-section {
+            min-width: 0;
+        }
+
+        .pet-main-image {
+            width: 30rem;
+            height: 30rem;
+            max-width: 100%;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            transition: opacity 0.3s ease;
+            object-fit: cover;
+            object-position: center;
+            aspect-ratio: 1 / 1;
+            display: block;
+        }
+
+        .pet-gallery {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            width: 100%;
+            max-width: 30rem;
+        }
+
+        .pet-gallery-dropdown {
+            margin-top: 8px;
+            width: 100%;
+            max-width: 30rem;
+        }
+
+        .pet-gallery-dropdown summary {
+            cursor: pointer;
+            color: var(--primary);
+            font-weight: 600;
+            list-style: none;
+            user-select: none;
+        }
+
+        .pet-gallery-dropdown summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .pet-gallery-dropdown summary::before {
+            content: '▾ ';
+            font-size: 0.9rem;
+        }
+
+        .pet-gallery-dropdown[open] summary::before {
+            content: '▴ ';
+        }
+
+        .pet-gallery-extra {
+            margin-top: 10px;
+        }
+
+        .gallery-thumb {
+            flex-shrink: 0;
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            opacity: 0.6;
+        }
+
+        .gallery-thumb:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        .gallery-thumb.active {
+            border-color: var(--primary, #2d6a4f);
+            opacity: 1;
+            box-shadow: 0 2px 8px rgba(45, 106, 79, 0.3);
+        }
+
+        .gallery-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pet-status-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: white;
+        }
+
+        .pet-species-tag {
+            display: inline-block;
+            background: var(--bg-main);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .pet-name {
+            font-size: 2.5rem;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+        }
+
+        .pet-description {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+
+        .pet-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: var(--bg-main);
+            border-radius: 12px;
+        }
+
+        .detail-icon {
+            font-size: 1.5rem;
+        }
+
+        .detail-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .pet-stats {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 25px;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            border-radius: 14px;
+            border: 1px solid #d1fae5;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-icon {
+            font-size: 1.2rem;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #1b4332;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748B;
+        }
+
+        .adopt-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-lg {
+            padding: 16px 32px;
+            font-size: 1.1rem;
+        }
+
+        .btn-like {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 2px solid #e2e8f0;
+            background: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .btn-like:hover {
+            transform: scale(1.15);
+            border-color: #f87171;
+            box-shadow: 0 4px 16px rgba(248, 113, 113, 0.3);
+        }
+
+        .btn-like.liked {
+            border-color: #ef4444;
+            background: #fef2f2;
+            animation: heartPop 0.4s ease;
+        }
+
+        @keyframes heartPop {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.3);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .btn-outline-gray {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline-gray:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .pet-detail-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .pet-image-section {
+                max-width: 22rem;
+            }
+
+            .pet-main-image {
+                width: 100%;
+                max-width: 22rem;
+                height: auto;
+            }
+
+            .pet-name {
+                font-size: 2rem;
+            }
+
+            .pet-details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .adopt-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .pet-stats {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+    </style>
+</body>
+
+</html>

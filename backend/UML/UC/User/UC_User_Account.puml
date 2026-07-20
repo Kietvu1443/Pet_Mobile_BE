@@ -1,0 +1,19 @@
+@startuml
+left to right direction
+actor User
+
+rectangle "Quản lý Tài khoản" {
+  (Đăng ký tài khoản) as register
+  (Đăng nhập) as login
+  (Đăng xuất) as logout
+  (Xem thông tin cá nhân) as view_profile
+  (Cập nhật hồ sơ) as update_profile
+}
+
+User --> register
+User --> login
+User --> logout
+User --> view_profile
+User --> update_profile
+
+@enduml

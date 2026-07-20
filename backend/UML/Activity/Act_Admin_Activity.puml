@@ -1,0 +1,38 @@
+@startuml Act_Admin_Activity
+
+title Admin Main Activities
+
+|Admin|
+start
+:Login to Admin Dashboard;
+
+fork
+    partition "User Moderation" {
+        :View User List;
+        :Monitor User activity;
+        if (Violation detected?) then (yes)
+            :Ban User Account;
+            :Provide Ban Reason;
+        endif
+    }
+fork again
+    partition "Report Handling" {
+        :View Lost/Found Reports;
+        if (Verify content) then (Valid)
+            :Approve/Resolve Report;
+        else (Spam)
+            :Reject Report;
+            :Optionally Ban Reporter;
+        endif
+    }
+fork again
+    partition "System Statistics" {
+        :View Adoption Statistics;
+        :View User Growth;
+        :Export Data (if needed);
+    }
+end fork
+
+stop
+
+@enduml

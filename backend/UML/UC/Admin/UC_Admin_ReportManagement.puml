@@ -1,0 +1,17 @@
+@startuml
+left to right direction
+actor Admin
+
+rectangle "Quản lý Báo cáo" {
+  (Xem danh sách báo cáo) as view_reports
+  (Xét duyệt/Từ chối báo cáo) as handle_report
+  (Xử lý vi phạm & Khóa User) as handle_violation
+  (Xóa/Hoàn tác báo cáo) as delete_report
+}
+
+Admin --> view_reports
+Admin --> handle_report
+Admin --> handle_violation
+Admin --> delete_report
+
+@enduml

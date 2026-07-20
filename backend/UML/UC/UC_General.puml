@@ -1,0 +1,58 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Guest" as guest
+actor "User" as user
+actor "Staff" as staff
+actor "Admin" as admin
+
+
+
+
+  
+  package "Tài khoản & Hệ thống" {
+    (Đăng ký/Đăng nhập) as login
+    (Quản lý thông tin cá nhân) as profile
+    (Quản lý Staff) as mng_staff
+    (Quản lý User) as mng_user
+    (Xem thống kê & Log) as stats
+  }
+
+  package "Thú cưng & Tương tác" {
+    (Xem danh sách thú cưng) as view_pets
+    (Yêu thích thú cưng) as fav_pet
+    (Quẹt PetSnap) as snap
+    (Quản lý thú cưng) as mng_pets
+  }
+
+  package "Nhận nuôi & Báo cáo" {
+    (Gửi yêu cầu nhận nuôi) as req_adopt
+    (Xử lý yêu cầu nhận nuôi) as proc_adopt
+    (Báo cáo thú cưng thất lạc/tìm thấy) as report_pet
+    (Xử lý báo cáo) as proc_report
+  }
+
+  package "Dịch vụ mở rộng" {
+    (Mua sắm đồ chơi/phụ kiện) as shop
+  }
+
+guest --> login
+guest --> view_pets
+
+user --> profile
+user --> fav_pet
+user --> snap
+user --> req_adopt
+user --> report_pet
+user --> shop
+
+staff --> mng_pets
+staff --> proc_adopt
+staff --> proc_report
+
+admin --> mng_staff
+admin --> mng_user
+admin --> stats
+
+@enduml

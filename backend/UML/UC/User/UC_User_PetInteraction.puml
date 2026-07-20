@@ -1,0 +1,21 @@
+@startuml
+left to right direction
+actor User
+
+rectangle "Khám phá & Tương tác Thú cưng" {
+  (Xem danh sách thú cưng) as list_pets
+  (Tìm kiếm/Lọc thú cưng) as search_pets
+  (Xem chi tiết thú cưng) as pet_detail
+  (Yêu thích thú cưng) as like_pet
+  (Xem danh sách yêu thích) as my_favs
+  (Quẹt PetSnap) as petsnap
+}
+
+User --> list_pets
+User --> search_pets
+User --> pet_detail
+User --> like_pet
+User --> my_favs
+User --> petsnap
+
+@enduml

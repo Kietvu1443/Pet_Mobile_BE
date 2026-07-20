@@ -1,0 +1,2264 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo Cáo Của Tôi</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    .my-reports-page {
+      background: #f4f7f6;
+      min-height: 100vh;
+      padding: 26px 16px 42px;
+    }
+
+    .my-reports-wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .my-reports-head {
+      background: linear-gradient(145deg, #1f5d3d, #2d6a4f);
+      color: #fff;
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 12px 26px rgba(20, 83, 45, 0.22);
+      margin-bottom: 18px;
+    }
+
+    .my-reports-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .my-reports-summary-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .my-reports-summary-card small {
+      color: #64748b;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+    }
+
+    .my-reports-summary-card strong {
+      display: block;
+      margin-top: 6px;
+      color: #0f172a;
+      font-size: 1.55rem;
+      line-height: 1;
+    }
+
+    .my-reports-toolbar {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .my-reports-toolbar select,
+    .my-reports-toolbar button {
+      height: 42px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      font-size: 0.9rem;
+      padding: 0 12px;
+    }
+
+    .my-reports-toolbar button {
+      border: none;
+      background: #2d6a4f;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .my-reports-status {
+      min-height: 24px;
+      margin-bottom: 10px;
+      color: #475569;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .my-reports-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .my-report-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .my-report-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      background: #e2e8f0;
+    }
+
+    .my-report-body {
+      padding: 12px;
+    }
+
+    .my-report-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .my-report-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-weight: 700;
+    }
+
+    .my-report-pill.type-lost {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .my-report-pill.type-found {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .my-report-pill.status-pending {
+      background: #fef3c7;
+      color: #a16207;
+    }
+
+    .my-report-pill.status-approved {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .my-report-pill.status-rejected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .my-report-desc {
+      margin: 0;
+      color: #0f172a;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 2.7em;
+    }
+
+    .my-report-meta {
+      margin-top: 8px;
+      color: #64748b;
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    .my-reports-pagination {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .my-reports-pagination button {
+      min-width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: #0f172a;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0 8px;
+    }
+
+    .my-reports-pagination button.active {
+      background: #2d6a4f;
+      border-color: #2d6a4f;
+      color: #fff;
+    }
+
+    .my-reports-skeleton {
+      height: 300px;
+      border-radius: 14px;
+      background: linear-gradient(90deg, #edf2f7 25%, #e2e8f0 37%, #edf2f7 63%);
+      background-size: 400% 100%;
+      animation: shimmer 1.2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 100% 0;
+      }
+
+      100% {
+        background-position: 0 0;
+      }
+    }
+
+    @media (max-width:980px) {
+      .my-reports-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .my-reports-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width:680px) {
+      .my-reports-page {
+        padding: 16px 12px 28px;
+      }
+
+      .my-reports-toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .my-reports-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── Tabs ── */
+    .page-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 0;
+    }
+
+    .page-tab-btn {
+      padding: 10px 22px;
+      border: none;
+      background: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #64748b;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+
+    .page-tab-btn.active {
+      color: #1f5133;
+      border-bottom-color: #2d6a4f;
+    }
+
+    /* ── Adoption cards ── */
+    .adoption-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .adoption-card {
+      background: #fff;
+      border: 1px solid #e5efe8;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(14, 54, 34, 0.05);
+    }
+
+    .adoption-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      background: #f3f4f6;
+    }
+
+    .adoption-card-body {
+      padding: 14px;
+    }
+
+    .adoption-card h3 {
+      margin: 0 0 6px;
+      color: #1f5133;
+      font-size: 1rem;
+    }
+
+    .adoption-meta {
+      margin: 0 0 8px;
+      color: #64748b;
+      font-size: 0.85rem;
+    }
+
+    .adoption-msg {
+      margin: 0;
+      color: #1f2937;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .adoption-footer {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .adoption-status {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .adoption-status.pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .adoption-status.approved {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .adoption-status.rejected {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    /* ── Adoption summary & filter ── */
+    .adoption-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .adoption-summary-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .adoption-summary-card small {
+      color: #64748b;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+    }
+
+    .adoption-summary-card strong {
+      display: block;
+      margin-top: 6px;
+      color: #0f172a;
+      font-size: 1.55rem;
+      line-height: 1;
+    }
+
+    .adoption-filter-btns {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .adoption-filter-btn {
+      padding: 7px 18px;
+      border-radius: 999px;
+      border: 1.5px solid #cbd5e1;
+      background: #fff;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .adoption-filter-btn.active {
+      background: #2d6a4f;
+      border-color: #2d6a4f;
+      color: #fff;
+    }
+
+    @media (max-width:980px) {
+      .adoption-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    /* ── My news cards ── */
+    .my-news-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .my-news-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .my-news-img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      background: #e8f5e9;
+    }
+
+    .my-news-body {
+      padding: 12px;
+    }
+
+    .my-news-pill {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.75rem;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .my-news-pill.status-pending {
+      background: #fef3c7;
+      color: #a16207;
+    }
+
+    .my-news-pill.status-approved {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .my-news-pill.status-rejected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .my-news-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.4;
+      margin-bottom: 6px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .my-news-meta {
+      font-size: 0.78rem;
+      color: #64748b;
+    }
+
+    .my-news-reason {
+      margin-top: 6px;
+      font-size: 0.78rem;
+      color: #b91c1c;
+      background: #fee2e2;
+      padding: 6px 8px;
+      border-radius: 6px;
+    }
+
+    @media (max-width:980px) {
+      .my-news-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width:680px) {
+      .my-news-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── Orders tab ── */
+    .order-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .order-summary-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .order-summary-card small {
+      color: #64748b;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+    }
+
+    .order-summary-card strong {
+      display: block;
+      margin-top: 6px;
+      color: #0f172a;
+      font-size: 1.55rem;
+      line-height: 1;
+    }
+
+    .order-filter-btns {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .order-filter-btn {
+      padding: 7px 18px;
+      border-radius: 999px;
+      border: 1.5px solid #cbd5e1;
+      background: #fff;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .order-filter-btn.active {
+      background: #2d6a4f;
+      border-color: #2d6a4f;
+      color: #fff;
+    }
+
+    .order-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .order-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      overflow: hidden;
+      transition: box-shadow 0.18s;
+    }
+
+    .order-card:hover {
+      box-shadow: 0 4px 20px rgba(14, 54, 34, 0.09);
+    }
+
+    .order-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .order-card-id {
+      font-weight: 700;
+      color: #1f5133;
+      font-size: 0.95rem;
+    }
+
+    .order-card-date {
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+
+    .order-status-badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 4px 12px;
+    }
+
+    .order-status-badge.pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .order-status-badge.processing {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .order-status-badge.shipping {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .order-status-badge.completed {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .order-status-badge.cancelled {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .order-card-body {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .order-card-info {
+      font-size: 0.88rem;
+      color: #374151;
+    }
+
+    .order-card-info span {
+      color: #64748b;
+    }
+
+    .order-card-total {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1f5133;
+      white-space: nowrap;
+    }
+
+    .order-timeline {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      gap: 0;
+      border-top: 1px solid #f1f5f9;
+      overflow-x: auto;
+    }
+
+    .order-timeline-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      min-width: 64px;
+      position: relative;
+    }
+
+    .order-timeline-step::after {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: #e2e8f0;
+      z-index: 0;
+    }
+
+    .order-timeline-step:last-child::after {
+      display: none;
+    }
+
+    .order-timeline-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #e2e8f0;
+      background: #fff;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      transition: all 0.2s;
+    }
+
+    .order-timeline-dot.done {
+      background: #2d6a4f;
+      border-color: #2d6a4f;
+      color: #fff;
+    }
+
+    .order-timeline-dot.active {
+      background: #fff;
+      border-color: #2d6a4f;
+      box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.15);
+    }
+
+    .order-timeline-dot.cancelled-dot {
+      background: #fee2e2;
+      border-color: #f87171;
+      color: #b91c1c;
+    }
+
+    .order-timeline-label {
+      font-size: 0.65rem;
+      color: #94a3b8;
+      margin-top: 4px;
+      text-align: center;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .order-timeline-label.active {
+      color: #2d6a4f;
+    }
+
+    .order-detail-btn {
+      background: none;
+      border: 1.5px solid #2d6a4f;
+      color: #2d6a4f;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+
+    .order-detail-btn:hover {
+      background: #2d6a4f;
+      color: #fff;
+    }
+
+    /* Modal chi tiết đơn hàng */
+    .order-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .order-modal-overlay.open {
+      display: flex;
+    }
+
+    .order-modal {
+      background: #fff;
+      border-radius: 18px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 88vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+    }
+
+    .order-modal-head {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .order-modal-title {
+      font-weight: 700;
+      color: #1f5133;
+      font-size: 1rem;
+    }
+
+    .order-modal-close {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #94a3b8;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .order-modal-close:hover {
+      background: #f1f5f9;
+      color: #374151;
+    }
+
+    .order-modal-body {
+      padding: 16px 20px;
+    }
+
+    .order-modal-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px solid #f8fafc;
+      font-size: 0.88rem;
+    }
+
+    .order-modal-row:last-child {
+      border-bottom: none;
+    }
+
+    .order-modal-label {
+      color: #64748b;
+    }
+
+    .order-modal-val {
+      font-weight: 600;
+      color: #0f172a;
+      text-align: right;
+      max-width: 60%;
+    }
+
+    .order-modal-items-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 14px 0 8px;
+    }
+
+    .order-modal-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .order-modal-item:last-child {
+      border-bottom: none;
+    }
+
+    .order-modal-item img {
+      width: 44px;
+      height: 44px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: #f3f4f6;
+    }
+
+    .order-modal-item-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .order-modal-item-meta {
+      font-size: 0.78rem;
+      color: #64748b;
+    }
+
+    .order-modal-item-price {
+      font-weight: 700;
+      color: #1f5133;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    @media (max-width:980px) {
+      .order-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width:680px) {
+      .order-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .search-box-wrap {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border: 1.5px solid #d1d5db;
+      border-radius: 10px;
+      padding: 8px 14px;
+      gap: 8px;
+      margin-bottom: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .search-box-wrap:focus-within {
+      border-color: #2d6a4f;
+      box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.1);
+    }
+
+    .search-box-wrap input {
+      border: none;
+      outline: none;
+      font-size: 0.9rem;
+      color: #333;
+      background: transparent;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    .search-box-wrap .si {
+      color: #aaa;
+      flex-shrink: 0;
+    }
+
+    .search-clear {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #aaa;
+      display: none;
+    }
+
+    .search-clear.vis {
+      display: block;
+    }
+
+    /* ── Return button ─────────────────────── */
+    .btn-return {
+        margin-top: 10px;
+        width: 100%;
+        padding: 8px 12px;
+        background: #fff7ed;
+        border: 1.5px solid #f59e0b;
+        color: #92400e;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+        transition: background 0.18s;
+    }
+    .btn-return:hover { background: #fef3c7; }
+    .btn-return:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+    .return-pending-label {
+        margin-top: 10px;
+        display: block;
+        text-align: center;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #b45309;
+        background: #fef3c7;
+        padding: 5px 8px;
+        border-radius: 6px;
+    }
+    .return-completed-label {
+        margin-top: 10px;
+        display: block;
+        text-align: center;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #166534;
+        background: #dcfce7;
+        padding: 5px 8px;
+        border-radius: 6px;
+    }
+
+    /* ── Timeline ──────────────────────────── */
+    .timeline {
+        display: flex;
+        align-items: flex-start;
+        gap: 0;
+        margin-top: 10px;
+        margin-bottom: 4px;
+    }
+    .tl-step {
+        flex: 1;
+        text-align: center;
+        position: relative;
+    }
+    .tl-step:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 10px;
+        right: -50%;
+        width: 100%;
+        height: 2px;
+        background: #d1d5db;
+        z-index: 0;
+    }
+    .tl-step.done:not(:last-child)::after { background: #22c55e; }
+    .tl-dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #d1d5db;
+        margin: 0 auto 4px;
+        position: relative;
+        z-index: 1;
+    }
+    .tl-step.done .tl-dot { background: #22c55e; }
+    .tl-step.active .tl-dot { background: #f59e0b; box-shadow: 0 0 0 3px #fef3c7; }
+    .tl-step.rejected .tl-dot, .tl-step.cancelled .tl-dot { background: #ef4444; }
+    .tl-label { font-size: 0.68rem; color: #6b7280; line-height: 1.2; }
+    .tl-step.done .tl-label { color: #166534; font-weight: 600; }
+    .tl-step.active .tl-label { color: #92400e; font-weight: 700; }
+    .tl-step.rejected .tl-label, .tl-step.cancelled .tl-label { color: #b91c1c; font-weight: 700; }
+
+    /* ── Modal ─────────────────────────────── */
+    body .swal2-container {
+        z-index: 999999 !important;
+    }
+    .modal-overlay-r {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15,23,42,0.5);
+        z-index: 900;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+    }
+    .modal-overlay-r.show { display: flex; }
+    .modal-box-r {
+        background: #fff;
+        border-radius: 16px;
+        width: 540px;
+        max-width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    }
+    .modal-header-r {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .modal-header-r h2 { margin: 0; font-size: 1.1rem; color: #1f5133; }
+    .modal-body-r { padding: 20px; }
+    .modal-footer-r {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        padding: 14px 20px;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+        border-radius: 0 0 16px 16px;
+    }
+    .form-group-r {
+        margin-bottom: 14px;
+    }
+    .form-group-r label {
+        display: block;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 5px;
+        text-align: left;
+    }
+    .form-group-r select,
+    .form-group-r textarea {
+        width: 100%;
+        padding: 9px 12px;
+        border: 1.5px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.92rem;
+        box-sizing: border-box;
+    }
+    .form-group-r select:focus,
+    .form-group-r textarea:focus {
+        outline: none;
+        border-color: #22c55e;
+    }
+    .image-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 8px;
+    }
+    .image-preview-item {
+        border-radius: 8px;
+        overflow: hidden;
+        aspect-ratio: 1;
+        background: #f3f4f6;
+        position: relative;
+    }
+    .image-preview-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .char-count {
+        font-size: 0.78rem;
+        color: #9ca3af;
+        text-align: right;
+        margin-top: 3px;
+    }
+    .btn-modal-cancel {
+        border: 1px solid #d1d5db;
+        background: #fff;
+        color: #374151;
+        border-radius: 8px;
+        padding: 8px 16px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+    .btn-modal-submit {
+        background: #1f5133;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        cursor: pointer;
+        font-weight: 700;
+    }
+    .btn-modal-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+    .notice-box {
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 0.85rem;
+        color: #92400e;
+        margin-bottom: 14px;
+        text-align: left;
+    }
+  </style>
+  <link rel="stylesheet" href="/stylesheets/staticHeader.css">
+  <style id="gtranslate-css">
+    .lang-switcher {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .lang-switcher-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 8px;
+      padding: 5px 10px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.18s;
+      white-space: nowrap;
+    }
+
+    .lang-switcher-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .lang-switcher-btn svg {
+      width: 14px;
+      height: 14px;
+      opacity: .8;
+    }
+
+    .lang-switcher-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      min-width: 140px;
+      z-index: 9999;
+      overflow: hidden;
+    }
+
+    .lang-switcher-dropdown.open {
+      display: block;
+    }
+
+    .lang-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #374151;
+      cursor: pointer;
+      transition: background 0.15s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+    }
+
+    .lang-option:hover {
+      background: #f1f5f9;
+    }
+
+    .lang-option.active {
+      background: #f0fdf4;
+      color: #166534;
+      font-weight: 600;
+    }
+
+    .lang-option .flag {
+      font-size: 16px;
+    }
+
+    .goog-te-banner-frame,
+    .skiptranslate {
+      display: none !important;
+    }
+
+    body {
+      top: 0 !important;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="top-bar">
+      <a href="/" class="logo-group">
+        <div class="logo-circle">
+          <img src="/images/the_logo.webp" alt="logo" id="the_logo">
+        </div>
+        <div class="web-name">PET HELPER</div>
+      </a>
+      <div class="user-actions">
+        <div class="auth-user-actions is-auth-hidden" id="headerAuthUserState">
+          <div class="user-dropdown" id="headerUserDropdown">
+            <span id="userDropdownBtn" style="cursor: pointer;">
+              <span id="headerDisplayNameText">Tài khoản</span> ▼
+            </span>
+            <div class="user-dropdown-menu" id="userDropdownMenu">
+              <div class="dropdown-header">
+                <strong id="headerDropdownDisplayName">Tài khoản</strong>
+                <span class="user-role" id="headerUserRole">👤 User</span>
+              </div>
+              <div class="dropdown-divider"></div>
+              <a href="/profile" class="dropdown-item">👤 Tài khoản</a>
+              <a href="/my-favorites" class="dropdown-item">❤️ Thú cưng đã yêu thích</a>
+              <a href="/my-reports" class="dropdown-item">📋 Báo cáo của tôi</a>
+              <a href="/adopt/admin/add" class="dropdown-item role-staff-only is-auth-hidden">🐾 Thêm thú cưng</a>
+              <a href="/admin/reports" class="dropdown-item role-staff-only is-auth-hidden">📋 Duyệt báo cáo</a>
+              <a href="/admin/adoption-requests" class="dropdown-item role-staff-only is-auth-hidden">🏠 Xét duyệt nhận
+                nuôi</a>
+              <a href="/admin" class="dropdown-item role-admin-only is-auth-hidden">⚙️ Quản trị</a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item logout" id="logoutBtn" onclick="handleLogout(event)">🚪 Đăng xuất</a>
+            </div>
+          </div>
+        </div>
+        <div class="auth-guest-actions is-auth-visible" id="headerAuthGuestState">
+          <a href="#"
+            onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('login'); } return false;"><span>Đăng
+              nhập</span></a>
+          <a href="#"
+            onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('register'); } return false;"><span>Đăng
+              ký</span></a>
+        </div>
+        <span onclick="toggleCart()" style="cursor:pointer;">Giỏ hàng <span id="cart-count-display">(0)</span></span>
+        <div class="lang-switcher" id="langSwitcher">
+          <button class="lang-switcher-btn" onclick="toggleLangDropdown(event)" id="langBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" />
+            </svg>
+            <span id="langBtnLabel">VI</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+          <div class="lang-switcher-dropdown" id="langDropdown">
+            <button class="lang-option active" onclick="setLang('vi','VI')" data-lang="vi"><span
+                class="flag">🇻🇳</span> Tiếng Việt</button>
+            <button class="lang-option" onclick="setLang('/en','EN')" data-lang="en"><span class="flag">🇺🇸</span>
+              English</button>
+            <button class="lang-option" onclick="setLang('/zh-TW','中文')" data-lang="zh-TW"><span
+                class="flag">🇹🇼</span> 中文</button>
+            <button class="lang-option" onclick="setLang('/ja','日本語')" data-lang="ja"><span class="flag">🇯🇵</span>
+              日本語</button>
+          </div>
+        </div>
+      </div>
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Mở menu">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+    <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+    <nav class="main-nav" id="mainNav">
+      <button class="mobile-nav-close" id="mobileNavClose" aria-label="Đóng menu">✕</button>
+      <ul>
+        <li>
+          <a href="#" class="has-dropdown nav-item">Nhận nuôi <span class="nav-arrow arrow">▼</span></a>
+          <ul class="nav-dropdown">
+            <li><a href="/adopt">Xem vật nuôi có thể nhận nuôi</a></li>
+            <li><a href="/snap" style="color: #ea580c; font-weight: bold;">PetSnap (Tìm kiếm ngẫu hứng!)</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#" class="has-dropdown nav-item">Thất lạc <span class="nav-arrow arrow">▼</span></a>
+          <ul class="nav-dropdown">
+            <li><a href="/lost">Báo mất thú cưng</a></li>
+            <li><a href="/found">Báo tin nhặt được</a></li>
+            <li><a href="/reports/list">Xem báo cáo thất lạc</a></li>
+            <li><a href="/tips">Mẹo tìm kiếm hiệu quả</a></li>
+
+          </ul>
+        </li>
+        <li>
+          <a href="#" class="has-dropdown nav-item">Dịch vụ <span class="nav-arrow arrow">▼</span></a>
+          <ul class="nav-dropdown">
+            <li><a href="/booking">Đặt lịch tiêm phòng</a></li>
+            <li><a href="/shop">Danh mục đồ ăn/ đồ dùng</a></li>
+          </ul>
+        </li>
+        <li><a href="/news">Tin tức</a></li>
+        <li>
+          <a href="#" class="has-dropdown nav-item">Về chúng tôi <span class="nav-arrow arrow">▼</span></a>
+          <ul class="nav-dropdown">
+            <li><a href="#contact-section">Liên hệ với chúng tôi</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <main class="my-reports-page">
+    <div class="my-reports-wrap">
+      <section class="my-reports-head">
+        <h1>Hoạt Động Của Tôi</h1>
+        <p>Theo dõi yêu cầu nhận nuôi, báo cáo thú cưng và bài tin của bạn.</p>
+      </section>
+
+      <!-- Tabs -->
+      <div class="page-tabs">
+        <button class="page-tab-btn active" id="tabAdoption" onclick="switchTab('adoption')">🏠 Yêu cầu nhận
+          nuôi</button>
+        <button class="page-tab-btn" id="tabReports" onclick="switchTab('reports')">🐾 Báo cáo thú cưng</button>
+        <button class="page-tab-btn" id="tabNews" onclick="switchTab('news')">📰 Bài tin của tôi</button>
+        <button class="page-tab-btn" id="tabOrders" onclick="switchTab('orders')">📦 Đơn hàng</button>
+      </div>
+
+      <!-- Panel: Yêu cầu nhận nuôi -->
+      <div id="panelAdoption">
+        <p style="margin:0 0 14px;color:#5f6f67;font-size:0.9rem;">Theo dõi trạng thái các yêu cầu nhận nuôi bạn đã gửi.
+        </p>
+        <!-- Tóm tắt số liệu -->
+        <div class="adoption-summary">
+          <div class="adoption-summary-card"><small>Tổng yêu cầu</small><strong id="adopt-sum-total">0</strong></div>
+          <div class="adoption-summary-card"><small>Chờ duyệt</small><strong id="adopt-sum-pending">0</strong></div>
+          <div class="adoption-summary-card"><small>Đã duyệt</small><strong id="adopt-sum-approved">0</strong></div>
+          <div class="adoption-summary-card"><small>Từ chối</small><strong id="adopt-sum-rejected">0</strong></div>
+        </div>
+        <!-- Filter nhanh -->
+        <div class="adoption-filter-btns">
+          <button class="adoption-filter-btn active" onclick="filterAdoption('')">Tất cả</button>
+          <button class="adoption-filter-btn" onclick="filterAdoption('pending')">⏳ Chờ duyệt</button>
+          <button class="adoption-filter-btn" onclick="filterAdoption('approved')">✅ Đã duyệt</button>
+          <button class="adoption-filter-btn" onclick="filterAdoption('rejected')">❌ Từ chối</button>
+        </div>
+        <!-- Tìm kiếm -->
+        <div class="search-box-wrap" style="margin-bottom:14px;">
+          <span class="si">🔍</span>
+          <input type="text" id="adoptionSearch" placeholder="Tìm theo tên thú cưng, ghi chú..."
+            oninput="renderAdoptionCards()">
+          <button class="search-clear" id="adoptionSearchClear"
+            onclick="document.getElementById('adoptionSearch').value='';renderAdoptionCards();">✕</button>
+        </div>
+        <div id="adoptionStatus" style="color:#64748b;font-size:0.9rem;margin-bottom:12px;min-height:20px;"></div>
+        <div id="adoptionGrid" class="adoption-grid"></div>
+        <div id="adoptionEmpty" class="empty-box">Bạn chưa gửi yêu cầu nhận nuôi nào.</div>
+      </div>
+
+      <!-- Panel: Báo cáo thú cưng -->
+      <div id="panelReports" style="display:none">
+        <section class="my-reports-head"
+          style="background:none;color:#1f5133;box-shadow:none;padding:0;margin-bottom:14px;">
+          <p style="margin:0;color:#5f6f67;">Theo dõi trạng thái tin thất lạc và tìm thấy của bạn.</p>
+        </section>
+        <section class="my-reports-summary">
+          <div class="my-reports-summary-card"><small>Tổng báo cáo</small><strong id="sum-total">0</strong></div>
+          <div class="my-reports-summary-card"><small>Chờ duyệt</small><strong id="sum-pending">0</strong></div>
+          <div class="my-reports-summary-card"><small>Đã duyệt</small><strong id="sum-approved">0</strong></div>
+          <div class="my-reports-summary-card"><small>Đã từ chối</small><strong id="sum-rejected">0</strong></div>
+        </section>
+        <section class="my-reports-toolbar"><select id="filterStatus">
+            <option value="">Tất cả trạng thái</option>
+            <option value="pending">Chờ duyệt</option>
+            <option value="approved">Đã duyệt</option>
+            <option value="rejected">Đã từ chối</option>
+          </select><select id="filterType">
+            <option value="">Tất cả loại báo cáo</option>
+            <option value="lost">Thất lạc</option>
+            <option value="found">Tìm thấy</option>
+          </select><button id="refreshMyReportsBtn" type="button">Làm mới danh sách</button></section>
+        <div class="search-box-wrap">
+          <span class="si">🔍</span>
+          <input type="text" id="reportSearch" placeholder="Tìm theo vị trí, mô tả..." oninput="onReportSearch()">
+          <button class="search-clear" id="reportSearchClear"
+            onclick="clearMySearch('reportSearch','reportSearchClear','report')">✕</button>
+        </div>
+        <div class="my-reports-status" id="myReportsStatus"></div>
+        <section class="my-reports-grid" id="myReportsGrid"></section>
+        <div class="my-reports-pagination" id="myReportsPagination"></div>
+      </div><!-- /panelReports -->
+
+      <!-- Panel: Bài tin của tôi -->
+      <div id="panelNews" style="display:none">
+        <!-- Filter tabs giống báo cáo thú cưng -->
+        <section class="my-reports-summary">
+          <div class="my-reports-summary-card"><small>Tổng bài tin</small><strong id="news-sum-total">0</strong></div>
+          <div class="my-reports-summary-card"><small>Chờ duyệt</small><strong id="news-sum-pending">0</strong></div>
+          <div class="my-reports-summary-card"><small>Đã duyệt</small><strong id="news-sum-approved">0</strong></div>
+          <div class="my-reports-summary-card"><small>Bị từ chối</small><strong id="news-sum-rejected">0</strong></div>
+        </section>
+        <section class="my-reports-toolbar" style="grid-template-columns:1fr auto;margin-bottom:16px;">
+          <select id="newsFilterStatus" onchange="filterMyNews()">
+            <option value="">Tất cả trạng thái</option>
+            <option value="pending">Chờ duyệt</option>
+            <option value="approved">Đã duyệt</option>
+            <option value="rejected">Bị từ chối</option>
+          </select>
+          <button onclick="window.loadMyNews(1)" type="button">Làm mới</button>
+        </section>
+        <div class="search-box-wrap"
+          style="display:flex;align-items:center;background:#fff;border:1.5px solid #d1d5db;border-radius:10px;padding:8px 14px;gap:8px;margin-bottom:12px;transition:border-color 0.2s;">
+          <span style="color:#aaa;flex-shrink:0;">🔍</span>
+          <input type="text" id="newsSearch" placeholder="Tìm theo tiêu đề..."
+            style="border:none;outline:none;font-size:0.9rem;color:#333;background:transparent;width:100%;font-family:inherit;"
+            oninput="onNewsSearch()">
+          <button id="newsSearchClear" onclick="clearMySearch('newsSearch','newsSearchClear','news')"
+            style="background:none;border:none;cursor:pointer;color:#aaa;display:none;font-size:1rem;">✕</button>
+        </div>
+        <div id="myNewsStatus" style="color:#64748b;font-size:0.9rem;margin-bottom:12px;min-height:20px;"></div>
+        <div id="myNewsGrid" class="my-news-grid"></div>
+        <div id="myNewsEmpty"
+          style="display:none;text-align:center;padding:40px;color:#aaa;background:#fff;border:1px dashed #e2e8f0;border-radius:14px;">
+          Bạn chưa đăng bài tin nào.</div>
+        <div id="myNewsPagination" style="display:flex;gap:6px;justify-content:center;margin-top:16px;flex-wrap:wrap;">
+        </div>
+      </div><!-- /panelNews -->
+
+      <!-- Panel: Đơn hàng của tôi -->
+      <div id="panelOrders" style="display:none">
+        <p style="margin:0 0 14px;color:#5f6f67;font-size:0.9rem;">Theo dõi trạng thái các đơn hàng bạn đã đặt.</p>
+        <div class="order-summary">
+          <div class="order-summary-card"><small>Tổng đơn</small><strong id="ord-sum-total">0</strong></div>
+          <div class="order-summary-card"><small>Đang xử lý</small><strong id="ord-sum-active">0</strong></div>
+          <div class="order-summary-card"><small>Hoàn thành</small><strong id="ord-sum-done">0</strong></div>
+          <div class="order-summary-card"><small>Đã hủy</small><strong id="ord-sum-cancel">0</strong></div>
+        </div>
+        <div class="order-filter-btns">
+          <button class="order-filter-btn active" onclick="filterOrders('')">Tất cả</button>
+          <button class="order-filter-btn" onclick="filterOrders('pending')">⏳ Chờ xử lý</button>
+          <button class="order-filter-btn" onclick="filterOrders('processing')">🔄 Đang xử lý</button>
+          <button class="order-filter-btn" onclick="filterOrders('shipping')">🚚 Đang giao</button>
+          <button class="order-filter-btn" onclick="filterOrders('completed')">✅ Hoàn thành</button>
+          <button class="order-filter-btn" onclick="filterOrders('cancelled')">❌ Đã hủy</button>
+        </div>
+        <div id="ordersStatus" style="color:#64748b;font-size:0.9rem;margin-bottom:12px;min-height:20px;"></div>
+        <div id="ordersList" class="order-list"></div>
+        <div id="ordersEmpty"
+          style="display:none;text-align:center;padding:40px;color:#aaa;background:#fff;border:1px dashed #e2e8f0;border-radius:14px;">
+          Bạn chưa có đơn hàng nào.</div>
+      </div><!-- /panelOrders -->
+
+      <!-- Modal chi tiết đơn hàng -->
+      <div class="order-modal-overlay" id="orderDetailOverlay">
+        <div class="order-modal">
+          <div class="order-modal-head">
+            <span class="order-modal-title" id="orderDetailTitle">Chi tiết đơn hàng</span>
+            <button class="order-modal-close"
+              onclick="document.getElementById('orderDetailOverlay').classList.remove('open')">✕</button>
+          </div>
+          <div class="order-modal-body" id="orderDetailBody"></div>
+        </div>
+      </div>
+
+      <!-- ══ Modal: Gửi yêu cầu trả thú cưng ══ -->
+      <div class="modal-overlay-r" id="returnModal" style="z-index: 900 !important;">
+          <div class="modal-box-r">
+              <div class="modal-header-r">
+                  <h2>🐾 Gửi yêu cầu trả thú cưng</h2>
+                  <button class="btn-modal-cancel" id="closeReturnModal" style="border:none;background:none;font-size:1.2rem;cursor:pointer;">✕</button>
+              </div>
+              <div class="modal-body-r">
+                  <div class="notice-box">
+                      ⚠️ Yêu cầu sẽ được trạm xét duyệt online trước, sau đó hẹn lịch bàn giao thực tế. Vui lòng cung cấp thông tin chính xác và trung thực.
+                  </div>
+                  <div class="form-group-r">
+                      <label for="returnReason">Lý do trả *</label>
+                      <select id="returnReason">
+                          <option value="">-- Chọn lý do --</option>
+                          <option value="financial">💰 Tài chính khó khăn</option>
+                          <option value="allergy">🤧 Dị ứng với thú cưng</option>
+                          <option value="housing">🏠 Thay đổi nơi ở / không được nuôi</option>
+                          <option value="behavior">🐕 Hành vi khó kiểm soát</option>
+                          <option value="medical">🏥 Sức khỏe cá nhân</option>
+                          <option value="other">📝 Lý do khác</option>
+                      </select>
+                  </div>
+                  <div class="form-group-r">
+                      <label for="returnDetail">Mô tả chi tiết * <span style="font-weight:400;color:#9ca3af">(10-1000 ký tự)</span></label>
+                      <textarea id="returnDetail" rows="4" maxlength="1000" placeholder="Vui lòng mô tả chi tiết lý do bạn không thể tiếp tục nuôi thú cưng..."></textarea>
+                      <div class="char-count"><span id="returnDetailCount">0</span>/1000</div>
+                  </div>
+                  <div class="form-group-r">
+                      <label style="text-align:left; display:block;">Ảnh minh chứng thực tế <span style="font-weight:400;color:#9ca3af">(1-3 ảnh, tối đa 5MB/ảnh)</span></label>
+                      <input type="file" id="returnImages" accept="image/*" multiple style="display:none">
+                      <button type="button" onclick="document.getElementById('returnImages').click()" style="padding:7px 14px;border:1.5px dashed #d1d5db;border-radius:8px;background:#f9fafb;cursor:pointer;font-size:0.88rem;display:block;margin-top:5px;">📷 Chọn ảnh</button>
+                      <div class="image-preview-grid" id="imagePreviewGrid"></div>
+                  </div>
+              </div>
+              <div class="modal-footer-r">
+                  <button class="btn-modal-cancel" id="cancelReturnModal">Hủy</button>
+                  <button class="btn-modal-submit" id="submitReturnBtn">Gửi yêu cầu trả</button>
+              </div>
+          </div>
+      </div>
+
+    </div>
+  </main>
+  <script>
+    (function () {
+      var state = { page: 1, limit: 12, status: '', type: '' };
+      var gridEl = document.getElementById('myReportsGrid');
+      var paginationEl = document.getElementById('myReportsPagination');
+      var statusEl = document.getElementById('myReportsStatus');
+      function escapeHtml(str) { return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#39;'); }
+      function typeLabel(type) { return type === 'found' ? 'Tìm thấy' : 'Thất lạc'; }
+      function statusLabel(status) { if (status === 'pending') return 'Chờ duyệt'; if (status === 'approved') return 'Đã duyệt'; if (status === 'rejected') return 'Đã từ chối'; return 'Không rõ'; }
+      function renderLoading() { statusEl.textContent = 'Đang tải báo cáo...'; statusEl.style.color = '#475569'; gridEl.innerHTML = '<div class="my-reports-skeleton"></div><div class="my-reports-skeleton"></div><div class="my-reports-skeleton"></div>'; paginationEl.innerHTML = ''; }
+      function renderSummary(summary) { var d = summary || { total: 0, pending: 0, approved: 0, rejected: 0 }; document.getElementById('sum-total').textContent = d.total || 0; document.getElementById('sum-pending').textContent = d.pending || 0; document.getElementById('sum-approved').textContent = d.approved || 0; document.getElementById('sum-rejected').textContent = d.rejected || 0; }
+      function renderCards(data) {
+        var searchVal = (document.getElementById('reportSearch') ? document.getElementById('reportSearch').value : '').toLowerCase().trim();
+        if (searchVal) { data = data.filter(function (r) { return ([r.description, r.location, r.address, r.found_location, r.color].join(' ').toLowerCase().includes(searchVal)); }); }
+        if (!data || data.length === 0) { statusEl.textContent = 'Không có báo cáo nào phù hợp bộ lọc hiện tại.'; gridEl.innerHTML = ''; return; } statusEl.textContent = 'Đang hiển thị ' + data.length + ' báo cáo trên trang này.'; gridEl.innerHTML = data.map(function (report) { var safeImage = escapeHtml(report.image || '/images/the_logo.webp'); var safeDesc = escapeHtml(report.description || 'Không có mô tả'); var safeLocation = escapeHtml(report.location || 'Chưa rõ vị trí'); var safeCreated = new Date(report.created_at).toLocaleString('vi-VN'); var safeType = escapeHtml(report.type || 'lost'); var safeStatus = escapeHtml(report.status || 'pending'); return `<article class="my-report-card"><img class="my-report-image" src="${safeImage}" alt="Report" onerror="this.onerror=null;this.src='/images/the_logo.webp'"><div class="my-report-body"><div class="my-report-top"><span class="my-report-pill type-${safeType}">${typeLabel(safeType)}</span><span class="my-report-pill status-${safeStatus}">${statusLabel(safeStatus)}</span></div><p class="my-report-desc">${safeDesc}</p><div class="my-report-meta">📍 ${safeLocation}</div><div class="my-report-meta">🕒 ${safeCreated}</div></div></article>`; }).join('');
+      }
+      function renderPagination(currentPage, totalPages) { if (!totalPages || totalPages <= 1) { paginationEl.innerHTML = ''; return; } var html = []; for (var i = 1; i <= totalPages; i++) { html.push('<button class="' + (i === currentPage ? 'active' : '') + '" data-page="' + i + '">' + i + '</button>'); } paginationEl.innerHTML = html.join(''); }
+      async function loadReports() { const previousHtml = gridEl.innerHTML; renderLoading(); try { var params = new URLSearchParams(); params.set('view', 'full'); params.set('page', String(state.page)); params.set('limit', String(state.limit)); if (state.status) params.set('status', state.status); if (state.type) params.set('type', state.type); var response = await fetch('/api/v1/reports/my?' + params.toString()); var json = await response.json(); if (!response.ok || !json.success || !json.data) { throw new Error((json && json.message) || 'Không thể tải báo cáo'); } var result = json.data; renderSummary(result.summary); renderCards(result.data || []); renderPagination(result.page || 1, result.totalPages || 0); } catch (error) { if (previousHtml && previousHtml.trim()) { gridEl.innerHTML = previousHtml; } else { gridEl.innerHTML = ''; } statusEl.textContent = (error && error.message) || 'Có lỗi xảy ra khi tải dữ liệu.'; statusEl.style.color = '#b91c1c'; if (String(statusEl.textContent).toLowerCase().includes('đăng nhập')) { statusEl.textContent = 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại để xem báo cáo của bạn.'; } } }
+      document.getElementById('filterStatus').addEventListener('change', function (e) { state.status = e.target.value; state.page = 1; loadReports(); });
+      document.getElementById('reportSearch').addEventListener('input', function () {
+        document.getElementById('reportSearchClear').classList.toggle('vis', this.value.length > 0);
+      });
+      document.getElementById('filterType').addEventListener('change', function (e) { state.type = e.target.value; state.page = 1; loadReports(); });
+      document.getElementById('refreshMyReportsBtn').addEventListener('click', function () { loadReports(); });
+      paginationEl.addEventListener('click', function (e) { var btn = e.target.closest('button[data-page]'); if (!btn) return; state.page = Number(btn.getAttribute('data-page')) || 1; loadReports(); });
+      // Expose ra window để switchTab bên ngoài IIFE gọi được
+      window.__reportsState = state;
+      window.__loadReports = loadReports;
+      // loadReports() sẽ được gọi khi switchTab("reports")
+
+      // ── Tab switching (khai báo ở script riêng bên dưới) ─────────────
+
+      // ── My news ─────────────────────────────────────────────────────
+      const CAT = { community: '🐾 Cộng đồng', health: '💉 Sức khỏe', adoption: '🏠 Nhận nuôi', knowledge: '📚 Kiến thức', rescue: '🆘 Cứu hộ' };
+
+      function newsStatusLabel(s) {
+        if (s === 'pending') return 'Chờ duyệt';
+        if (s === 'approved') return 'Đã duyệt';
+        if (s === 'rejected') return 'Bị từ chối';
+        return s;
+      }
+
+      function timeAgo(d) {
+        const diff = (Date.now() - new Date(d)) / 1000;
+        if (diff < 3600) return Math.floor(diff / 60) + ' phút trước';
+        if (diff < 86400) return Math.floor(diff / 3600) + ' giờ trước';
+        if (diff < 604800) return Math.floor(diff / 86400) + ' ngày trước';
+        return new Date(d).toLocaleDateString('vi-VN');
+      }
+
+      let allMyNews = [];
+
+      window.clearMySearch = function (inputId, clearId, type) {
+        document.getElementById(inputId).value = '';
+        document.getElementById(clearId).style.display = 'none';
+        if (type === 'report') loadReports();
+        else filterMyNews();
+      };
+      window.onReportSearch = function () {
+        var el = document.getElementById('reportSearch');
+        var cl = document.getElementById('reportSearchClear');
+        if (cl) cl.style.display = el && el.value.length > 0 ? 'block' : 'none';
+        loadReports();
+      };
+      window.onNewsSearch = function () {
+        var el = document.getElementById('newsSearch');
+        var cl = document.getElementById('newsSearchClear');
+        if (cl) cl.style.display = el && el.value.length > 0 ? 'block' : 'none';
+        filterMyNews();
+      };
+      window.filterMyNews = function () {
+        const filterStatus = document.getElementById('newsFilterStatus').value;
+        const searchVal = (document.getElementById('newsSearch') ? document.getElementById('newsSearch').value : '').toLowerCase().trim();
+        let filtered = filterStatus ? allMyNews.filter(n => n.status === filterStatus) : allMyNews;
+        if (searchVal) { filtered = filtered.filter(n => (n.title || '').toLowerCase().includes(searchVal)); }
+        renderMyNewsGrid(filtered);
+        document.getElementById('myNewsStatus').textContent = 'Hiển thị ' + filtered.length + ' / ' + allMyNews.length + ' bài tin';
+      };
+
+      function renderMyNewsGrid(news) {
+        const grid = document.getElementById('myNewsGrid');
+        const empty = document.getElementById('myNewsEmpty');
+        if (!news || !news.length) {
+          grid.innerHTML = '';
+          empty.style.display = 'block';
+          return;
+        }
+        empty.style.display = 'none';
+        grid.innerHTML = news.map(n => {
+          const reason = n.status === 'rejected' && n.rejected_reason
+            ? '<div class="my-news-reason">Lý do: ' + escapeHtml(n.rejected_reason) + '</div>' : '';
+          const link = n.status === 'approved' ? '<a href="/news/' + n.id + '" style="font-size:0.8rem;color:#2d6a4f;font-weight:700;display:block;margin-top:8px;">Xem bài →</a>' : '';
+          return '<div class="my-news-card">' +
+            (n.image ? '<img class="my-news-img" src="' + escapeHtml(n.image) + '" onerror="this.style.display=\'none\'">' : '<div class="my-news-img" style="display:flex;align-items:center;justify-content:center;font-size:2.5rem;">📰</div>') +
+            '<div class="my-news-body">' +
+            '<div>' +
+            '<span class="my-news-pill status-' + escapeHtml(n.status) + '">' + newsStatusLabel(n.status) + '</span> ' +
+            '<span style="font-size:0.72rem;color:#64748b;">' + (CAT[n.category] || n.category) + '</span>' +
+            '</div>' +
+            '<div class="my-news-title">' + escapeHtml(n.title) + '</div>' +
+            '<div class="my-news-meta">📅 ' + timeAgo(n.created_at) + ' · 👁 ' + (n.view_count || 0) + '</div>' +
+            reason + link +
+            '</div></div>';
+        }).join('');
+      }
+
+      window.loadMyNews = async function loadMyNews(page) {
+        const grid = document.getElementById('myNewsGrid');
+        const empty = document.getElementById('myNewsEmpty');
+        const status = document.getElementById('myNewsStatus');
+        const pag = document.getElementById('myNewsPagination');
+
+        grid.innerHTML = '<div class="my-reports-skeleton"></div><div class="my-reports-skeleton"></div><div class="my-reports-skeleton"></div>';
+        empty.style.display = 'none';
+        pag.innerHTML = '';
+        status.textContent = 'Đang tải...';
+
+        try {
+          const res = await fetch('/api/v1/news/my?page=1&limit=100', { credentials: 'include' });
+          const payload = await res.json();
+          if (!payload.success) throw new Error(payload.message);
+
+          const { news, total } = payload.data;
+          allMyNews = news || [];
+
+          document.getElementById('news-sum-total').textContent = total || 0;
+          document.getElementById('news-sum-pending').textContent = allMyNews.filter(n => n.status === 'pending').length;
+          document.getElementById('news-sum-approved').textContent = allMyNews.filter(n => n.status === 'approved').length;
+          document.getElementById('news-sum-rejected').textContent = allMyNews.filter(n => n.status === 'rejected').length;
+
+          status.textContent = 'Bạn đã đăng ' + (total || 0) + ' bài tin';
+          document.getElementById('newsFilterStatus').value = '';
+          renderMyNewsGrid(allMyNews);
+        } catch (e) {
+          grid.innerHTML = '';
+          status.textContent = 'Không thể tải bài tin: ' + (e.message || '');
+          status.style.color = '#b91c1c';
+        }
+      }
+
+    })();
+  </script>
+  <div id="auth-overlay-mount"></div>
+  <script src="/javascripts/authOverlayLoader.js" defer></script>
+  <script src="/javascripts/staticHeader.js"></script>
+  <script src="/javascripts/staticFooter.js"></script>
+  <script>
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    const adoptionStatusLabels = { pending: 'Chờ duyệt', approved: 'Đã duyệt', rejected: 'Từ chối' };
+    let __allAdoptionData = [];
+    let __adoptionFilter = '';
+
+    // ── Pet Returns integration ──────────────────────────────────────────
+    const TIMELINE_STEPS = [
+        { key: 'pending', label: 'Đã gửi' },
+        { key: 'approved_online', label: 'Duyệt online' },
+        { key: 'completed', label: 'Hoàn tất' }
+    ];
+    const TERMINAL_NEGATIVE = { rejected: 'Từ chối', cancelled: 'Đã hủy' };
+
+    const buildTimeline = (returnRecord) => {
+        if (!returnRecord) return '';
+        const st = returnRecord.status;
+        if (st === 'rejected' || st === 'cancelled') {
+            return `<div class="timeline"><div class="tl-step ${st}"><div class="tl-dot"></div><div class="tl-label">${TERMINAL_NEGATIVE[st]}</div></div></div>`;
+        }
+        const stepOrder = ['pending','approved_online','completed'];
+        const currentIdx = stepOrder.indexOf(st);
+        return `<div class="timeline">${TIMELINE_STEPS.map((s, i) => {
+            let cls = '';
+            if (i < currentIdx) cls = 'done';
+            else if (i === currentIdx) cls = 'active';
+            return `<div class="tl-step ${cls}"><div class="tl-dot"></div><div class="tl-label">${s.label}</div></div>`;
+        }).join('')}</div>`;
+    };
+
+    let myReturnMap = {}; // key: pet_id, value: returnRecord
+
+    async function loadMyReturns() {
+        try {
+            const res = await fetch('/api/v1/pet-returns/my', {
+                credentials: 'same-origin',
+                headers: { Accept: 'application/json' },
+            });
+            if (!res.ok) return;
+            const payload = await res.json();
+            const returns = payload?.data?.returns || [];
+            myReturnMap = {};
+            returns.forEach(r => { myReturnMap[r.pet_id] = r; });
+        } catch (_) {}
+    }
+
+    function renderAdoptionCards() {
+      const grid = document.getElementById('adoptionGrid');
+      const empty = document.getElementById('adoptionEmpty');
+      const statusEl = document.getElementById('adoptionStatus');
+      const searchVal = (document.getElementById('adoptionSearch') ? document.getElementById('adoptionSearch').value : '').toLowerCase().trim();
+      let data = __allAdoptionData;
+      if (__adoptionFilter) data = data.filter(function (r) { return r.status === __adoptionFilter; });
+      if (searchVal) data = data.filter(function (r) { return ([r.pet_name, r.pet_type, r.message].join(' ').toLowerCase().includes(searchVal)); });
+      statusEl.textContent = 'Hiển thị ' + data.length + ' / ' + __allAdoptionData.length + ' yêu cầu';
+      if (!data.length) { grid.innerHTML = ''; empty.classList.add('show'); return; }
+      empty.classList.remove('show');
+      grid.innerHTML = data.map(function (item) {
+        const st = String(item.status || 'pending');
+        const date = item.created_at ? new Date(item.created_at).toLocaleDateString('vi-VN') : '-';
+        const img = item.pet_image || '';
+
+        // ── Return status indicator ──────────────────────────────────
+        let returnHtml = '';
+        if (st === 'approved') {
+            const ret = myReturnMap[item.pet_id];
+            if (!ret) {
+                returnHtml = `<button class="btn-return" data-pet-id="${escapeHtml(item.pet_id)}" data-adoption-id="${escapeHtml(item.id)}">🔄 Trả thú cưng</button>`;
+            } else if (ret.status === 'completed') {
+                returnHtml = `<span class="return-completed-label">✅ Đã trả thú cưng thành công</span>${buildTimeline(ret)}`;
+            } else if (ret.status === 'rejected' || ret.status === 'cancelled') {
+                returnHtml = `<button class="btn-return" data-pet-id="${escapeHtml(item.pet_id)}" data-adoption-id="${escapeHtml(item.id)}">🔄 Gửi lại yêu cầu trả</button>`;
+            } else {
+                returnHtml = `<span class="return-pending-label">⏳ Yêu cầu trả: ${escapeHtml(ret.status === 'pending' ? 'Đang chờ duyệt' : 'Đã duyệt online – chờ bàn giao')}</span>${buildTimeline(ret)}`;
+            }
+        }
+
+        return '<div class="adoption-card">' +
+          '<img src="' + img + '" alt="' + (item.pet_name || 'Pet') + '" onerror="this.style.display=\'none\'">' +
+          '<div class="adoption-card-body">' +
+          '<h3>' + (item.pet_name || 'Không rõ tên') + '</h3>' +
+          '<p class="adoption-meta">Loài: ' + (item.pet_type || '-') + '</p>' +
+          '<p class="adoption-msg">' + (item.message || 'Không có ghi chú') + '</p>' +
+          '<div class="adoption-footer" style="margin-bottom:6px;">' +
+          '<span class="adoption-status ' + st + '">' + (adoptionStatusLabels[st] || st) + '</span>' +
+          '<span style="color:#64748b;font-size:0.78rem;">' + date + '</span>' +
+          '</div>' +
+          returnHtml +
+          '</div></div>';
+      }).join('');
+
+      // Gán sự kiện cho các nút trả
+      grid.querySelectorAll('.btn-return').forEach(btn => {
+          btn.addEventListener('click', () => openReturnModal(btn.dataset.petId));
+      });
+    }
+
+    function filterAdoption(status) {
+      __adoptionFilter = status;
+      document.querySelectorAll('.adoption-filter-btn').forEach(function (btn) {
+        btn.classList.toggle('active', btn.getAttribute('onclick') === "filterAdoption('" + status + "')");
+      });
+      renderAdoptionCards();
+    }
+
+    async function loadMyAdoption() {
+      const grid = document.getElementById('adoptionGrid');
+      const empty = document.getElementById('adoptionEmpty');
+      const statusEl = document.getElementById('adoptionStatus');
+      grid.innerHTML = '<div style="color:#64748b;padding:16px;">Đang tải...</div>';
+      empty.classList.remove('show');
+      try {
+        // Load my pet returns first
+        await loadMyReturns();
+
+        const res = await fetch('/api/v1/adoption-requests/my', { credentials: 'same-origin' });
+        const payload = await res.json();
+        if (res.status === 401) {
+          statusEl.textContent = 'Vui lòng đăng nhập để xem yêu cầu nhận nuôi.';
+          grid.innerHTML = '';
+          return;
+        }
+        const requests = payload && payload.data ? payload.data.requests : [];
+        __allAdoptionData = requests;
+        document.getElementById('adopt-sum-total').textContent = requests.length;
+        document.getElementById('adopt-sum-pending').textContent = requests.filter(function (r) { return r.status === 'pending'; }).length;
+        document.getElementById('adopt-sum-approved').textContent = requests.filter(function (r) { return r.status === 'approved'; }).length;
+        document.getElementById('adopt-sum-rejected').textContent = requests.filter(function (r) { return r.status === 'rejected'; }).length;
+        renderAdoptionCards();
+      } catch (e) {
+        grid.innerHTML = '';
+        document.getElementById('adoptionStatus').textContent = 'Không thể tải yêu cầu nhận nuôi.';
+        document.getElementById('adoptionStatus').style.color = '#b91c1c';
+      }
+    }
+
+    // ── Return Modal Logic ──────────────────────────────────────────────
+    let currentReturnPetId = null;
+    let isSubmittingReturn = false;
+    const returnModal = document.getElementById('returnModal');
+    const closeReturnModal = document.getElementById('closeReturnModal');
+    const cancelReturnModal = document.getElementById('cancelReturnModal');
+    const submitReturnBtn = document.getElementById('submitReturnBtn');
+    const returnReason = document.getElementById('returnReason');
+    const returnDetail = document.getElementById('returnDetail');
+    const returnImages = document.getElementById('returnImages');
+    const imagePreviewGrid = document.getElementById('imagePreviewGrid');
+    const returnDetailCount = document.getElementById('returnDetailCount');
+
+    function openReturnModal(petId) {
+        currentReturnPetId = petId;
+        returnReason.value = '';
+        returnDetail.value = '';
+        returnDetailCount.textContent = '0';
+        returnImages.value = '';
+        imagePreviewGrid.innerHTML = '';
+        returnModal.classList.add('show');
+    }
+
+    function closeModal() {
+        returnModal.classList.remove('show');
+        currentReturnPetId = null;
+    }
+
+    closeReturnModal.addEventListener('click', closeModal);
+    cancelReturnModal.addEventListener('click', closeModal);
+    returnModal.addEventListener('click', (e) => { if (e.target === returnModal) closeModal(); });
+
+    returnDetail.addEventListener('input', () => {
+        returnDetailCount.textContent = returnDetail.value.length;
+    });
+
+    returnImages.addEventListener('change', () => {
+        imagePreviewGrid.innerHTML = '';
+        const files = Array.from(returnImages.files).slice(0, 3);
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const div = document.createElement('div');
+                div.className = 'image-preview-item';
+                div.innerHTML = `<img src="${e.target.result}" alt="preview">`;
+                imagePreviewGrid.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
+    submitReturnBtn.addEventListener('click', async () => {
+        if (isSubmittingReturn) return;
+        if (!returnReason.value) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Thiếu thông tin',
+                text: 'Vui lòng chọn lý do trả thú cưng.',
+                confirmButtonColor: '#1f5133',
+                willOpen: () => {
+                    const c = Swal.getContainer();
+                    if (c) c.style.setProperty('z-index', '999999', 'important');
+                }
+            });
+            return;
+        }
+        if (returnDetail.value.trim().length < 10) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Mô tả quá ngắn',
+                text: 'Vui lòng mô tả chi tiết ít nhất 10 ký tự.',
+                confirmButtonColor: '#1f5133',
+                willOpen: () => {
+                    const c = Swal.getContainer();
+                    if (c) c.style.setProperty('z-index', '999999', 'important');
+                }
+            });
+            return;
+        }
+
+        const confirmed = await Swal.fire({
+            icon: 'question',
+            title: 'Xác nhận gửi yêu cầu trả?',
+            text: 'Yêu cầu sẽ được gửi đến trạm để xét duyệt. Bạn có chắc chắn không?',
+            showCancelButton: true,
+            confirmButtonText: 'Gửi yêu cầu',
+            cancelButtonText: 'Không',
+            confirmButtonColor: '#1f5133',
+            willOpen: () => {
+                const c = Swal.getContainer();
+                if (c) c.style.setProperty('z-index', '999999', 'important');
+            }
+        });
+        if (!confirmed.isConfirmed) return;
+
+        isSubmittingReturn = true;
+        submitReturnBtn.disabled = true;
+        submitReturnBtn.textContent = 'Đang gửi...';
+
+        try {
+            const formData = new FormData();
+            formData.append('petId', currentReturnPetId);
+            formData.append('reasonCategory', returnReason.value);
+            formData.append('reasonDetail', returnDetail.value.trim());
+            const files = Array.from(returnImages.files).slice(0, 3);
+            files.forEach(f => formData.append('images', f));
+
+            const res = await fetch('/api/v1/pet-returns', {
+                method: 'POST',
+                credentials: 'same-origin',
+                body: formData,
+            });
+            const payload = await res.json().catch(() => null);
+
+            if (!res.ok) {
+                throw new Error(payload?.message || 'Không thể gửi yêu cầu trả.');
+            }
+
+            closeModal();
+            Swal.fire({
+                icon: 'success',
+                title: 'Đã gửi!',
+                text: 'Yêu cầu trả thú cưng đã được gửi. Trạm sẽ liên hệ với bạn sớm.',
+                confirmButtonColor: '#1f5133',
+                willOpen: () => {
+                    const c = Swal.getContainer();
+                    if (c) c.style.setProperty('z-index', '999999', 'important');
+                }
+            });
+            await loadMyAdoption();
+        } catch (err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: err.message,
+                confirmButtonColor: '#1f5133',
+                willOpen: () => {
+                    const c = Swal.getContainer();
+                    if (c) c.style.setProperty('z-index', '999999', 'important');
+                }
+            });
+        } finally {
+            isSubmittingReturn = false;
+            submitReturnBtn.disabled = false;
+            submitReturnBtn.textContent = 'Gửi yêu cầu trả';
+        }
+    });
+
+    // Load adoption mặc định khi trang mở
+    window.addEventListener('DOMContentLoaded', function () {
+      window.__myAdoptionLoaded = true;
+      loadMyAdoption();
+    });
+  </script>
+  <script>
+    function switchTab(tab) {
+      ['adoption', 'reports', 'news', 'orders'].forEach(function (t) {
+        var panel = document.getElementById('panel' + t.charAt(0).toUpperCase() + t.slice(1));
+        var btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (panel) panel.style.display = t === tab ? '' : 'none';
+        if (btn) btn.classList.toggle('active', t === tab);
+      });
+      if (tab === 'news') {
+        if (!window.__myNewsLoaded) { window.__myNewsLoaded = true; }
+        if (typeof loadMyNews === 'function') loadMyNews(1);
+      }
+      if (tab === 'reports') {
+        var selStatus = document.getElementById('filterStatus');
+        var selType = document.getElementById('filterType');
+        if (selStatus) selStatus.value = '';
+        if (selType) selType.value = '';
+        if (window.__reportsState) { window.__reportsState.status = ''; window.__reportsState.type = ''; window.__reportsState.page = 1; }
+        if (typeof window.__loadReports === 'function') window.__loadReports();
+      }
+      if (tab === 'adoption') {
+        if (typeof loadMyAdoption === 'function') loadMyAdoption();
+      }
+      if (tab === 'orders') {
+        loadMyOrders();
+      }
+    }
+
+    // ── Đơn hàng của tôi ─────────────────────────────────────────────
+    var __allOrdersData = [];
+    var __ordersFilter = '';
+
+    const ORDER_STATUS_LABELS = {
+      pending: 'Chờ xử lý',
+      processing: 'Đang xử lý',
+      shipping: 'Đang giao',
+      completed: 'Hoàn thành',
+      cancelled: 'Đã hủy'
+    };
+
+    const ORDER_TIMELINE = [
+      { key: 'pending', icon: '📋', label: 'Đặt hàng' },
+      { key: 'processing', icon: '⚙️', label: 'Xử lý' },
+      { key: 'shipping', icon: '🚚', label: 'Đang giao' },
+      { key: 'completed', icon: '✅', label: 'Hoàn thành' }
+    ];
+
+    function orderStatusIndex(status) {
+      const map = { pending: 0, processing: 1, shipping: 2, completed: 3 };
+      return map[status] !== undefined ? map[status] : -1;
+    }
+
+    function fmtMoney(n) {
+      return Number(n || 0).toLocaleString('vi-VN') + '₫';
+    }
+
+    function renderOrderTimeline(status) {
+      if (status === 'cancelled') {
+        return '<div class="order-timeline">' +
+          '<div class="order-timeline-step" style="flex:unset">' +
+          '<div class="order-timeline-dot cancelled-dot">✕</div>' +
+          '<div class="order-timeline-label active" style="color:#b91c1c">Đã hủy</div>' +
+          '</div></div>';
+      }
+      const cur = orderStatusIndex(status);
+      return '<div class="order-timeline">' +
+        ORDER_TIMELINE.map(function (step, i) {
+          var dotClass = i < cur ? 'done' : (i === cur ? 'active' : '');
+          var labelClass = i === cur ? 'active' : '';
+          return '<div class="order-timeline-step">' +
+            '<div class="order-timeline-dot ' + dotClass + '">' + (i < cur ? '✓' : step.icon) + '</div>' +
+            '<div class="order-timeline-label ' + labelClass + '">' + step.label + '</div>' +
+            '</div>';
+        }).join('') +
+        '</div>';
+    }
+
+    function renderOrderCards(data) {
+      var list = document.getElementById('ordersList');
+      var empty = document.getElementById('ordersEmpty');
+      var statusEl = document.getElementById('ordersStatus');
+      if (!data || !data.length) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        statusEl.textContent = '';
+        return;
+      }
+      empty.style.display = 'none';
+      statusEl.textContent = 'Hiển thị ' + data.length + ' / ' + __allOrdersData.length + ' đơn hàng';
+      list.innerHTML = data.map(function (o) {
+        var date = o.created_at ? new Date(o.created_at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
+        var badgeClass = o.status || 'pending';
+        return '<div class="order-card">' +
+          '<div class="order-card-header">' +
+          '<span class="order-card-id">Đơn #' + o.id + '</span>' +
+          '<span class="order-card-date">' + date + '</span>' +
+          '<span class="order-status-badge ' + badgeClass + '">' + (ORDER_STATUS_LABELS[o.status] || o.status) + '</span>' +
+          '</div>' +
+          '<div class="order-card-body">' +
+          '<div class="order-card-info">📍 <span>Địa chỉ:</span> ' + (o.address || '—') + '</div>' +
+          '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0">' +
+          '<span class="order-card-total">' + fmtMoney(o.total) + '</span>' +
+          '<button class="order-detail-btn" onclick="viewOrderDetail(' + o.id + ')">Chi tiết →</button>' +
+          '</div>' +
+          '</div>' +
+          renderOrderTimeline(o.status) +
+          '</div>';
+      }).join('');
+    }
+
+    function filterOrders(status) {
+      __ordersFilter = status;
+      document.querySelectorAll('.order-filter-btn').forEach(function (btn) {
+        btn.classList.toggle('active', btn.getAttribute('onclick') === "filterOrders('" + status + "')");
+      });
+      var data = __ordersFilter ? __allOrdersData.filter(function (o) { return o.status === __ordersFilter; }) : __allOrdersData;
+      renderOrderCards(data);
+    }
+
+    async function loadMyOrders() {
+      var list = document.getElementById('ordersList');
+      var statusEl = document.getElementById('ordersStatus');
+      list.innerHTML = '<div class="my-reports-skeleton"></div><div class="my-reports-skeleton"></div>';
+      statusEl.textContent = 'Đang tải...';
+      try {
+        var res = await fetch('/api/orders/my', { credentials: 'include' });
+        if (res.status === 401) {
+          statusEl.textContent = 'Vui lòng đăng nhập để xem đơn hàng.';
+          list.innerHTML = '';
+          return;
+        }
+        var orders = await res.json();
+        __allOrdersData = Array.isArray(orders) ? orders : [];
+
+        document.getElementById('ord-sum-total').textContent = __allOrdersData.length;
+        document.getElementById('ord-sum-active').textContent = __allOrdersData.filter(function (o) { return o.status === 'processing' || o.status === 'shipping' || o.status === 'pending'; }).length;
+        document.getElementById('ord-sum-done').textContent = __allOrdersData.filter(function (o) { return o.status === 'completed'; }).length;
+        document.getElementById('ord-sum-cancel').textContent = __allOrdersData.filter(function (o) { return o.status === 'cancelled'; }).length;
+
+        __ordersFilter = '';
+        document.querySelectorAll('.order-filter-btn').forEach(function (btn, i) { btn.classList.toggle('active', i === 0); });
+        renderOrderCards(__allOrdersData);
+      } catch (e) {
+        list.innerHTML = '';
+        statusEl.textContent = 'Không thể tải đơn hàng.';
+        statusEl.style.color = '#b91c1c';
+      }
+    }
+
+    async function viewOrderDetail(id) {
+      var overlay = document.getElementById('orderDetailOverlay');
+      var body = document.getElementById('orderDetailBody');
+      var title = document.getElementById('orderDetailTitle');
+      title.textContent = 'Đơn hàng #' + id;
+      body.innerHTML = '<div style="text-align:center;padding:32px;color:#64748b">Đang tải...</div>';
+      overlay.classList.add('open');
+      try {
+        var res = await fetch('/api/orders/my/' + id + '/detail', { credentials: 'include' });
+        var order = await res.json();
+        if (!res.ok) { body.innerHTML = '<div style="color:#b91c1c;padding:16px">' + (order.message || 'Lỗi tải chi tiết') + '</div>'; return; }
+
+        var date = order.created_at ? new Date(order.created_at).toLocaleString('vi-VN') : '—';
+        var itemsHtml = (order.items || []).map(function (item) {
+          return '<div class="order-modal-item">' +
+            (item.product_image ? '<img src="' + item.product_image + '" onerror="this.style.display=\'none\'">' : '<div style="width:44px;height:44px;background:#f3f4f6;border-radius:8px;display:flex;align-items:center;justify-content:center">🐾</div>') +
+            '<div style="flex:1">' +
+            '<div class="order-modal-item-name">' + (item.product_name || 'Sản phẩm #' + item.product_id) + '</div>' +
+            '<div class="order-modal-item-meta">SL: ' + item.quantity + ' × ' + fmtMoney(item.price) + '</div>' +
+            '</div>' +
+            '<div class="order-modal-item-price">' + fmtMoney(item.quantity * item.price) + '</div>' +
+            '</div>';
+        }).join('');
+
+        body.innerHTML =
+          '<div class="order-modal-row"><span class="order-modal-label">Trạng thái</span><span class="order-modal-val"><span class="order-status-badge ' + order.status + '">' + (ORDER_STATUS_LABELS[order.status] || order.status) + '</span></span></div>' +
+          '<div class="order-modal-row"><span class="order-modal-label">Ngày đặt</span><span class="order-modal-val">' + date + '</span></div>' +
+          '<div class="order-modal-row"><span class="order-modal-label">Tên người nhận</span><span class="order-modal-val">' + (order.name || '—') + '</span></div>' +
+          '<div class="order-modal-row"><span class="order-modal-label">Số điện thoại</span><span class="order-modal-val">' + (order.phone || '—') + '</span></div>' +
+          '<div class="order-modal-row"><span class="order-modal-label">Địa chỉ</span><span class="order-modal-val">' + (order.address || '—') + '</span></div>' +
+          renderOrderTimeline(order.status) +
+          '<div class="order-modal-items-title">Sản phẩm đã đặt</div>' +
+          itemsHtml +
+          '<div class="order-modal-row" style="margin-top:8px"><span class="order-modal-label" style="font-weight:700">Tổng tiền</span><span class="order-modal-val" style="color:#1f5133;font-size:1.1rem">' + fmtMoney(order.total) + '</span></div>';
+      } catch (e) {
+        body.innerHTML = '<div style="color:#b91c1c;padding:16px">Không thể tải chi tiết đơn hàng.</div>';
+      }
+    }
+
+    // Đóng modal khi click overlay
+    document.getElementById('orderDetailOverlay').addEventListener('click', function (e) {
+      if (e.target === this) this.classList.remove('open');
+    });
+  </script>
+  <div id="google_translate_element" style="display:none"></div>
+  <script>
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({ pageLanguage: 'vi', includedLanguages: 'vi,en,zh-TW,ja', autoDisplay: false }, 'google_translate_element');
+    }
+    function setLang(lang, label) {
+      document.getElementById('langBtnLabel').textContent = label;
+      document.querySelectorAll('.lang-option').forEach(function (el) {
+        el.classList.toggle('active', el.dataset.lang === (lang === 'vi' ? 'vi' : lang.replace('/', '')));
+      });
+      document.getElementById('langDropdown').classList.remove('open');
+      if (lang === 'vi') {
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname;
+        location.reload(); return;
+      }
+      var val = '/vi' + lang;
+      document.cookie = 'googtrans=' + val + '; path=/';
+      document.cookie = 'googtrans=' + val + '; path=/; domain=' + location.hostname;
+      location.reload();
+    }
+    function toggleLangDropdown(e) {
+      e.stopPropagation();
+      document.getElementById('langDropdown').classList.toggle('open');
+    }
+    document.addEventListener('click', function () {
+      var dd = document.getElementById('langDropdown');
+      if (dd) dd.classList.remove('open');
+    });
+    (function () {
+      var m = document.cookie.match(/googtrans=\/vi\/([^;]+)/);
+      if (!m) return;
+      var map = { 'en': 'EN', 'zh-TW': '中文', 'ja': '日本語' };
+      if (map[m[1]]) {
+        document.getElementById('langBtnLabel').textContent = map[m[1]];
+        document.querySelectorAll('.lang-option').forEach(function (el) {
+          el.classList.toggle('active', el.dataset.lang === m[1]);
+        });
+      }
+    })();
+  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <script>
+    /* ── User Background Apply ── */
+    (function () {
+      function applyBg(val) {
+        var styleId = '__user_bg_style';
+        var el = document.getElementById(styleId);
+        if (!el) {
+          el = document.createElement('style');
+          el.id = styleId;
+          document.head.appendChild(el);
+        }
+        if (!val) { el.textContent = ''; return; }
+        var bgRule = val && !/^(#|rgb\(|rgba\(|hsl\(|hsla\(|transparent$|inherit$|initial$|unset$)/i.test(val)
+          ? 'background-image:url("' + val + '")!important;background-size:cover!important;background-attachment:fixed!important;background-repeat:no-repeat!important;background-position:center!important;background-color:transparent!important;'
+          : 'background-color:' + val + '!important;background-image:none!important;';
+        el.textContent = [
+          'body{' + bgRule + '}',
+          'main,#main,.main,.profile-page,.page-wrapper,.page-body,.content-wrapper,.container-fluid,.app-content,.site-content,.page-content,.adopt-page,.admin-page,.reports-page,.favorites-page{background:transparent!important;}'
+        ].join('');
+      }
+
+      window.applyUserBackground = applyBg;
+
+      var _orig = window.applyHeaderUserState;
+      window.applyHeaderUserState = function (user) {
+        if (_orig) _orig(user);
+        if (user && user.bg_preference) applyBg(user.bg_preference);
+      };
+
+      window.addEventListener('load', function () {
+        fetch('/api/v1/auth/me', { credentials: 'include' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            if (data && data.success && data.data && data.data.user && data.data.user.bg_preference) {
+              applyBg(data.data.user.bg_preference);
+            }
+          }).catch(function () { });
+      });
+    })();
+  </script>
+</body>
+
+</html>

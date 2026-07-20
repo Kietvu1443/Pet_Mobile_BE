@@ -1,0 +1,23 @@
+@startuml
+actor User
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+User -> FE : Nhấn nút "Like"
+FE -> BE : POST /pet-like
+
+BE -> BE : Kiểm tra token
+BE -> DB : Kiểm tra đã like chưa?
+
+alt Chưa like
+    BE -> DB : Insert pet_like
+    BE --> FE : Thành công (liked = true)
+    FE --> User : Hiển thị đã thích 
+else Đã like rồi
+    BE -> DB : Xoá pet_like
+    BE --> FE : Thành công (liked = false)
+    FE --> User : Bỏ thích 
+end
+
+@enduml

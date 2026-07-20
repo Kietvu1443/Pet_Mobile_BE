@@ -1,0 +1,15 @@
+@startuml
+left to right direction
+actor Admin
+
+rectangle "Vận hành Hệ thống (Shared with Staff)" {
+  (Quản lý danh mục thú cưng) as mng_pets
+  (Xét duyệt hồ sơ nhận nuôi) as mng_adopt
+  (Thống kê dữ liệu hệ thống) as stats
+}
+
+Admin --> mng_pets
+Admin --> mng_adopt
+Admin --> stats
+
+@enduml

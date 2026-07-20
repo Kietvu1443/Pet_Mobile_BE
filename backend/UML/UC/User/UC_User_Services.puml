@@ -1,0 +1,19 @@
+@startuml
+left to right direction
+actor User
+
+rectangle "Dịch vụ & Tiện ích" {
+  (Xem tin tức/mẹo chăm sóc) as view_news
+  (Đặt lịch tiêm phòng/khám bệnh) as book_vet
+  (Xem sản phẩm phụ kiện/đồ ăn) as view_shop
+  (Thêm sản phẩm vào giỏ hàng) as add_to_cart
+  (Gửi tin nhắn liên hệ hỗ trợ) as contact_support
+}
+
+User --> view_news
+User --> book_vet
+User --> view_shop
+User --> add_to_cart
+User --> contact_support
+
+@enduml

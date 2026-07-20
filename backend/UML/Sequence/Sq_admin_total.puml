@@ -1,0 +1,20 @@
+@startuml
+actor Admin
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+Admin -> FE : Mở dashboard thống kê
+FE -> BE : GET /admin/stats
+
+BE -> BE : Kiểm tra quyền admin
+
+BE -> DB : Đếm số user
+BE -> DB : Đếm số pet
+BE -> DB : Đếm adoption_requests
+BE -> DB : Đếm reports
+
+BE --> FE : Trả dữ liệu thống kê
+FE --> Admin : Hiển thị biểu đồ / số liệu
+
+@enduml

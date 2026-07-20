@@ -1,0 +1,22 @@
+@startuml
+actor User
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+User -> FE : Nhập thông tin mới
+FE -> BE : PUT /profile
+
+BE -> BE : Kiểm tra token
+BE -> BE : Validate dữ liệu
+
+alt Dữ liệu hợp lệ
+    BE -> DB : Update user
+    BE --> FE : Thành công
+    FE --> User : "Cập nhật thành công"
+else Dữ liệu không hợp lệ
+    BE --> FE : Lỗi validate
+    FE --> User : Hiển thị lỗi
+end
+
+@enduml

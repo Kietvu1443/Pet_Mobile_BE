@@ -1,0 +1,32 @@
+@startuml Act_Staff_Activity
+
+title Staff Main Activities
+
+|Staff|
+start
+:Login to Staff Dashboard;
+
+fork
+    partition "Pet Management" {
+        :Add new Pet record;
+        :Upload Pet images;
+        :Update Pet information;
+    }
+fork again
+    partition "Adoption Review" {
+        :View Pending Adoption Requests;
+        :Contact Applicant;
+        if (Suitable?) then (yes)
+            :Approve Request;
+            :System updates Pet status to "Adopted";
+            :System rejects other pending requests for same pet;
+        else (no)
+            :Reject Request;
+            :Provide Reason;
+        endif
+    }
+end fork
+
+stop
+
+@enduml

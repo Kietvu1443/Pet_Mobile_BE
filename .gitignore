@@ -1,0 +1,21 @@
+node_modules/
+.env
+.env.local
+
+# uploads
+pets/
+
+# backups
+backups/
+
+# logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# agent
+AGENTS.md
+Update

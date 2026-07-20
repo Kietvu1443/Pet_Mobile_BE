@@ -1,0 +1,30 @@
+@startuml
+actor Admin
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+Admin -> FE : Chọn user (Ban / Set role / Delete)
+FE -> BE : PUT /admin/users/{id}
+
+BE -> BE : Kiểm tra quyền admin
+BE -> DB : Lấy thông tin user
+
+alt Ban user
+    BE -> DB : Update status = banned
+    BE -> DB : Lưu banned_reason
+    BE --> FE : Thành công
+    FE --> Admin : "Đã khóa tài khoản"
+
+else Phân quyền (staff/admin)
+    BE -> DB : Update role
+    BE --> FE : Thành công
+    FE --> Admin : "Cập nhật quyền"
+
+else Xóa tài khoản
+    BE -> DB : Delete user
+    BE --> FE : Thành công
+    FE --> Admin : "Đã xóa"
+end
+
+@enduml

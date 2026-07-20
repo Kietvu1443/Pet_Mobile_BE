@@ -1,0 +1,20 @@
+@startuml State_Adoption
+
+title Sơ đồ trạng thái yêu cầu nhận nuôi
+
+[*] --> Pending : Gửi yêu cầu
+
+Pending --> Approved : Staff duyệt
+Pending --> Rejected : Staff từ chối
+
+note right of Approved
+  Pet sẽ chuyển sang trạng thái Adopted
+end note
+
+note right of Rejected
+  Có thể do:
+  - Staff từ chối
+  - Pet đã được người khác nhận
+end note
+
+@enduml

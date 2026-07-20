@@ -1,0 +1,30 @@
+@startuml
+actor User
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+User -> FE : Xác nhận nhận nuôi
+FE -> BE : POST /adoption-request
+
+BE -> BE : Kiểm tra token
+BE -> DB : Kiểm tra pet còn available?
+
+alt Pet còn
+    BE -> DB : Kiểm tra đã gửi request chưa?
+
+    alt Chưa gửi
+        BE -> DB : Insert adoption_request (pending)
+        BE --> FE : Thành công
+        FE --> User : "Đã gửi yêu cầu"
+    else Đã gửi rồi
+        BE --> FE : Lỗi trùng request
+        FE --> User : Thông báo lỗi
+    end
+
+else Pet đã được nhận
+    BE --> FE : Lỗi
+    FE --> User : "Pet đã có chủ"
+end
+
+@enduml

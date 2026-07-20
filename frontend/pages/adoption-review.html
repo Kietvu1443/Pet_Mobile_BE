@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xét Duyệt Nhận Nuôi - Pet Helper</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/auth.css">
+    <link rel="stylesheet" href="/stylesheets/staticHeader.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .admin-wrap {
+            background: #f5faf7;
+            min-height: calc(100vh - 140px);
+            padding: 34px 16px;
+        }
+
+        .admin-box {
+            max-width: 1120px;
+            margin: 0 auto;
+        }
+
+        .admin-header h1 {
+            margin: 0 0 6px;
+            color: #1f5133;
+        }
+
+        .admin-header p {
+            margin: 0 0 16px;
+            color: #64748b;
+        }
+
+        .admin-note {
+            display: none;
+            margin-bottom: 16px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .admin-note.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .admin-note.warning {
+            display: block;
+            background: #fff7ed;
+            color: #9a3412;
+        }
+
+        .tab-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            border: 1px solid #cce3d5;
+            background: #fff;
+            color: #1f5133;
+            border-radius: 999px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .tab-btn.active {
+            background: #2b663e;
+            border-color: #2b663e;
+            color: #fff;
+        }
+
+        .table-wrap {
+            background: #fff;
+            border: 1px solid #d8e6dc;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(14, 54, 34, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #edf4ef;
+            text-align: left;
+        }
+
+        th {
+            background: #f1f8f4;
+            color: #395f49;
+            font-size: 0.88rem;
+        }
+
+        td {
+            color: #1f2937;
+            font-size: 0.92rem;
+        }
+
+        .status-pill {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .status-pill.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-pill.approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pill.rejected {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .btn-view {
+            border: 1px solid #9bc7ad;
+            background: #fff;
+            color: #1f5133;
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .table-message {
+            text-align: center;
+            color: #64748b;
+            padding: 18px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            width: 860px;
+            max-width: 100%;
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-bottom: 1px solid #e6eee8;
+        }
+
+        .modal-body {
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .modal-body img {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            border-radius: 10px;
+            background: #f3f4f6;
+        }
+
+        .meta-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .meta-value {
+            margin: 4px 0 12px;
+            color: #111827;
+            word-break: break-word;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            padding: 14px 16px;
+            border-top: 1px solid #e6eee8;
+            background: #f8fcf9;
+        }
+
+        .btn {
+            border: 1px solid transparent;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .btn-close {
+            border-color: #cbd5e1;
+            background: #fff;
+            color: #334155;
+        }
+
+        .btn-approve {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        .btn-reject {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        @media (max-width: 860px) {
+            .modal-body {
+                grid-template-columns: 1fr;
+            }
+
+            th:nth-child(1),
+            td:nth-child(1),
+            th:nth-child(3),
+            td:nth-child(3) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="top-bar">
+            <a href="/" class="logo-group">
+                <div class="logo-circle">
+                    <img src="/images/the_logo.webp" alt="logo" id="the_logo">
+                </div>
+                <div class="web-name">PET HELPER</div>
+            </a>
+            <div class="user-actions">
+                <div class="auth-user-actions is-auth-hidden" id="headerAuthUserState">
+                    <div class="user-dropdown" id="headerUserDropdown">
+                        <span id="userDropdownBtn" style="cursor: pointer;">
+                            <span id="headerDisplayNameText">Tài khoản</span> ▼
+                        </span>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-header">
+                                <strong id="headerDropdownDisplayName">Tài khoản</strong>
+                                <span class="user-role" id="headerUserRole">👤 User</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="/profile" class="dropdown-item">👤 Tài khoản</a>
+                            <a href="/my-adoption-requests" class="dropdown-item">🏠 Yêu cầu nhận nuôi</a>
+                            <a href="/admin/adoption-requests" class="dropdown-item role-staff-only is-auth-hidden">🗂️
+                                Xét duyệt nhận nuôi</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item logout" id="logoutBtn" onclick="handleLogout(event)">🚪
+                                Đăng xuất</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-guest-actions is-auth-visible" id="headerAuthGuestState">
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('login'); } return false;"><span>Đăng
+                            nhập</span></a>
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('register'); } return false;"><span>Đăng
+                            ký</span></a>
+                </div>
+                <span>Giỏ hàng <span id="cart-count-display">(0)</span></span>
+                <span class="lang-switch">VN / EN</span>
+            </div>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Mở menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+
+        <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+
+        <nav class="main-nav" id="mainNav">
+            <button class="mobile-nav-close" id="mobileNavClose" aria-label="Đóng menu">✕</button>
+            <ul>
+                <li><a href="/adopt">Nhận nuôi</a></li>
+                <li><a href="/reports">Thất lạc</a></li>
+                <li><a href="/about">Về chúng tôi</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="auth-overlay-mount"></div>
+    <script src="/javascripts/authOverlayLoader.js" defer></script>
+
+    <main class="admin-wrap">
+        <section class="admin-box">
+            <div class="admin-header">
+                <h1>Xét Duyệt Hồ Sơ Nhận Nuôi</h1>
+                <p>Quản lý yêu cầu nhận nuôi của người dùng theo trạng thái.</p>
+            </div>
+
+            <div id="adminNote" class="admin-note"></div>
+
+            <div class="tab-bar">
+                <button class="tab-btn active" data-section="adoption" data-status="pending">Chờ duyệt (Nhận nuôi)</button>
+                <button class="tab-btn" data-section="adoption" data-status="approved">Đã duyệt</button>
+                <button class="tab-btn" data-section="adoption" data-status="rejected">Đã từ chối</button>
+                <button class="tab-btn" data-section="returns" data-status="pending" style="margin-left:14px;border-color:#f59e0b;color:#92400e;">🔄 Trả THÚ CƯỢNG - Chờ</button>
+                <button class="tab-btn" data-section="returns" data-status="approved_online">🔄 Trả - Đã duyệt online</button>
+                <button class="tab-btn" data-section="returns" data-status="completed">🔄 Trả - Hoàn tất</button>
+            </div>
+
+            <div class="table-wrap" id="adoptionTableWrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã user</th>
+                            <th>Người gửi</th>
+                            <th>Mã pet</th>
+                            <th>Tên pet</th>
+                            <th>Ngày gửi</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminTableBody">
+                        <tr>
+                            <td colspan="7" class="table-message">Đang tải hồ sơ...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Panel hồ sơ trả thú cưng -->
+            <div class="table-wrap" id="returnsTableWrap" style="display:none">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Người trả</th>
+                            <th>Tên thú cưng</th>
+                            <th>Lý do</th>
+                            <th>Ngày gửi</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="returnsTableBody">
+                        <tr><td colspan="6" class="table-message">Đang tải...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Chi tiết hồ sơ nhận nuôi</h2>
+                <button class="btn btn-close" id="closeModalBtn">Đóng</button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <img id="modalPetImage" src="https://via.placeholder.com/640x360?text=No+Image" alt="Pet image">
+                    <div class="meta-label" style="margin-top: 10px;">Lý do</div>
+                    <div class="meta-value" id="modalReason">-</div>
+                    <div class="meta-label" style="margin-top: 6px;">Ảnh minh chứng thực tế</div>
+                    <div id="modalReturnImages" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;"></div>
+                </div>
+                <div>
+                    <div class="meta-label">Người xin nhận nuôi</div>
+                    <div class="meta-value" id="modalDisplayName">-</div>
+                    <div class="meta-label">Email</div>
+                    <div class="meta-value" id="modalEmail">-</div>
+                    <div class="meta-label">Địa chỉ</div>
+                    <div class="meta-value" id="modalAddress">-</div>
+                    <div class="meta-label">Thú cưng</div>
+                    <div class="meta-value" id="modalPetName">-</div>
+                    <div class="meta-label">Trạng thái</div>
+                    <div class="meta-value" id="modalStatus">-</div>
+                </div>
+            </div>
+            <div class="modal-footer" id="modalFooterActions"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="/" class="logo">
+                    <span style="font-size: 1.5rem;">🐾</span>
+                    <span>Pet Helper</span>
+                </a>
+                <p>Nền tảng hỗ trợ và bảo vệ vật nuôi hàng đầu Việt Nam.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Liên hệ</h4>
+                <ul>
+                    <li>📧 support@pethelper.vn</li>
+                    <li>📞 1900-XXXX</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 Pet Helper Green Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/javascripts/staticHeader.js"></script>
+    <script src="/javascripts/staticFooter.js"></script>
+
+    <script>
+        const adminNote = document.getElementById('adminNote');
+        const adminTableBody = document.getElementById('adminTableBody');
+        const returnsTableBody = document.getElementById('returnsTableBody');
+        const adoptionTableWrap = document.getElementById('adoptionTableWrap');
+        const returnsTableWrap = document.getElementById('returnsTableWrap');
+        const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
+        const detailModal = document.getElementById('detailModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalPetImage = document.getElementById('modalPetImage');
+        const modalReason = document.getElementById('modalReason');
+        const modalDisplayName = document.getElementById('modalDisplayName');
+        const modalEmail = document.getElementById('modalEmail');
+        const modalAddress = document.getElementById('modalAddress');
+        const modalPetName = document.getElementById('modalPetName');
+        const modalStatus = document.getElementById('modalStatus');
+        const modalFooterActions = document.getElementById('modalFooterActions');
+
+        let allRequests = [];
+        let allReturns = [];
+        let currentFilter = 'pending';
+        let currentSection = 'adoption'; // 'adoption' | 'returns'
+        let selectedRequest = null;
+        let selectedReturn = null;
+        let hasAdminAccess = false;
+        let isUpdatingStatus = false;
+
+        const statusLabels = {
+            pending: 'Chờ duyệt',
+            approved: 'Đã duyệt',
+            rejected: 'Đã từ chối',
+        };
+
+        const escapeHtml = (value) => String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
+        const setNote = (type, message) => {
+            adminNote.className = 'admin-note';
+            adminNote.textContent = '';
+            if (!message) return;
+            adminNote.classList.add(type);
+            adminNote.textContent = message;
+        };
+
+        const openLoginOverlay = () => {
+            if (typeof window.openLoginOverlaySafely === 'function') {
+                window.openLoginOverlaySafely();
+                return;
+            }
+            if (typeof openOverlay === 'function') {
+                openOverlay('auth-overlay');
+            }
+            if (typeof overlayActivateTab === 'function') {
+                overlayActivateTab('login');
+            }
+        };
+
+        const parseJsonSafe = async (response) => {
+            try {
+                return await response.json();
+            } catch (error) {
+                return null;
+            }
+        };
+
+        const renderStatusPill = (status) => {
+            const safeStatus = String(status || 'pending');
+            const label = statusLabels[safeStatus] || 'Không rõ';
+            return `<span class="status-pill ${escapeHtml(safeStatus)}">${escapeHtml(label)}</span>`;
+        };
+
+        const renderTable = () => {
+            const rows = allRequests.filter((item) => item.status === currentFilter);
+            if (!rows.length) {
+                adminTableBody.innerHTML = '<tr><td colspan="7" class="table-message">Không có hồ sơ nào trong trạng thái này.</td></tr>';
+                return;
+            }
+
+            adminTableBody.innerHTML = rows.map((item) => {
+                const createdDate = item.created_at
+                    ? new Date(item.created_at).toLocaleDateString('vi-VN')
+                    : '-';
+                return `
+                    <tr>
+                        <td>${escapeHtml(item.user_id)}</td>
+                        <td>${escapeHtml(item.display_name || item.user_name || '-')}</td>
+                        <td>${escapeHtml(item.pet_id)}</td>
+                        <td>${escapeHtml(item.pet_name || '-')}</td>
+                        <td>${escapeHtml(createdDate)}</td>
+                        <td>${renderStatusPill(item.status)}</td>
+                        <td><button class="btn-view" data-view-id="${escapeHtml(item.id)}">Xem</button></td>
+                    </tr>
+                `;
+            }).join('');
+        };
+
+        const REASON_LABELS = {
+            financial: '💰 Tài chính',
+            allergy: '🤧 Dị ứng',
+            housing: '🏠 Nhà ở',
+            behavior: '🐕 Hành vi',
+            medical: '🏥 Sức khỏe',
+            other: '📝 Khác',
+        };
+        const RETURN_STATUS_LABELS = {
+            pending: 'Chờ duyệt',
+            approved_online: 'Duyệt online',
+            completed: 'Hoàn tất',
+            rejected: 'Từ chối',
+            cancelled: 'Đã hủy',
+        };
+
+        const renderReturnsTable = () => {
+            const rows = allReturns.filter(r => r.status === currentFilter);
+            if (!rows.length) {
+                returnsTableBody.innerHTML = '<tr><td colspan="6" class="table-message">Không có hồ sơ trả nào trong trạng thái này.</td></tr>';
+                return;
+            }
+            returnsTableBody.innerHTML = rows.map(r => {
+                const d = r.created_at ? new Date(r.created_at).toLocaleDateString('vi-VN') : '-';
+                return `<tr>
+                    <td>${escapeHtml(r.display_name || r.user_name || '-')}<br><small style="color:#64748b">${escapeHtml(r.email || '')}</small></td>
+                    <td>${escapeHtml(r.pet_name_snapshot || '-')}</td>
+                    <td>${escapeHtml(REASON_LABELS[r.reason_category] || r.reason_category)}</td>
+                    <td>${escapeHtml(d)}</td>
+                    <td>${renderStatusPill(r.status)}</td>
+                    <td><button class="btn-view" data-return-id="${escapeHtml(r.id)}">Xem</button></td>
+                </tr>`;
+            }).join('');
+        };
+
+        const closeModal = () => {
+            detailModal.classList.remove('show');
+            selectedRequest = null;
+        };
+
+        const openModal = (requestItem) => {
+            selectedRequest = requestItem;
+            modalPetImage.src = requestItem.pet_image || 'https://via.placeholder.com/640x360?text=No+Image';
+            modalReason.textContent = requestItem.message || '-';
+            modalDisplayName.textContent = requestItem.display_name || requestItem.user_name || '-';
+            modalEmail.textContent = requestItem.email || '-';
+            modalAddress.textContent = requestItem.address || '-';
+            modalPetName.textContent = requestItem.pet_name || '-';
+            modalStatus.innerHTML = renderStatusPill(requestItem.status);
+
+            modalFooterActions.innerHTML = '<button class="btn btn-close" data-close-modal="1">Đóng</button>';
+            if (requestItem.status === 'pending' && hasAdminAccess) {
+                modalFooterActions.innerHTML += '<button class="btn btn-reject" data-status-action="rejected">Từ chối</button>';
+                modalFooterActions.innerHTML += '<button class="btn btn-approve" data-status-action="approved">Phê duyệt</button>';
+            }
+
+            detailModal.classList.add('show');
+        };
+
+        const applyFilter = (section, status) => {
+            currentSection = section;
+            currentFilter = status;
+            tabButtons.forEach((button) => {
+                if (button.dataset.section === section && button.dataset.status === status) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+            if (section === 'adoption') {
+                adoptionTableWrap.style.display = '';
+                returnsTableWrap.style.display = 'none';
+                renderTable();
+            } else {
+                adoptionTableWrap.style.display = 'none';
+                returnsTableWrap.style.display = '';
+                renderReturnsTable();
+            }
+        };
+
+        const ensureAdminAccess = async () => {
+            const meResponse = await fetch('/api/v1/auth/me', {
+                method: 'GET',
+                headers: { Accept: 'application/json' },
+                credentials: 'same-origin',
+            });
+
+            const mePayload = await parseJsonSafe(meResponse);
+
+            if (meResponse.status === 401) {
+                setNote('warning', 'Vui lòng đăng nhập tài khoản staff/admin để truy cập trang này.');
+                adminTableBody.innerHTML = '<tr><td colspan="7" class="table-message">Bạn chưa đăng nhập.</td></tr>';
+                openLoginOverlay();
+                return false;
+            }
+
+            if (!meResponse.ok || !mePayload || !mePayload.data || !mePayload.data.user) {
+                setNote('error', 'Không thể xác minh thông tin đăng nhập.');
+                adminTableBody.innerHTML = '<tr><td colspan="7" class="table-message">Không thể tải dữ liệu.</td></tr>';
+                return false;
+            }
+
+            const role = Number(mePayload.data.user.role);
+            const canManage = role === 0 || role === 1;
+            if (!canManage) {
+                setNote('error', 'Bạn không có quyền truy cập trang xét duyệt nhận nuôi.');
+                adminTableBody.innerHTML = '<tr><td colspan="7" class="table-message">Bạn không có quyền truy cập.</td></tr>';
+                return false;
+            }
+
+            hasAdminAccess = true;
+            return true;
+        };
+
+        const loadAdminRequests = async () => {
+            if (!hasAdminAccess) return;
+            adminTableBody.innerHTML = '<tr><td colspan="7" class="table-message">Đang tải hồ sơ...</td></tr>';
+            try {
+                const response = await fetch('/api/v1/adoption-requests/admin?pageSize=200', {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' },
+                    credentials: 'same-origin',
+                });
+                const payload = await parseJsonSafe(response);
+                if (response.status === 401) { hasAdminAccess = false; openLoginOverlay(); return; }
+                if (response.status === 403) { setNote('error', 'Bạn không có quyền truy cập dữ liệu xét duyệt.'); return; }
+                if (!response.ok) throw new Error((payload && payload.message) || 'Không thể tải danh sách hồ sơ.');
+                allRequests = payload && payload.data ? (payload.data.data || []) : [];
+                renderTable();
+            } catch (error) {
+                adminTableBody.innerHTML = `<tr><td colspan="7" class="table-message">${escapeHtml(error.message || 'Không thể tải dữ liệu.')}</td></tr>`;
+            }
+        };
+
+        const loadAdminReturns = async () => {
+            if (!hasAdminAccess) return;
+            returnsTableBody.innerHTML = '<tr><td colspan="6" class="table-message">Đang tải...</td></tr>';
+            try {
+                const response = await fetch('/api/v1/pet-returns/admin?limit=200', {
+                    credentials: 'same-origin',
+                    headers: { Accept: 'application/json' },
+                });
+                const payload = await parseJsonSafe(response);
+                if (!response.ok) throw new Error(payload?.message || 'Không thể tải danh sách hồ sơ trả.');
+                allReturns = payload?.data?.data || [];
+                if (currentSection === 'returns') renderReturnsTable();
+            } catch (err) {
+                returnsTableBody.innerHTML = `<tr><td colspan="6" class="table-message">${escapeHtml(err.message)}</td></tr>`;
+            }
+        };
+
+        const updateRequestStatus = async (nextStatus) => {
+            if (!selectedRequest || isUpdatingStatus || !hasAdminAccess) {
+                return;
+            }
+
+            isUpdatingStatus = true;
+            try {
+                const response = await fetch(`/api/v1/adoption-requests/${selectedRequest.id}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ status: nextStatus }),
+                });
+
+                const payload = await parseJsonSafe(response);
+
+                if (response.status === 401) {
+                    openLoginOverlay();
+                    throw new Error('Vui lòng đăng nhập lại để tiếp tục thao tác.');
+                }
+
+                if (response.status === 403) {
+                    throw new Error('Bạn không có quyền cập nhật trạng thái hồ sơ này.');
+                }
+
+                if (!response.ok) {
+                    throw new Error((payload && payload.message) || 'Không thể cập nhật trạng thái hồ sơ.');
+                }
+
+                closeModal();
+                await loadAdminRequests();
+                setNote('warning', 'Đã cập nhật trạng thái hồ sơ thành công.');
+            } catch (error) {
+                setNote('error', error.message || 'Không thể cập nhật trạng thái.');
+            } finally {
+                isUpdatingStatus = false;
+            }
+        };
+
+        tabButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const section = button.dataset.section || 'adoption';
+                const status = button.dataset.status;
+                applyFilter(section, status);
+                if (section === 'returns') loadAdminReturns();
+            });
+        });
+
+        adminTableBody.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-view-id]');
+            if (!button) return;
+            const itemId = Number(button.dataset.viewId);
+            const requestItem = allRequests.find((item) => Number(item.id) === itemId);
+            if (!requestItem) return;
+            openModal(requestItem);
+        });
+
+        returnsTableBody.addEventListener('click', async (event) => {
+            const button = event.target.closest('[data-return-id]');
+            if (!button) return;
+            const id = Number(button.dataset.returnId);
+            const rec = allReturns.find(r => Number(r.id) === id);
+            if (!rec) return;
+            openReturnDetailModal(rec);
+        });
+
+        function openReturnDetailModal(rec) {
+            selectedReturn = rec;
+            const imagesHtml = (rec.images && rec.images.length)
+                ? rec.images.map(src => `<img src="${escapeHtml(src)}" alt="proof" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-right:6px;">`).join('')
+                : '<em style="color:#9ca3af">Không có ảnh</em>';
+
+            modalPetImage.src = rec.pet_image_snapshot || rec.pet_primary_image || 'https://via.placeholder.com/640x360?text=No+Image';
+            modalReason.innerHTML = `<strong>${escapeHtml(REASON_LABELS[rec.reason_category] || rec.reason_category)}</strong><br>${escapeHtml(rec.reason_detail)}`;
+            modalDisplayName.textContent = rec.display_name || rec.user_name || '-';
+            modalEmail.textContent = rec.email || '-';
+            modalAddress.textContent = rec.address || '-';
+            modalPetName.textContent = rec.pet_name_snapshot || '-';
+            modalStatus.innerHTML = renderStatusPill(rec.status);
+
+            // Ảnh minh chứng
+            const extraDiv = document.getElementById('modalReturnImages');
+            if (extraDiv) extraDiv.innerHTML = imagesHtml;
+
+            // Nút hành động
+            let actionsHtml = '<button class="btn btn-close" data-close-modal="1">Đóng</button>';
+            if (hasAdminAccess) {
+                if (rec.status === 'pending') {
+                    actionsHtml += '<button class="btn btn-reject" data-return-action="rejected">Từ chối</button>';
+                    actionsHtml += '<button class="btn btn-approve" data-return-action="approved_online" style="background:#f59e0b">✅ Duyệt Online</button>';
+                } else if (rec.status === 'approved_online') {
+                    actionsHtml += '<button class="btn btn-reject" data-return-action="rejected">Từ chối</button>';
+                    actionsHtml += '<button class="btn btn-approve" data-return-action="completed">🏡 Xác nhận đã nhận lại tại trạm</button>';
+                }
+            }
+            modalFooterActions.innerHTML = actionsHtml;
+
+            // Gắn sự kiện return action
+            modalFooterActions.querySelectorAll('[data-return-action]').forEach(btn => {
+                btn.addEventListener('click', () => updateReturnStatus(btn.dataset.returnAction));
+            });
+
+            detailModal.classList.add('show');
+        }
+
+        const updateReturnStatus = async (nextStatus) => {
+            if (!selectedReturn || isUpdatingStatus || !hasAdminAccess) return;
+
+            let adminNotes = '';
+            if (nextStatus === 'rejected') {
+                const { value, isConfirmed } = await Swal.fire({
+                    title: 'Lý do từ chối',
+                    input: 'textarea',
+                    inputPlaceholder: 'Nhập lý do từ chối (bắt buộc)...',
+                    showCancelButton: true,
+                    confirmButtonText: 'Xác nhận từ chối',
+                    cancelButtonText: 'Huỷ',
+                    confirmButtonColor: '#dc2626',
+                    inputValidator: (v) => !v?.trim() ? 'Vui lòng nhập lý do' : undefined,
+                });
+                if (!isConfirmed) return;
+                adminNotes = value;
+            } else if (nextStatus === 'completed') {
+                const res = await Swal.fire({
+                    icon: 'question',
+                    title: 'Xác nhận đã nhận lại thú cưng tại trạm?',
+                    text: 'Thao tác này sẽ chuyển trạng thái thú cưng về "sẵn sàng nhận nuôi". Không thể hoàn tác!',
+                    showCancelButton: true,
+                    confirmButtonText: 'Xác nhận',
+                    cancelButtonText: 'Huỷ',
+                    confirmButtonColor: '#16a34a',
+                });
+                if (!res.isConfirmed) return;
+            } else if (nextStatus === 'approved_online') {
+                const { value, isConfirmed } = await Swal.fire({
+                    title: 'Ghi chú hẹn lịch bàn giao',
+                    input: 'textarea',
+                    inputPlaceholder: 'Nhập ghi chú cho người dùng về lịch bàn giao (tùy chọn)...',
+                    showCancelButton: true,
+                    confirmButtonText: 'Duyệt Online',
+                    cancelButtonText: 'Huỷ',
+                    confirmButtonColor: '#f59e0b',
+                });
+                if (!isConfirmed) return;
+                adminNotes = value || '';
+            }
+
+            isUpdatingStatus = true;
+            try {
+                const res = await fetch(`/api/v1/pet-returns/${selectedReturn.id}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ status: nextStatus, adminNotes }),
+                });
+                const payload = await parseJsonSafe(res);
+                if (!res.ok) throw new Error(payload?.message || 'Không thể cập nhật trạng thái.');
+                closeModal();
+                setNote('warning', 'Cập nhật trạng thái hồ sơ trả thành công.');
+                await loadAdminReturns();
+            } catch (err) {
+                setNote('error', err.message || 'Không thể cập nhật.');
+            } finally {
+                isUpdatingStatus = false;
+            }
+        };
+
+        closeModalBtn.addEventListener('click', closeModal);
+        detailModal.addEventListener('click', (event) => {
+            if (event.target === detailModal) {
+                closeModal();
+            }
+        });
+
+        modalFooterActions.addEventListener('click', (event) => {
+            const closeBtn = event.target.closest('[data-close-modal]');
+            if (closeBtn) {
+                closeModal();
+                return;
+            }
+
+            const actionBtn = event.target.closest('[data-status-action]');
+            if (!actionBtn) return;
+            updateRequestStatus(actionBtn.dataset.statusAction);
+        });
+
+        (async () => {
+            const canAccess = await ensureAdminAccess();
+            if (!canAccess) return;
+            await loadAdminRequests();
+            await loadAdminReturns(); // pre-load
+        })();
+    </script>
+</body>
+
+</html>

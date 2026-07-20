@@ -1,0 +1,114 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class users {
+  id : int
+  display_name : string
+  name : string
+  email : string
+  password : string
+  role : int
+  birthday : date
+  address : string
+  verify : bool
+  status : string
+  banned_reason : string
+  banned_at : datetime
+  created_at : datetime
+  updated_at : datetime
+}
+
+class pets {
+  id : int
+  name : string
+  pet_type : string
+  breed : string
+  age : int
+  gender : string
+  color : string
+  weight : float
+  pet_code : string
+  vaccination : string
+  description : string
+  contact_info : string
+  source_url : string
+  status : string
+  created_at : datetime
+  updated_at : datetime
+}
+
+class adoption_requests {
+  id : int
+  user_id : int
+  pet_id : int
+  message : string
+  status : string
+  reviewed_by : int
+  created_at : datetime
+  reviewed_at : datetime
+}
+
+class pet_likes {
+  id : int
+  user_id : int
+  pet_id : int
+  status : string
+  created_at : datetime
+}
+
+class reports {
+  id : int
+  type : string
+  reporter_name : string
+  phone : string
+  email : string
+  address : string
+  found_location : string
+  pet_code : string
+  pet_type : string
+  species : string
+  color : string
+  gender : string
+  description : string
+  status : string
+  created_at : datetime
+  user_id : int
+}
+
+class pet_images {
+  id : int
+  pet_id : int
+  image_path : string
+  display_order : int
+  cloudinary_id : string
+  created_at : datetime
+  report_id : int
+}
+
+class email_verifications {
+  id : int
+  user_id : int
+  otp : string
+  attempts : int
+  expires_at : datetime
+  created_at : datetime
+}
+
+' ================= RELATION =================
+
+users "1" --> "0..*" adoption_requests : creates
+pets "1" --> "0..*" adoption_requests : requested
+
+users "1" --> "0..*" pet_likes
+pets "1" --> "0..*" pet_likes
+
+users "1" --> "0..*" reports
+
+pets "1" --> "0..*" pet_images
+reports "1" --> "0..*" pet_images
+
+users "1" --> "0..*" email_verifications
+
+users "1" --> "0..*" adoption_requests : reviewed_by
+
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+actor Staff
+
+
+  (Xử lý báo cáo) as process
+  (Xác thực) as auth
+  (Xem danh sách báo cáo) as view
+  (Cập nhật trạng thái báo cáo) as update
+
+  process --> auth : <<include>>
+  process --> view : <<include>>
+  process --> update : <<include>>
+
+
+Staff --> process
+
+@enduml

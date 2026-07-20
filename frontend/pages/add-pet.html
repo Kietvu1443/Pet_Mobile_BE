@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm Thú Cưng - Pet Helper</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/auth.css">
+    <link rel="stylesheet" href="/stylesheets/staticHeader.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+    <header class="header">
+        <div class="top-bar">
+            <a href="/" class="logo-group">
+                <div class="logo-circle">
+                    <img src="/images/the_logo.webp" alt="logo" id="the_logo">
+                </div>
+                <div class="web-name">PET HELPER</div>
+            </a>
+            <div class="user-actions">
+                <div class="auth-user-actions is-auth-hidden" id="headerAuthUserState">
+                    <div class="user-dropdown" id="headerUserDropdown">
+                        <span id="userDropdownBtn" style="cursor: pointer;">
+                            <span id="headerDisplayNameText">Tài khoản</span> ▼
+                        </span>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-header">
+                                <strong id="headerDropdownDisplayName">Tài khoản</strong>
+                                <span class="user-role" id="headerUserRole">👤 User</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="/profile" class="dropdown-item">👤 Tài khoản</a>
+                            <a href="/favorites" class="dropdown-item">❤️ Thú cưng đã yêu thích</a>
+                            <a href="/my-reports" class="dropdown-item">📋 Báo cáo của tôi</a>
+                            <a href="/adopt/admin/add" class="dropdown-item role-staff-only is-auth-hidden">🐾 Thêm thú
+                                cưng</a>
+                            <a href="/admin" class="dropdown-item role-admin-only is-auth-hidden">⚙️ Quản trị</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item logout" id="logoutBtn" onclick="handleLogout(event)">🚪
+                                Đăng xuất</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-guest-actions is-auth-visible" id="headerAuthGuestState">
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('login'); } return false;"><span>Đăng
+                            nhập</span></a>
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('register'); } return false;"><span>Đăng
+                            ký</span></a>
+                </div>
+                <span>Giỏ hàng <span id="cart-count-display">(0)</span></span>
+                <span class="lang-switch">VN / EN</span>
+            </div>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Mở menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+
+        <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+
+        <nav class="main-nav" id="mainNav">
+            <button class="mobile-nav-close" id="mobileNavClose" aria-label="Đóng menu">✕</button>
+            <ul>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Nhận nuôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/adopt">Xem vật nuôi có thể nhận nuôi</a></li>
+                        <li><a href="/snap" style="color: #ea580c; font-weight: bold;">PetSnap(Tìm kiếm thú cưng ngẫu
+                                hứng!)</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Thất lạc <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/lost">Báo mất thú cưng</a></li>
+                        <li><a href="/found">Báo tin nhặt được</a></li>
+                        <li><a href="/reports/list">Xem báo cáo thất lạc</a></li>
+                        <li><a href="/tips">Mẹo tìm kiếm hiệu quả</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Dịch vụ <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/booking">Đặt lịch tiêm phòng</a></li>
+                        <li><a href="/shop">Danh mục đồ ăn/ đồ dùng</a></li>
+                    </ul>
+                </li>
+                <li><a href="/news">Tin tức</a></li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Về chúng tôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/about">Thông tin về chúng tôi</a></li>
+                        <li><a href="#contact-section">Liên hệ với chúng tôi</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="auth-overlay-mount"></div>
+    <script src="/javascripts/authOverlayLoader.js" defer></script>
+
+    <main class="auth-container" style="padding: 40px 20px;">
+        <div class="auth-card" style="max-width: 600px;">
+            <div class="auth-header">
+                <h1 id="petAdminHeading">Thêm Thú Cưng Mới</h1>
+                <p id="petAdminSubHeading">Điền thông tin thú cưng bên dưới</p>
+            </div>
+
+            <div id="petAdminApiMessage" style="display:none; margin-bottom: 14px;"></div>
+
+            <form id="petAdminForm" class="auth-form" data-mode="create" data-pet-id="" action="#" method="POST"
+                enctype="multipart/form-data">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Tên thú cưng *</label>
+                        <input type="text" id="name" name="name" value="" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pet_code">Mã HPA</label>
+                        <input type="text" id="pet_code" name="pet_code" placeholder="VD: O5184" value="">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="pet_type">Loài *</label>
+                        <select id="pet_type" name="pet_type" required>
+                            <option value="Chó">🐕 Chó</option>
+                            <option value="Mèo">🐱 Mèo</option>
+                            <option value="Khác">🐰 Khác</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Giới tính</label>
+                        <select id="gender" name="gender">
+                            <option value="">-- Chọn --</option>
+                            <option value="Đực">♂️ Đực</option>
+                            <option value="Cái">♀️ Cái</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id="petAdminStatusGroup" style="display: none;">
+                    <label for="status">Trạng thái</label>
+                    <select id="status" name="status">
+                        <option value="available">available - Sẵn sàng</option>
+                        <option value="adopted">adopted - Đã nhận nuôi</option>
+                    </select>
+                    <p style="font-size: 0.8rem; color: #64748B; margin-top: 5px;">
+                        Chỉ hiển thị khi sửa thú cưng để staff cập nhật nhanh trạng thái.
+                    </p>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="breed">Giống</label>
+                        <input type="text" id="breed" name="breed" placeholder="VD: Phốc sóc, Mèo tam thể..." value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Tuổi</label>
+                        <select id="age" name="age">
+                            <option value="">-- Chọn --</option>
+                            <option value="Nhí">Nhí</option>
+                            <option value="Trẻ">Trẻ</option>
+                            <option value="Trưởng thành">Trưởng thành</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="color">Màu sắc</label>
+                        <input type="text" id="color" name="color" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="weight">Cân nặng (kg)</label>
+                        <input type="text" id="weight" name="weight" placeholder="VD: 5kg" value="">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vaccination">Tiêm phòng</label>
+                        <input type="text" id="vaccination" name="vaccination" placeholder="VD: Đã tiêm, Chưa tiêm..."
+                            value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="contact_info">TNV liên hệ</label>
+                        <input type="text" id="contact_info" name="contact_info" value="">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="source_url">URL nguồn</label>
+                    <input type="text" id="source_url" name="source_url" placeholder="URL gốc từ trang web" value="">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Mô tả</label>
+                    <textarea id="description" name="description" rows="4"
+                        style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 0.95rem; resize: vertical;"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="image">Ảnh thú cưng</label>
+                    <div id="petAdminCurrentImage" style="margin-bottom: 10px; display: none;"></div>
+                    <input type="file" id="image" name="image" accept="image/*"
+                        style="padding: 10px; border: 2px dashed #E5E7EB; border-radius: 10px; width: 100%;">
+                    <p style="font-size: 0.8rem; color: #64748B; margin-top: 5px;">
+                        Chấp nhận: JPEG, PNG, GIF, WebP (tối đa 5MB)
+                    </p>
+                </div>
+
+                <div style="display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-green btn-full" id="petAdminSubmitBtn">➕ Thêm mới</button>
+                    <button type="button" class="btn btn-outline-gray btn-full" id="petAdminDeleteBtn"
+                        style="border-color: #dc2626; color: #dc2626; display: none;">🗑️ Xóa</button>
+                    <a href="/adopt" class="btn btn-outline-gray btn-full" style="text-align: center;">❌ Hủy</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="/" class="logo">
+                    <span style="font-size: 1.5rem;">🐾</span>
+                    <span>Pet Helper</span>
+                </a>
+                <p>Nền tảng hỗ trợ và bảo vệ vật nuôi hàng đầu Việt Nam. Cùng nhau xây dựng cộng đồng yêu thương động
+                    vật - Green Project 2026.</p>
+            </div>
+
+            <div class="footer-links">
+                <h4>Dịch vụ</h4>
+                <ul>
+                    <li><a href="/adopt">Nhận nuôi thú cưng</a></li>
+                    <li><a href="/reports">Báo cáo thất lạc</a></li>
+                    <li><a href="/shop">Cửa hàng</a></li>
+                    <li><a href="/tracking">Theo dõi vật nuôi</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Hỗ trợ</h4>
+                <ul>
+                    <li><a href="#">Hướng dẫn</a></li>
+                    <li><a href="#">Câu hỏi thường gặp</a></li>
+                    <li><a href="#contact-section">Liên hệ</a></li>
+                    <li><a href="#">Chính sách</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Liên hệ</h4>
+                <ul>
+                    <li>📧 support@pethelper.vn</li>
+                    <li>📞 1900-XXXX</li>
+                    <li>📍 BDU UNIS Campus</li>
+                    <li>🕐 8:00 - 18:00</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 Pet Helper Green Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/javascripts/staticHeader.js"></script>
+    <script src="/javascripts/staticFooter.js"></script>
+
+    <script>
+        const petAdminForm = document.getElementById('petAdminForm');
+        const petAdminHeading = document.getElementById('petAdminHeading');
+        const petAdminSubHeading = document.getElementById('petAdminSubHeading');
+        const petAdminSubmitBtn = document.getElementById('petAdminSubmitBtn');
+        const petAdminDeleteBtn = document.getElementById('petAdminDeleteBtn');
+        const petAdminApiMessage = document.getElementById('petAdminApiMessage');
+        const petAdminCurrentImage = document.getElementById('petAdminCurrentImage');
+        const petAdminStatusGroup = document.getElementById('petAdminStatusGroup');
+
+        function resolveModeFromPath() {
+            const parts = window.location.pathname.split('/').filter(Boolean);
+            const editIndex = parts.indexOf('edit');
+
+            if (editIndex !== -1 && parts[editIndex + 1]) {
+                return {
+                    mode: 'edit',
+                    petId: parts[editIndex + 1],
+                };
+            }
+
+            return {
+                mode: 'create',
+                petId: '',
+            };
+        }
+
+        if (petAdminForm) {
+            const modeInfo = resolveModeFromPath();
+            const formMode = modeInfo.mode;
+            const petId = modeInfo.petId;
+            let hasAdminAccess = false;
+
+            petAdminForm.dataset.mode = formMode;
+            petAdminForm.dataset.petId = petId;
+
+            if (petAdminHeading) {
+                petAdminHeading.textContent = formMode === 'edit' ? 'Sửa Thú Cưng' : 'Thêm Thú Cưng Mới';
+            }
+
+            if (petAdminSubHeading) {
+                petAdminSubHeading.textContent = formMode === 'edit'
+                    ? 'Cập nhật thông tin thú cưng bên dưới'
+                    : 'Điền thông tin thú cưng bên dưới';
+            }
+
+            if (petAdminSubmitBtn) {
+                petAdminSubmitBtn.innerHTML = formMode === 'edit' ? '💾 Cập nhật' : '➕ Thêm mới';
+            }
+
+            if (petAdminDeleteBtn) {
+                petAdminDeleteBtn.style.display = (formMode === 'edit' && petId) ? '' : 'none';
+            }
+
+            if (petAdminStatusGroup) {
+                petAdminStatusGroup.style.display = (formMode === 'edit' && petId) ? 'block' : 'none';
+            }
+
+            const submitBtnDefaultHtml = petAdminSubmitBtn ? petAdminSubmitBtn.innerHTML : '';
+            const deleteBtnDefaultHtml = petAdminDeleteBtn ? petAdminDeleteBtn.innerHTML : '';
+
+            let isSubmitting = false;
+            let isDeleting = false;
+
+            const showApiMessage = (type, text) => {
+                if (!petAdminApiMessage) return;
+
+                const isSuccess = type === 'success';
+                petAdminApiMessage.style.display = 'block';
+                petAdminApiMessage.style.padding = '10px 12px';
+                petAdminApiMessage.style.borderRadius = '10px';
+                petAdminApiMessage.style.fontSize = '0.92rem';
+                petAdminApiMessage.style.background = isSuccess ? '#d1fae5' : '#fee2e2';
+                petAdminApiMessage.style.color = isSuccess ? '#065f46' : '#991b1b';
+                petAdminApiMessage.textContent = text;
+            };
+
+            const parseJsonSafe = async (response) => {
+                try {
+                    return await response.json();
+                } catch (error) {
+                    return null;
+                }
+            };
+
+            const openLoginOverlay = () => {
+                if (typeof window.openLoginOverlaySafely === 'function') {
+                    window.openLoginOverlaySafely();
+                    return;
+                }
+                if (typeof openOverlay === 'function') {
+                    openOverlay('auth-overlay');
+                }
+                if (typeof overlayActivateTab === 'function') {
+                    overlayActivateTab('login');
+                }
+            };
+
+            const disableAdminForm = (message) => {
+                if (petAdminForm) {
+                    const controls = petAdminForm.querySelectorAll('input, select, textarea, button');
+                    controls.forEach((control) => {
+                        control.disabled = true;
+                    });
+                }
+
+                if (petAdminDeleteBtn) {
+                    petAdminDeleteBtn.style.display = 'none';
+                }
+
+                if (typeof message === 'string' && message.trim()) {
+                    showApiMessage('error', message);
+                }
+            };
+
+            const ensureAdminAccess = async () => {
+                try {
+                    const response = await fetch('/api/v1/auth/me', {
+                        method: 'GET',
+                        headers: {
+                            Accept: 'application/json',
+                        },
+                        credentials: 'same-origin',
+                    });
+
+                    const payload = await parseJsonSafe(response);
+
+                    if (response.status === 401) {
+                        disableAdminForm('Vui lòng đăng nhập bằng tài khoản staff/admin để truy cập trang này.');
+                        openLoginOverlay();
+                        return false;
+                    }
+
+                    if (!response.ok || !payload || !payload.data || !payload.data.user) {
+                        disableAdminForm('Không thể xác minh quyền truy cập trang quản lý thú cưng.');
+                        return false;
+                    }
+
+                    const user = payload.data.user;
+                    const role = Number(user.role);
+                    const canManagePets = role === 0 || role === 1;
+
+                    if (!canManagePets) {
+                        disableAdminForm('Bạn không có quyền truy cập trang quản lý thú cưng.');
+                        return false;
+                    }
+
+                    hasAdminAccess = true;
+                    return true;
+                } catch (error) {
+                    disableAdminForm('Không thể xác minh quyền truy cập. Vui lòng thử lại sau.');
+                    return false;
+                }
+            };
+
+            const setFormBusyState = (busy) => {
+                if (petAdminSubmitBtn) {
+                    petAdminSubmitBtn.disabled = busy;
+                    petAdminSubmitBtn.style.opacity = busy ? '0.65' : '1';
+                    petAdminSubmitBtn.innerHTML = busy
+                        ? (formMode === 'edit' ? '⏳ Đang cập nhật...' : '⏳ Đang thêm...')
+                        : submitBtnDefaultHtml;
+                }
+
+                if (petAdminDeleteBtn) {
+                    petAdminDeleteBtn.disabled = busy || isDeleting;
+                    petAdminDeleteBtn.style.opacity = (busy || isDeleting) ? '0.65' : '1';
+                    if (!isDeleting) {
+                        petAdminDeleteBtn.innerHTML = deleteBtnDefaultHtml;
+                    }
+                }
+            };
+
+            const fillFormWithPetData = (pet) => {
+                if (!pet) return;
+
+                const setValue = (selector, value) => {
+                    const element = document.querySelector(selector);
+                    if (element) {
+                        element.value = value || '';
+                    }
+                };
+
+                setValue('#name', pet.name);
+                setValue('#pet_code', pet.pet_code);
+                setValue('#pet_type', pet.pet_type || 'Chó');
+                setValue('#gender', pet.gender);
+                setValue('#status', pet.status || 'available');
+                setValue('#breed', pet.breed);
+                setValue('#age', pet.age);
+                setValue('#color', pet.color);
+                setValue('#weight', pet.weight);
+                setValue('#vaccination', pet.vaccination);
+                setValue('#contact_info', pet.contact_info);
+                setValue('#source_url', pet.source_url);
+                setValue('#description', pet.description);
+
+                const imageUrl = pet.avatar_image || pet.image_url || '';
+                if (petAdminCurrentImage && imageUrl) {
+                    petAdminCurrentImage.style.display = 'block';
+                    petAdminCurrentImage.innerHTML = `
+                        <img src="${imageUrl}" alt="Current image" style="max-width: 200px; border-radius: 10px;">
+                        <p style="font-size: 0.8rem; color: #64748B;">Ảnh hiện tại (chọn file mới để thay đổi)</p>
+                    `;
+                }
+            };
+
+            const hydrateEditFormData = async () => {
+                if (formMode !== 'edit' || !petId) return;
+                if (!hasAdminAccess) return;
+
+                try {
+                    const response = await fetch(`/api/v1/pets/${petId}`, {
+                        method: 'GET',
+                        headers: {
+                            Accept: 'application/json',
+                        },
+                        credentials: 'same-origin',
+                    });
+
+                    const payload = await parseJsonSafe(response);
+
+                    if (response.status === 401) {
+                        showApiMessage('error', 'Vui lòng đăng nhập để tải dữ liệu chỉnh sửa.');
+                        openLoginOverlay();
+                        return;
+                    }
+
+                    if (response.status === 403) {
+                        showApiMessage('error', 'Bạn không có quyền chỉnh sửa thú cưng này.');
+                        return;
+                    }
+
+                    if (!response.ok || !payload || !payload.data || !payload.data.pet) {
+                        showApiMessage('error', 'Không thể tải dữ liệu thú cưng để chỉnh sửa.');
+                        return;
+                    }
+
+                    fillFormWithPetData(payload.data.pet);
+                } catch (error) {
+                    showApiMessage('error', 'Không thể tải dữ liệu thú cưng để chỉnh sửa.');
+                }
+            };
+
+            petAdminForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                if (isSubmitting) return;
+
+                if (!hasAdminAccess) {
+                    showApiMessage('error', 'Bạn không có quyền thực hiện thao tác này.');
+                    return;
+                }
+
+                isSubmitting = true;
+                setFormBusyState(true);
+
+                const endpoint = formMode === 'edit' && petId
+                    ? `/api/v1/pets/${petId}`
+                    : '/api/v1/pets';
+                const method = formMode === 'edit' ? 'PATCH' : 'POST';
+
+                try {
+                    const response = await fetch(endpoint, {
+                        method,
+                        headers: {
+                            Accept: 'application/json',
+                        },
+                        credentials: 'same-origin',
+                        body: new FormData(petAdminForm),
+                    });
+
+                    const payload = await parseJsonSafe(response);
+
+                    if (response.status === 401) {
+                        showApiMessage('error', 'Vui lòng đăng nhập để thực hiện thao tác này.');
+                        openLoginOverlay();
+                        return;
+                    }
+
+                    if (response.status === 403) {
+                        showApiMessage('error', 'Bạn không có quyền thực hiện thao tác này.');
+                        return;
+                    }
+
+                    if (!response.ok) {
+                        throw new Error((payload && payload.message) || 'Không thể lưu thú cưng');
+                    }
+
+                    const pet = payload && payload.data && payload.data.pet ? payload.data.pet : null;
+                    const nextId = pet && pet.id ? pet.id : petId;
+
+                    showApiMessage('success', formMode === 'edit'
+                        ? 'Cập nhật thú cưng thành công.'
+                        : 'Tạo thú cưng thành công.');
+
+                    if (nextId) {
+                        window.setTimeout(() => {
+                            window.location.href = `/adopt/${nextId}`;
+                        }, 700);
+                    }
+                } catch (error) {
+                    showApiMessage('error', error.message || 'Không thể lưu thú cưng.');
+                } finally {
+                    isSubmitting = false;
+                    setFormBusyState(false);
+                }
+            });
+
+            if (petAdminDeleteBtn && petId) {
+                petAdminDeleteBtn.addEventListener('click', async () => {
+                    if (isDeleting || isSubmitting) return;
+
+                    if (!hasAdminAccess) {
+                        showApiMessage('error', 'Bạn không có quyền thực hiện thao tác này.');
+                        return;
+                    }
+
+                    let confirmed = false;
+                    if (typeof Swal !== 'undefined' && Swal && typeof Swal.fire === 'function') {
+                        const confirmResult = await Swal.fire({
+                            title: 'Xóa thú cưng?',
+                            text: 'Hành động này không thể hoàn tác.',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Xóa',
+                            cancelButtonText: 'Hủy',
+                            confirmButtonColor: '#dc2626',
+                            cancelButtonColor: '#64748B',
+                        });
+                        confirmed = !!confirmResult.isConfirmed;
+                    } else {
+                        confirmed = window.confirm('Xóa thú cưng? Hành động này không thể hoàn tác.');
+                    }
+
+                    if (!confirmed) return;
+
+                    isDeleting = true;
+                    if (petAdminDeleteBtn) {
+                        petAdminDeleteBtn.disabled = true;
+                        petAdminDeleteBtn.style.opacity = '0.65';
+                        petAdminDeleteBtn.innerHTML = '⏳ Đang xóa...';
+                    }
+                    if (petAdminSubmitBtn) {
+                        petAdminSubmitBtn.disabled = true;
+                        petAdminSubmitBtn.style.opacity = '0.65';
+                    }
+
+                    try {
+                        const response = await fetch(`/api/v1/pets/${petId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                Accept: 'application/json',
+                            },
+                            credentials: 'same-origin',
+                        });
+
+                        const payload = await parseJsonSafe(response);
+
+                        if (response.status === 401) {
+                            showApiMessage('error', 'Vui lòng đăng nhập để thực hiện thao tác này.');
+                            openLoginOverlay();
+                            return;
+                        }
+
+                        if (response.status === 403) {
+                            showApiMessage('error', 'Bạn không có quyền xóa thú cưng này.');
+                            return;
+                        }
+
+                        if (!response.ok) {
+                            throw new Error((payload && payload.message) || 'Không thể xóa thú cưng');
+                        }
+
+                        showApiMessage('success', 'Xóa thú cưng thành công.');
+
+                        const authCard = document.querySelector('.auth-card');
+                        if (authCard) {
+                            authCard.remove();
+                        }
+
+                        window.setTimeout(() => {
+                            window.location.href = '/adopt';
+                        }, 700);
+                    } catch (error) {
+                        showApiMessage('error', error.message || 'Không thể xóa thú cưng.');
+                    } finally {
+                        isDeleting = false;
+                        if (petAdminDeleteBtn) {
+                            petAdminDeleteBtn.disabled = false;
+                            petAdminDeleteBtn.style.opacity = '1';
+                            petAdminDeleteBtn.innerHTML = deleteBtnDefaultHtml;
+                        }
+                        if (petAdminSubmitBtn) {
+                            petAdminSubmitBtn.disabled = false;
+                            petAdminSubmitBtn.style.opacity = '1';
+                        }
+                    }
+                });
+            }
+
+            (async () => {
+                const canAccess = await ensureAdminAccess();
+                if (!canAccess) {
+                    return;
+                }
+                hydrateEditFormData();
+            })();
+        }
+    </script>
+</body>
+
+</html>

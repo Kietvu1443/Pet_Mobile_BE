@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+actor User
+
+
+  (Quẹt PetSnap) as snap
+  (Kiểm tra đăng nhập) as auth
+  (Lấy danh sách thú cưng) as load
+  (Lưu hành động) as save
+
+  snap --> auth : <<include>>
+  snap --> load : <<include>>
+  snap --> save : <<include>>
+
+
+User --> snap
+
+@enduml

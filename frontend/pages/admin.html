@@ -1,0 +1,2129 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Pet Helper</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/auth.css">
+    <link rel="stylesheet" href="/stylesheets/staticHeader.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#414942",
+                        "on-secondary-fixed": "#00210f",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "secondary-fixed": "#b9efc6",
+                        "primary-fixed": "#b9efc6",
+                        "surface-container-low": "#f3f4ef",
+                        "surface-gradient-end": "#f7f9f7",
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#e7e9e4",
+                        "surface": "#f8faf5",
+                        "surface-gradient-start": "#f0f4f1",
+                        "on-secondary": "#ffffff",
+                        "sidebar-glass": "rgba(255, 255, 255, 0.65)",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "primary-container": "#023a1e",
+                        "tertiary-fixed": "#d3e4fe",
+                        "on-primary-fixed": "#00210e",
+                        "secondary": "#376848",
+                        "inverse-primary": "#9dd3ab",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "inverse-surface": "#2e312e",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#d9dbd6",
+                        "status-error-bg": "#fef2f2",
+                        "surface-bright": "#f8faf5",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e1e3de",
+                        "on-tertiary-container": "#8b9bb4",
+                        "status-pending-bg": "#fffbeb",
+                        "on-secondary-fixed-variant": "#1e5032",
+                        "on-primary-fixed-variant": "#1e5032",
+                        "primary-fixed-dim": "#9dd3ab",
+                        "on-secondary-container": "#3b6d4c",
+                        "tertiary-container": "#233347",
+                        "surface-container": "#edeee9",
+                        "outline-variant": "#c0c9bf",
+                        "status-error-text": "#b91c1c",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#191c1a",
+                        "surface-tint": "#376848",
+                        "secondary-fixed-dim": "#9ed3ac",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#b6ecc4",
+                        "background": "#f8faf5",
+                        "primary": "#00220f",
+                        "on-surface": "#191c1a",
+                        "surface-container-highest": "#e1e3de",
+                        "tertiary": "#0d1e31",
+                        "status-pending-text": "#b45309",
+                        "inverse-on-surface": "#f0f1ec",
+                        "outline": "#717971",
+                        "on-primary-container": "#72a580",
+                        "status-approved-bg": "#f0fdf4",
+                        "on-error": "#ffffff",
+                        "status-approved-text": "#15803d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "2xl": "1.5rem",
+                        "3xl": "2rem",
+                        "full": "9999px"
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f0f4f1 0%, #e8f0eb 50%, #f7f9f7 100%);
+            min-height: 100vh;
+            color: #191c1a;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .admin-page {
+            padding: 48px 32px;
+        }
+
+        .admin-shell {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 32px;
+        }
+
+        /* Sophisticated Sidebar */
+        .sidebar {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-radius: 32px;
+            padding: 32px 16px;
+            height: fit-content;
+            position: sticky;
+            top: 48px;
+            box-shadow:
+                0 4px 24px rgba(0, 0, 0, 0.02),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .sidebar-title {
+            padding: 0 16px;
+            margin: 0 0 8px;
+            color: #00220f;
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+        }
+
+        .sidebar-desc {
+            padding: 0 16px;
+            margin: 0 0 32px;
+            color: #5a685f;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .nav-btn {
+            width: 100%;
+            border-radius: 16px;
+            color: #414942;
+            font-weight: 700;
+            text-align: left;
+            padding: 14px 20px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border: 1px solid transparent;
+            margin-bottom: 4px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0, 34, 15, 0.04);
+            color: #00220f;
+            transform: translateX(4px);
+        }
+
+        .nav-btn.active {
+            background: #ffffff;
+            color: #00220f;
+            box-shadow:
+                0 10px 20px rgba(0, 34, 15, 0.06),
+                0 2px 4px rgba(0, 34, 15, 0.02);
+            border: 1px solid rgba(0, 34, 15, 0.05);
+        }
+
+        .nav-btn.active .material-symbols-outlined {
+            color: #376848;
+        }
+
+        /* Main Panel */
+        .tab-panel {
+            display: none;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 40px;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.04),
+                0 0 0 1px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+            animation: panelFade 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes panelFade {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.99);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .panel-head {
+            padding: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .panel-head h2 {
+            margin: 0;
+            color: #00220f;
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+        }
+
+        .panel-sub {
+            margin: 8px 0 0;
+            color: #5a685f;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Premium Stat Cards */
+        .stats-grid {
+            display: grid;
+            gap: 24px;
+            grid-template-columns: repeat(2, 1fr);
+            padding: 0 48px 48px;
+        }
+
+        .stats-grid-row2 {
+            display: grid;
+            gap: 24px;
+            grid-template-columns: repeat(3, 1fr);
+            padding: 0 48px 48px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 32px;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow:
+                0 24px 48px rgba(0, 0, 0, 0.05),
+                0 4px 12px rgba(0, 0, 0, 0.02);
+            border-color: rgba(55, 104, 72, 0.15);
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            background: #f8faf5;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #376848;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover .stat-icon {
+            background: #376848;
+            color: #ffffff;
+            transform: rotate(-5deg);
+        }
+
+        .stat-value {
+            font-size: 2.75rem;
+            font-weight: 900;
+            color: #00220f;
+            line-height: 1.1;
+            letter-spacing: -0.04em;
+        }
+
+        .stat-label {
+            color: #5a685f;
+            font-size: 0.8125rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+        }
+
+        /* Premium Alert Box */
+        .urgent-section {
+            padding: 0 48px 48px;
+        }
+
+        .urgent-card {
+            background: linear-gradient(135deg, #fffbeb 0%, #fff9e6 100%);
+            border-radius: 32px;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            box-shadow:
+                0 20px 40px -10px rgba(245, 158, 11, 0.08),
+                inset 0 0 20px rgba(255, 255, 255, 0.5);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .urgent-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(251, 191, 36, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Modern Tables */
+        .table-wrap {
+            padding: 0 48px 48px;
+            position: relative;
+            /* Added to support absolute loading overlay */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 12px;
+        }
+
+        th {
+            padding: 12px 20px;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        td {
+            padding: 20px;
+            background: #ffffff;
+            border-top: 1px solid rgba(0, 0, 0, 0.02);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.02);
+            transition: all 0.3s;
+        }
+
+        td:first-child {
+            border-left: 1px solid rgba(0, 0, 0, 0.02);
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+        }
+
+        td:last-child {
+            border-right: 1px solid rgba(0, 0, 0, 0.02);
+            border-top-right-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+
+        tr:hover td {
+            background: #fdfdfd;
+            transform: scale(1.005);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            border-color: rgba(55, 104, 72, 0.1);
+        }
+
+        /* Pill Styles */
+        .status-pill {
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .status-pill.pending {
+            background: #fffbeb;
+            color: #b45309;
+            border: 1px solid rgba(180, 83, 9, 0.1);
+        }
+
+        .status-pill.approved {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid rgba(21, 128, 61, 0.1);
+        }
+
+        .status-pill.rejected {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid rgba(185, 28, 28, 0.1);
+        }
+
+        .status-pill.available {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid rgba(21, 128, 61, 0.1);
+        }
+
+        .status-pill.adopted {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid rgba(29, 78, 216, 0.1);
+        }
+
+        .status-pill.published {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid rgba(21, 128, 61, 0.1);
+        }
+
+        .status-pill.lost {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid rgba(185, 28, 28, 0.1);
+        }
+
+        .status-pill.found {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid rgba(21, 128, 61, 0.1);
+        }
+
+        .status-pill.closed {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid rgba(71, 85, 105, 0.1);
+        }
+
+        .status-pill.active {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid rgba(21, 128, 61, 0.1);
+        }
+
+        .status-pill.banned {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid rgba(185, 28, 28, 0.1);
+        }
+
+        /* Modern Buttons */
+        .tool-btn {
+            background: #ffffff;
+            color: #00220f;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 16px;
+            padding: 12px 24px;
+            font-weight: 700;
+            font-size: 0.9375rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            cursor: pointer;
+        }
+
+        .tool-btn:hover {
+            background: #00220f;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 34, 15, 0.12);
+        }
+
+        .action-btn {
+            border-radius: 12px;
+            padding: 10px 18px;
+            font-size: 0.875rem;
+            font-weight: 800;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .action-btn.approve {
+            background: #376848;
+            color: #ffffff;
+        }
+
+        .action-btn.approve:hover {
+            background: #00220f;
+            box-shadow: 0 4px 12px rgba(0, 34, 15, 0.2);
+        }
+
+        .action-btn.reject {
+            background: #dc2626;
+            color: #ffffff;
+        }
+
+        .action-btn.reject:hover {
+            background: #b91c1c;
+        }
+
+        .action-btn.info {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .action-btn.info:hover {
+            background: #e2e8f0;
+        }
+
+        .action-btn.delete {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid rgba(185, 28, 28, 0.1);
+        }
+
+        .action-btn.delete:hover {
+            background: #fecaca;
+            box-shadow: 0 4px 12px rgba(185, 28, 28, 0.1);
+        }
+
+        .action-btn.ban {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid rgba(185, 28, 28, 0.1);
+        }
+
+        .action-btn.ban:hover {
+            background: #fecaca;
+        }
+
+        .action-btn.unban {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid rgba(21, 128, 61, 0.1);
+        }
+
+        .action-btn.unban:hover {
+            background: #dcfce7;
+        }
+
+        .quick-action-btn {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            border-radius: 24px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.01);
+            cursor: pointer;
+        }
+
+        .quick-action-btn:hover {
+            background: #fdfdfd;
+            transform: translateY(-6px);
+            box-shadow: 0 16px 32px rgba(0, 34, 15, 0.06);
+            border-color: rgba(55, 104, 72, 0.2);
+        }
+
+        /* Detail Modal iOS Look */
+        .detail-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1300;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+        }
+
+        .detail-modal.show {
+            display: flex;
+        }
+
+        .detail-modal-card {
+            border-radius: 40px;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(40px);
+        }
+
+        @media (max-width: 1024px) {
+            .admin-shell {
+                grid-template-columns: 1fr;
+                padding: 24px;
+            }
+
+            .sidebar {
+                position: static;
+                width: 100%;
+                border-radius: 24px;
+            }
+
+            .panel-head {
+                padding: 32px;
+            }
+
+            .stats-grid,
+            .stats-grid-row2,
+            .table-wrap,
+            .urgent-section {
+                padding-left: 32px;
+                padding-right: 32px;
+            }
+        }
+
+        /* ─── Business Logic Specific Styles ─── */
+        .global-note {
+            display: none;
+            margin-bottom: 24px;
+            border-radius: 20px;
+            padding: 18px 24px;
+            font-weight: 600;
+            line-height: 1.5;
+            border: 1px solid transparent;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
+        }
+
+        .global-note.show {
+            display: block;
+        }
+
+        .global-note.info {
+            background: #eff6ff;
+            color: #1e40af;
+            border-color: rgba(30, 64, 175, 0.1);
+        }
+
+        .global-note.success {
+            background: #f0fdf4;
+            color: #166534;
+            border-color: rgba(22, 101, 52, 0.1);
+        }
+
+        .global-note.warning {
+            background: #fffbeb;
+            color: #92400e;
+            border-color: rgba(146, 64, 14, 0.1);
+        }
+
+        .global-note.error {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: rgba(153, 27, 27, 0.1);
+        }
+
+        .blocked-state {
+            display: none;
+            background: #ffffff;
+            border: 1px solid rgba(185, 28, 28, 0.2);
+            border-radius: 24px;
+            padding: 24px;
+            color: #991b1b;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(185, 28, 28, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .blocked-state.show {
+            display: block;
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 220px;
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(55, 104, 72, 0.15);
+            flex-shrink: 0;
+            background: #f3f4f6;
+        }
+
+        .user-name {
+            font-weight: 800;
+            color: #0f172a;
+            font-size: 0.95rem;
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+        }
+
+        .user-email {
+            font-size: 0.8rem;
+            color: #64748b;
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+        }
+
+        .role-select {
+            appearance: none;
+            -webkit-appearance: none;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
+            background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M2 4l4 4 4-4'/%3E%3C/svg%3E") no-repeat right 12px center;
+            color: #00220f;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 8px 32px 8px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 100px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.01);
+        }
+
+        .role-select:hover {
+            border-color: rgba(55, 104, 72, 0.3);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .role-select:focus {
+            outline: none;
+            border-color: #376848;
+            box-shadow: 0 0 0 3px rgba(55, 104, 72, 0.12);
+        }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .role-badge.admin {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid rgba(153, 27, 27, 0.1);
+        }
+
+        .role-badge.staff {
+            background: #fff7ed;
+            color: #9a3412;
+            border: 1px solid rgba(154, 52, 18, 0.1);
+        }
+
+        .role-badge.user {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid rgba(22, 101, 52, 0.1);
+        }
+
+        .table-loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            font-weight: 800;
+            color: #376848;
+            font-size: 0.95rem;
+            backdrop-filter: blur(4px);
+            border-radius: 32px;
+        }
+
+        .is-loading .table-loading-overlay {
+            display: flex;
+        }
+
+        .panel-state {
+            display: none;
+            margin: 24px 48px;
+            border-radius: 20px;
+            padding: 24px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .panel-state.show {
+            display: block;
+        }
+
+        .panel-state.loading {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid rgba(21, 128, 61, 0.1);
+        }
+
+        .panel-state.empty {
+            background: #f8fafc;
+            color: #64748b;
+            border: 1px solid rgba(100, 116, 139, 0.1);
+        }
+
+        .panel-state.error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid rgba(153, 27, 27, 0.1);
+        }
+
+        .panel-state.unauthorized {
+            background: #fff7ed;
+            color: #9a3412;
+            border: 1px solid rgba(154, 52, 18, 0.1);
+        }
+
+        .panel-content.is-hidden {
+            display: none;
+        }
+
+        .urgent-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+            transition: all 0.2s;
+        }
+
+        .urgent-row:last-child {
+            border-bottom: none;
+        }
+
+        .urgent-row:hover {
+            background: rgba(245, 158, 11, 0.04);
+        }
+
+        .urgent-type-badge {
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .urgent-type-badge.adoption {
+            background: #ede9fe;
+            color: #5b21b6;
+            border: 1px solid rgba(91, 33, 182, 0.1);
+        }
+
+        .urgent-type-badge.report {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid rgba(185, 28, 28, 0.1);
+        }
+
+        .urgent-type-badge.news {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid rgba(3, 105, 161, 0.1);
+        }
+
+        .urgent-type-badge.housing {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid rgba(22, 101, 52, 0.1);
+        }
+
+        .urgent-type-badge.shelters {
+            background: #eef2ff;
+            color: #4338ca;
+            border: 1px solid rgba(67, 56, 202, 0.1);
+        }
+
+        .urgent-empty {
+            padding: 48px;
+            color: #15803d;
+            text-align: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="top-bar">
+            <a href="/" class="logo-group">
+                <div class="logo-circle">
+                    <img src="/images/the_logo.webp" alt="logo" id="the_logo">
+                </div>
+                <div class="web-name">PET HELPER</div>
+            </a>
+            <div class="user-actions">
+                <div class="auth-user-actions is-auth-hidden" id="headerAuthUserState">
+                    <div class="user-dropdown" id="headerUserDropdown">
+                        <span id="userDropdownBtn" style="cursor: pointer;">
+                            <span id="headerDisplayNameText">Tài khoản</span> ▼
+                        </span>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-header">
+                                <strong id="headerDropdownDisplayName">Tài khoản</strong>
+                                <span class="user-role" id="headerUserRole">👤 User</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="/profile" class="dropdown-item">👤 Tài khoản</a>
+                            <a href="/admin" class="dropdown-item" id="headerManagementLink">🧭 Dashboard quản trị</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item logout" id="logoutBtn" onclick="handleLogout(event)">🚪
+                                Đăng xuất</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-guest-actions is-auth-visible" id="headerAuthGuestState">
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('login'); } return false;"><span>Đăng
+                            nhập</span></a>
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('register'); } return false;"><span>Đăng
+                            ký</span></a>
+                </div>
+                <span>Giỏ hàng <span id="cart-count-display">(0)</span></span>
+                <span class="lang-switch">VN / EN</span>
+            </div>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Mở menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+        <nav class="main-nav" id="mainNav">
+            <button class="mobile-nav-close" id="mobileNavClose" aria-label="Đóng menu">✕</button>
+            <ul>
+                <li><a href="/adopt">Nhận nuôi</a></li>
+                <li><a href="/lost">Báo mất</a></li>
+                <li><a href="/found">Nhặt được</a></li>
+                <li><a href="/news">Tin tức</a></li>
+                <li><a href="/shop">Cửa hàng</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="auth-overlay-mount"></div>
+    <script src="/javascripts/authOverlayLoader.js" defer></script>
+
+    <main class="admin-page">
+        <section class="admin-shell">
+            <aside class="sidebar">
+                <h1 class="sidebar-title">Web Dashboard</h1>
+                <p class="sidebar-desc">Hệ thống quản trị Pet Helper.</p>
+                <nav class="sidebar-nav">
+                    <button class="nav-btn active" data-tab="dashboard">
+                        <span class="material-symbols-outlined">dashboard</span> Dashboard
+                    </button>
+                    <button class="nav-btn" data-tab="adoption">
+                        <span class="material-symbols-outlined">description</span> Hồ sơ nhận nuôi
+                    </button>
+                    <button class="nav-btn" data-tab="housing">
+                        <span class="material-symbols-outlined">home</span> Đánh giá nhà ở
+                    </button>
+                    <button class="nav-btn" data-tab="pets">
+                        <span class="material-symbols-outlined">pets</span> Thú cưng
+                    </button>
+                    <button class="nav-btn" data-tab="shelters">
+                        <span class="material-symbols-outlined">home_work</span> Trại cứu hộ
+                    </button>
+                    <button class="nav-btn" data-tab="reports">
+                        <span class="material-symbols-outlined">campaign</span> Báo cáo thất lạc
+                    </button>
+                    <button class="nav-btn" data-tab="news">
+                        <span class="material-symbols-outlined">newspaper</span> Bài tin
+                    </button>
+                    <button class="nav-btn" data-admin-only="true" data-tab="users">
+                        <span class="material-symbols-outlined">group</span> Quản lý tài khoản
+                    </button>
+                    <a class="nav-btn" href="/admin-shop" style="text-decoration:none;">
+                        <span class="material-symbols-outlined">shopping_bag</span> Cửa hàng
+                    </a>
+                </nav>
+            </aside>
+            <section class="main-panel">
+                <div id="globalNote" class="global-note"></div>
+                <div id="blockedState" class="blocked-state"></div>
+
+                <!-- DASHBOARD PANEL -->
+                <section class="tab-panel active" id="panel-dashboard">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Tổng quan</h2>
+                            <p class="panel-sub">Số liệu thống kê thời gian thực hệ thống.</p>
+                        </div>
+                        <div class="panel-tools">
+                            <button class="tool-btn" id="refreshAllBtn">
+                                <span class="material-symbols-outlined">refresh</span> Làm mới
+                            </button>
+                        </div>
+                    </div>
+                    <div class="dashboard-body">
+                        <div class="stats-grid">
+                            <article class="stat-card" data-jump-tab="adoption">
+                                <div class="flex items-center justify-between mb-8">
+                                    <div class="stat-icon"><span class="material-symbols-outlined">description</span>
+                                    </div>
+                                    <span class="stat-label">Hồ sơ nhận nuôi</span>
+                                </div>
+                                <div class="flex items-baseline gap-2 mb-6">
+                                    <p class="stat-value" id="statAdoptionTotal">0</p>
+                                    <span class="text-slate-400 font-bold">HỒ SƠ</span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="status-pill pending" id="statAdoptionPending">0 chờ</span>
+                                    <span class="status-pill approved" id="statAdoptionApproved">0 duyệt</span>
+                                    <span class="status-pill rejected" id="statAdoptionRejected">0 từ chối</span>
+                                </div>
+                            </article>
+                            <article class="stat-card" data-jump-tab="pets">
+                                <div class="flex items-center justify-between mb-8">
+                                    <div class="stat-icon"><span class="material-symbols-outlined">pets</span></div>
+                                    <span class="stat-label">Thú cưng</span>
+                                </div>
+                                <div class="flex items-baseline gap-2 mb-6">
+                                    <p class="stat-value" id="statPetsTotal">0</p>
+                                    <span class="text-slate-400 font-bold">THÚ CƯNG</span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="status-pill approved" id="statPetsAvailable">0 sẵn sàng</span>
+                                    <span class="status-pill neutral" id="statPetsAdopted"
+                                        style="background: #f1f5f9; color: #475569;">0 đã nhận</span>
+                                </div>
+                            </article>
+                        </div>
+                        <div class="stats-grid-row2">
+                            <article class="stat-card" data-report-filter="lost">
+                                <div class="flex items-center justify-between mb-6">
+                                    <div class="stat-icon" style="color: #ef4444;"><span
+                                            class="material-symbols-outlined">error</span></div>
+                                    <span class="stat-label">Thất lạc</span>
+                                </div>
+                                <p class="stat-value text-3xl mb-4" id="statReportsLostTotal">0</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="status-pill pending" id="statReportsLostPending">0 chờ</span>
+                                    <span class="status-pill approved" id="statReportsLostApproved">0 duyệt</span>
+                                </div>
+                            </article>
+                            <article class="stat-card" data-report-filter="found">
+                                <div class="flex items-center justify-between mb-6">
+                                    <div class="stat-icon" style="color: #10b981;"><span
+                                            class="material-symbols-outlined">check_circle</span></div>
+                                    <span class="stat-label">Tìm thấy</span>
+                                </div>
+                                <p class="stat-value text-3xl mb-4" id="statReportsFoundTotal">0</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="status-pill pending" id="statReportsFoundPending">0 chờ</span>
+                                    <span class="status-pill approved" id="statReportsFoundApproved">0 duyệt</span>
+                                </div>
+                            </article>
+                            <article class="stat-card" data-jump-tab="shelters">
+                                <div class="flex items-center justify-between mb-6">
+                                    <div class="stat-icon"><span class="material-symbols-outlined">home_work</span>
+                                    </div>
+                                    <span class="stat-label">Trại cứu hộ</span>
+                                </div>
+                                <p class="stat-value text-3xl mb-4" id="statSheltersTotal">0</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="status-pill pending" id="statSheltersPending">0 chờ</span>
+                                    <span class="status-pill approved" id="statSheltersApproved">0 duyệt</span>
+                                    <span class="status-pill rejected" id="statSheltersRejected">0 từ chối</span>
+                                </div>
+                            </article>
+                            <article class="stat-card" data-jump-tab="news">
+                                <div class="flex items-center justify-between mb-6">
+                                    <div class="stat-icon"><span class="material-symbols-outlined">newspaper</span>
+                                    </div>
+                                    <span class="stat-label">Tin tức</span>
+                                </div>
+                                <p class="stat-value text-3xl mb-4" id="statNewsTotal">0</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="status-pill pending" id="statNewsPending">0 chờ</span>
+                                    <span class="status-pill approved" id="statNewsApproved">0 duyệt</span>
+                                    <span class="status-pill rejected" id="statNewsRejected">0 từ chối</span>
+                                </div>
+                            </article>
+                            <article class="stat-card" data-jump-tab="housing">
+                                <div class="flex items-center justify-between mb-6">
+                                    <div class="stat-icon"><span class="material-symbols-outlined">home</span>
+                                    </div>
+                                    <span class="stat-label">Đánh giá nhà ở</span>
+                                </div>
+                                <p class="stat-value text-3xl mb-4" id="statHousingTotal">0</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="status-pill pending" id="statHousingPending">0 chờ</span>
+                                    <span class="status-pill approved" id="statHousingApproved">0 duyệt</span>
+                                    <span class="status-pill rejected" id="statHousingRejected">0 từ chối</span>
+                                </div>
+                            </article>
+                            <article class="stat-card" data-admin-only="true" data-jump-tab="users">
+                                <div class="flex items-center justify-between mb-6">
+                                    <div class="stat-icon"><span class="material-symbols-outlined">group</span></div>
+                                    <span class="stat-label">Người dùng</span>
+                                </div>
+                                <p class="stat-value text-3xl mb-4" id="statUsersTotal">0</p>
+                                <span class="text-slate-400 text-xs font-bold">QUẢN TRỊ VIÊN</span>
+                            </article>
+                        </div>
+                        <div class="urgent-section">
+                            <h3 class="stat-label mb-6 flex items-center gap-2 px-2">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                ⚡ Cần xử lý gấp <span class="urgent-count-badge" id="urgentCount">0</span>
+                            </h3>
+                            <div class="urgent-card" id="urgentList">
+                                <div class="p-12 text-center text-slate-400 font-medium">Đang tải dữ liệu...</div>
+                            </div>
+                        </div>
+                        <div class="px-[48px] pb-12">
+                            <h3 class="stat-label mb-6 px-2">Truy cập nhanh</h3>
+                            <div class="grid grid-cols-4 gap-6">
+                                <button class="quick-action-btn" data-jump-tab="adoption">
+                                    <span
+                                        class="material-symbols-outlined text-3xl mb-3 block text-emerald-800">description</span>
+                                    <div class="font-extrabold text-sm text-emerald-900">Nhận nuôi</div>
+                                </button>
+                                <button class="quick-action-btn" data-jump-tab="pets">
+                                    <span
+                                        class="material-symbols-outlined text-3xl mb-3 block text-emerald-800">pets</span>
+                                    <div class="font-extrabold text-sm text-emerald-900">Thú cưng</div>
+                                </button>
+                                <button class="quick-action-btn" data-jump-tab="reports">
+                                    <span
+                                        class="material-symbols-outlined text-3xl mb-3 block text-emerald-800">campaign</span>
+                                    <div class="font-extrabold text-sm text-emerald-900">Báo cáo</div>
+                                </button>
+                                <button class="quick-action-btn" data-jump-tab="news">
+                                    <span
+                                        class="material-symbols-outlined text-3xl mb-3 block text-emerald-800">newspaper</span>
+                                    <div class="font-extrabold text-sm text-emerald-900">Tin tức</div>
+                                </button>
+                                <button class="quick-action-btn" data-jump-tab="housing">
+                                    <span
+                                        class="material-symbols-outlined text-3xl mb-3 block text-emerald-800">home</span>
+                                    <div class="font-extrabold text-sm text-emerald-900">Nhà ở</div>
+                                </button>
+                                <button class="quick-action-btn" data-jump-tab="shelters">
+                                    <span
+                                        class="material-symbols-outlined text-3xl mb-3 block text-emerald-800">home_work</span>
+                                    <div class="font-extrabold text-sm text-emerald-900">Trại</div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ADOPTION PANEL -->
+                <section class="tab-panel" id="panel-adoption">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Hồ sơ nhận nuôi</h2>
+                            <p class="panel-sub">Duyệt các yêu cầu nhận nuôi từ cộng đồng.</p>
+                        </div>
+                        <button class="tool-btn" data-refresh-tab="adoption"><span
+                                class="material-symbols-outlined">sync</span> Tải lại</button>
+                    </div>
+                    <div class="panel-state" id="adoptionState"></div>
+                    <div class="panel-content is-hidden" id="adoptionContent">
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Người dùng</th>
+                                        <th>Thú cưng</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adoptionBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-bar px-12 pb-12 flex items-center justify-between"
+                            id="adoptionPagination">
+                            <div class="text-slate-400 font-bold text-sm" id="adoptionPaginationSummary">Trang 0 / 0
+                            </div>
+                            <div class="flex gap-3">
+                                <button class="tool-btn" data-page-nav="prev" data-page-tab="adoption">Trước</button>
+                                <button class="tool-btn" data-page-nav="next" data-page-tab="adoption">Tiếp</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- HOUSING REVIEW PANEL -->
+                <section class="tab-panel" id="panel-housing">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Đánh giá nhà ở</h2>
+                            <p class="panel-sub">Duyệt các bài đánh giá nhà ở từ người dùng.</p>
+                        </div>
+                        <button class="tool-btn" data-refresh-tab="housing"><span
+                                class="material-symbols-outlined">sync</span> Tải lại</button>
+                    </div>
+                    <div class="panel-state" id="housingState"></div>
+                    <div class="panel-content is-hidden" id="housingContent">
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Người dùng</th>
+                                        <th>Loại nhà</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Duyệt bởi</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="housingBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-bar px-12 pb-12 flex items-center justify-between"
+                            id="housingPagination">
+                            <div class="text-slate-400 font-bold text-sm" id="housingPaginationSummary">Trang 0 / 0
+                            </div>
+                            <div class="flex gap-3">
+                                <button class="tool-btn" data-page-nav="prev" data-page-tab="housing">Trước</button>
+                                <button class="tool-btn" data-page-nav="next" data-page-tab="housing">Tiếp</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PETS PANEL -->
+                <section class="tab-panel" id="panel-pets">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Quản lý thú cưng</h2>
+                            <p class="panel-sub">Quản lý danh sách thú cưng trong hệ thống.</p>
+                        </div>
+                        <button class="tool-btn" data-refresh-tab="pets"><span
+                                class="material-symbols-outlined">sync</span> Tải lại</button>
+                    </div>
+                    <div class="panel-state" id="petsState"></div>
+                    <div class="panel-content is-hidden" id="petsContent">
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tên</th>
+                                        <th>Loại</th>
+                                        <th>Trạng thái</th>
+                                        <th>Cập nhật</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="petsBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-bar px-12 pb-12 flex items-center justify-between" id="petsPagination">
+                            <div class="text-slate-400 font-bold text-sm" id="petsPaginationSummary">Trang 0 / 0</div>
+                            <div class="flex gap-3">
+                                <button class="tool-btn" data-page-nav="prev" data-page-tab="pets">Trước</button>
+                                <button class="tool-btn" data-page-nav="next" data-page-tab="pets">Tiếp</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SHELTERS PANEL -->
+                <section class="tab-panel" id="panel-shelters">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Trại cứu hộ</h2>
+                            <p class="panel-sub">Duyệt các trại cứu hộ đăng ký từ người dùng.</p>
+                        </div>
+                        <button class="tool-btn" data-refresh-tab="shelters"><span
+                                class="material-symbols-outlined">sync</span> Tải lại</button>
+                    </div>
+                    <div class="panel-state" id="sheltersState"></div>
+                    <div class="panel-content is-hidden" id="sheltersContent">
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Người dùng</th>
+                                        <th>Tên trại</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Duyệt bởi</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sheltersBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-bar px-12 pb-12 flex items-center justify-between"
+                            id="sheltersPagination">
+                            <div class="text-slate-400 font-bold text-sm" id="sheltersPaginationSummary">Trang 0 / 0
+                            </div>
+                            <div class="flex gap-3">
+                                <button class="tool-btn" data-page-nav="prev" data-page-tab="shelters">Trước</button>
+                                <button class="tool-btn" data-page-nav="next" data-page-tab="shelters">Tiếp</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- REPORTS PANEL -->
+                <section class="tab-panel" id="panel-reports">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Báo cáo thất lạc</h2>
+                            <p class="panel-sub">Xử lý báo cáo cứu hộ từ người dùng.</p>
+                        </div>
+                        <button class="tool-btn" data-refresh-tab="reports"><span
+                                class="material-symbols-outlined">sync</span> Tải lại</button>
+                    </div>
+                    <div class="px-12 pb-6 flex gap-3">
+                        <button class="tool-btn report-filter-btn active" data-report-type="all"
+                            style="background: #00220f; color: #fff;">Tất cả</button>
+                        <button class="tool-btn report-filter-btn" data-report-type="lost">🔴 Thất lạc</button>
+                        <button class="tool-btn report-filter-btn" data-report-type="found">🟢 Tìm thấy</button>
+                    </div>
+                    <div class="panel-state" id="reportsState"></div>
+                    <div class="panel-content is-hidden" id="reportsContent">
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Người báo cáo</th>
+                                        <th>Loại</th>
+                                        <th>Vị trí</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reportsBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-bar px-12 pb-12 flex items-center justify-between"
+                            id="reportsPagination">
+                            <div class="text-slate-400 font-bold text-sm" id="reportsPaginationSummary">Trang 0 / 0
+                            </div>
+                            <div class="flex gap-3">
+                                <button class="tool-btn" data-page-nav="prev" data-page-tab="reports">Trước</button>
+                                <button class="tool-btn" data-page-nav="next" data-page-tab="reports">Tiếp</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- USERS PANEL -->
+                <section class="tab-panel" data-admin-only="true" id="panel-users">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Quản lý người dùng</h2>
+                            <p class="panel-sub">Quản lý tài khoản và quyền truy cập.</p>
+                        </div>
+                        <button class="tool-btn" data-refresh-tab="users"><span
+                                class="material-symbols-outlined">sync</span> Tải lại</button>
+                    </div>
+                    <div class="panel-state" id="usersState"></div>
+                    <div class="panel-content is-hidden" id="usersContent">
+                        <div class="table-wrap">
+                            <div class="table-loading-overlay" id="usersTableLoading">Đang tải...</div>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Người dùng</th>
+                                        <th>Vai trò</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày tham gia</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-bar px-12 pb-12 flex items-center justify-between" id="usersPagination">
+                            <div class="text-slate-400 font-bold text-sm" id="usersPaginationSummary">Trang 0 / 0</div>
+                            <div class="flex gap-3">
+                                <button class="tool-btn" data-page-nav="prev" data-page-tab="users">Trước</button>
+                                <button class="tool-btn" data-page-nav="next" data-page-tab="users">Tiếp</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- NEWS PANEL -->
+                <section class="tab-panel" id="panel-news">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Bài tin tức</h2>
+                            <p class="panel-sub">Kiểm duyệt và đăng tải tin tức.</p>
+                        </div>
+                        <button class="tool-btn" data-refresh-tab="news"><span
+                                class="material-symbols-outlined">sync</span> Tải lại</button>
+                    </div>
+                    <div class="panel-state" id="newsState"></div>
+                    <div class="panel-content is-hidden" id="newsContent">
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Tiêu đề</th>
+                                        <th>Tác giả</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="newsBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-bar px-12 pb-12 flex items-center justify-between" id="newsPagination">
+                            <div class="text-slate-400 font-bold text-sm" id="newsPaginationSummary">Trang 0 / 0</div>
+                            <div class="flex gap-3">
+                                <button class="tool-btn" data-page-nav="prev" data-page-tab="news">Trước</button>
+                                <button class="tool-btn" data-page-nav="next" data-page-tab="news">Tiếp</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </section>
+    </main>
+
+    <!-- DETAIL MODAL -->
+    <div aria-hidden="true" class="detail-modal" id="detailModal">
+        <div class="detail-modal-card bg-white w-full max-w-4xl overflow-hidden">
+            <div class="p-8 border-b border-slate-100 flex items-center justify-between">
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight" id="detailModalTitle">Chi tiết</h2>
+                <button class="w-10 h-10 rounded-full hover:bg-slate-100 transition flex items-center justify-center"
+                    id="detailModalCloseBtn">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-10 grid md:grid-cols-2 gap-10 max-h-[75vh] overflow-y-auto">
+                <div>
+                    <img class="w-full h-80 object-cover rounded-3xl shadow-xl border border-slate-100"
+                        id="detailModalImage" src="" />
+                    <div class="w-full h-80 bg-slate-50 rounded-3xl flex items-center justify-center text-slate-400 font-bold border-2 border-dashed border-slate-200"
+                        id="detailImagePlaceholder">Không có ảnh</div>
+                    <div class="mt-10" id="detailDescriptionGroup">
+                        <label class="stat-label mb-2 block">Mô tả chi tiết</label>
+                        <p class="text-slate-600 font-medium leading-relaxed" id="detailDescriptionValue">-</p>
+                    </div>
+                </div>
+                <div class="space-y-8">
+                    <div id="detailUserGroup"><label class="stat-label">Người dùng</label>
+                        <p class="font-black text-lg text-slate-900" id="detailUserValue">-</p>
+                    </div>
+                    <div id="detailEmailGroup"><label class="stat-label">Email liên hệ</label>
+                        <p class="font-bold text-slate-800" id="detailEmailValue">-</p>
+                    </div>
+                    <div id="detailPhoneGroup"><label class="stat-label">Số điện thoại</label>
+                        <p class="font-bold text-slate-800" id="detailPhoneValue">-</p>
+                    </div>
+                    <div id="detailPetGroup"><label class="stat-label">Thú cưng</label>
+                        <p class="font-black text-lg text-emerald-800" id="detailPetValue">-</p>
+                    </div>
+                    <div id="detailTypeGroup"><label class="stat-label">Loại</label>
+                        <p class="font-bold text-slate-800" id="detailTypeValue">-</p>
+                    </div>
+                    <div id="detailLocationGroup"><label class="stat-label">Vị trí</label>
+                        <p class="font-bold text-slate-800" id="detailLocationValue">-</p>
+                    </div>
+                    <div><label class="stat-label mb-2 block">Trạng thái</label>
+                        <div id="detailStatusValue">-</div>
+                    </div>
+                    <div><label class="stat-label">Ngày ghi nhận</label>
+                        <p class="font-bold text-slate-800" id="detailDateValue">-</p>
+                    </div>
+                    <div id="detailHousingFields" class="hidden">
+                        <hr class="my-6 border-slate-100">
+                        <div id="detailHousingTypeGroup"><label class="stat-label">Loại nhà ở</label>
+                            <p class="font-bold text-slate-800" id="detailHousingTypeValue">-</p>
+                        </div>
+                        <div id="detailOutdoorGroup"><label class="stat-label">Không gian ngoài trời</label>
+                            <p class="font-bold text-slate-800" id="detailOutdoorValue">-</p>
+                        </div>
+                        <div id="detailPetsGroup"><label class="stat-label">Đã có thú cưng</label>
+                            <p class="font-bold text-slate-800" id="detailPetsValue">-</p>
+                        </div>
+                        <div id="detailChildrenGroup"><label class="stat-label">Có trẻ em</label>
+                            <p class="font-bold text-slate-800" id="detailChildrenValue">-</p>
+                        </div>
+                        <div id="detailTimeHomeGroup"><label class="stat-label">Thời gian ở nhà</label>
+                            <p class="font-bold text-slate-800" id="detailTimeHomeValue">-</p>
+                        </div>
+                        <div id="detailExperienceGroup"><label class="stat-label">Kinh nghiệm</label>
+                            <p class="font-bold text-slate-800" id="detailExperienceValue">-</p>
+                        </div>
+                        <div id="detailIncomeGroup"><label class="stat-label">Thu nhập</label>
+                            <p class="font-bold text-slate-800" id="detailIncomeValue">-</p>
+                        </div>
+                        <div id="detailWhenAwayGroup"><label class="stat-label">Khi đi vắng</label>
+                            <p class="font-bold text-slate-800" id="detailWhenAwayValue">-</p>
+                        </div>
+                        <div id="detailAdminNotesGroup"><label class="stat-label">Ghi chú quản trị</label>
+                            <p class="font-bold text-slate-800" id="detailAdminNotesValue">-</p>
+                        </div>
+                    </div>
+                    <div id="detailShelterFields" class="hidden">
+                        <hr class="my-6 border-slate-100">
+                        <div id="detailShelterNameGroup"><label class="stat-label">Tên trại</label>
+                            <p class="font-bold text-slate-800" id="detailShelterNameValue">-</p>
+                        </div>
+                        <div id="detailShelterPhoneGroup"><label class="stat-label">Số điện thoại</label>
+                            <p class="font-bold text-slate-800" id="detailShelterPhoneValue">-</p>
+                        </div>
+                        <div id="detailShelterAddressGroup"><label class="stat-label">Địa chỉ</label>
+                            <p class="font-bold text-slate-800" id="detailShelterAddressValue">-</p>
+                        </div>
+                        <div id="detailShelterDescriptionGroup"><label class="stat-label">Mô tả</label>
+                            <p class="font-bold text-slate-800" id="detailShelterDescriptionValue">-</p>
+                        </div>
+                        <div id="detailShelterAdminNotesGroup"><label class="stat-label">Ghi chú quản trị</label>
+                            <p class="font-bold text-slate-800" id="detailShelterAdminNotesValue">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-8 border-t border-slate-100 flex justify-end bg-slate-50/50">
+                <button class="tool-btn px-12" id="detailModalCloseFooterBtn"
+                    style="background: #00220f; color: #fff;">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-bottom">
+            <p>© 2026 Pet Helper. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/javascripts/staticHeader.js"></script>
+    <script src="/javascripts/staticFooter.js"></script>
+
+    <script>
+        const TAB_KEY = 'pet_helper_admin_tab';
+        const TAB_LIST = ['dashboard', 'adoption', 'housing', 'shelters', 'pets', 'reports', 'news', 'users'];
+        const PAGINATED_TABS = ['adoption', 'housing', 'shelters', 'pets', 'reports', 'news', 'users'];
+        const PAGE_SIZE = 10;
+
+        const TAB_ROWS_KEYS = { adoption: 'adoptionRows', housing: 'housingRows', shelters: 'shelterRows', pets: 'petRows', reports: 'reportRows', news: 'newsRows', users: 'userRows' };
+
+        const state = {
+            currentUser: null,
+            currentRole: null,
+            isBlocked: false,
+            activeTab: 'dashboard',
+            reportFilter: 'all',
+            detail: { isOpen: false, context: null, id: null },
+            pagination: {
+                adoption: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0, loading: false, cache: {} },
+                housing: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0, loading: false, cache: {} },
+                shelters: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0, loading: false, cache: {} },
+                pets: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0, loading: false, cache: {} },
+                reports: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0, loading: false, cache: {} },
+                news: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0, loading: false, cache: {} },
+                users: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0, loading: false, cache: {} },
+            },
+            fetchedTabs: { dashboard: false, adoption: false, housing: false, shelters: false, pets: false, reports: false, news: false, users: false },
+            adoptionRows: [], housingRows: [], shelterRows: [], petRows: [], reportRows: [], newsRows: [], userRows: [],
+            pendingActions: new Set()
+        };
+
+        const globalNote = document.getElementById('globalNote');
+        const blockedState = document.getElementById('blockedState');
+        const navButtons = Array.from(document.querySelectorAll('.nav-btn[data-tab]'));
+        const jumpButtons = Array.from(document.querySelectorAll('[data-jump-tab]'));
+        const refreshAllBtn = document.getElementById('refreshAllBtn');
+
+        const panelEls = {
+            dashboard: document.getElementById('panel-dashboard'), adoption: document.getElementById('panel-adoption'),
+            housing: document.getElementById('panel-housing'), shelters: document.getElementById('panel-shelters'),
+            pets: document.getElementById('panel-pets'), reports: document.getElementById('panel-reports'),
+            news: document.getElementById('panel-news'), users: document.getElementById('panel-users')
+        };
+
+        const sectionRefs = {
+            adoption: { stateEl: document.getElementById('adoptionState'), contentEl: document.getElementById('adoptionContent'), bodyEl: document.getElementById('adoptionBody') },
+            housing: { stateEl: document.getElementById('housingState'), contentEl: document.getElementById('housingContent'), bodyEl: document.getElementById('housingBody') },
+            shelters: { stateEl: document.getElementById('sheltersState'), contentEl: document.getElementById('sheltersContent'), bodyEl: document.getElementById('sheltersBody') },
+            pets: { stateEl: document.getElementById('petsState'), contentEl: document.getElementById('petsContent'), bodyEl: document.getElementById('petsBody') },
+            reports: { stateEl: document.getElementById('reportsState'), contentEl: document.getElementById('reportsContent'), bodyEl: document.getElementById('reportsBody') },
+            news: { stateEl: document.getElementById('newsState'), contentEl: document.getElementById('newsContent'), bodyEl: document.getElementById('newsBody') },
+            users: { stateEl: document.getElementById('usersState'), contentEl: document.getElementById('usersContent'), bodyEl: document.getElementById('usersBody') }
+        };
+
+        const paginationRefs = {
+            users: { wrapEl: document.getElementById('usersPagination'), summaryEl: document.getElementById('usersPaginationSummary'), loadingEl: document.getElementById('usersTableLoading') }
+        };
+
+        const adminOnlyElements = Array.from(document.querySelectorAll('[data-admin-only="true"]'));
+
+        const escapeHtml = (v) => String(v || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        const formatDate = (v) => v ? new Date(v).toLocaleDateString('vi-VN') : '-';
+        const isAdmin = () => Number(state.currentRole) === 0;
+
+        const setGlobalMessage = (type, msg) => {
+            globalNote.className = `global-note show ${type || 'info'}`;
+            globalNote.textContent = msg || '';
+            if (!msg) globalNote.classList.remove('show');
+        };
+
+        const setSectionState = (key, status, msg) => {
+            const ref = sectionRefs[key]; if (!ref) return;
+            if (status === 'ready') { ref.stateEl.className = 'panel-state'; ref.contentEl.classList.remove('is-hidden'); return; }
+            ref.contentEl.classList.add('is-hidden');
+            ref.stateEl.className = `panel-state show ${status}`;
+            ref.stateEl.textContent = msg || '';
+        };
+
+        const toastSuccess = (msg) => { if (typeof Swal !== 'undefined') Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: msg, showConfirmButton: false, timer: 3000 }); };
+
+        async function adminApiFetch(path, opts = {}) {
+            console.log(`[Admin] Fetching: ${path}`);
+            const defaultOpts = { method: opts.method || 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) }, body: opts.body ? JSON.stringify(opts.body) : undefined };
+            let res = await fetch(path, defaultOpts);
+            if (res.status === 304) {
+                res = await fetch(path, { ...defaultOpts, cache: 'reload' });
+            }
+            if (res.status === 204) {
+                return { success: true, data: null };
+            }
+            const payload = await res.json().catch(() => ({ success: false, message: 'Lỗi server' }));
+            console.log(`[Admin] Payload:`, payload);
+            if (res.status === 401) { if (typeof openLoginOverlaySafely === 'function') openLoginOverlaySafely(); throw { code: 'unauthorized', message: payload.message }; }
+            if (!res.ok || payload.success === false) throw { code: 'api', message: payload.message || 'Yêu cầu thất bại' };
+            return payload;
+        }
+
+        const switchTab = (tab, persist = true) => {
+            if (!TAB_LIST.includes(tab)) return;
+            state.activeTab = tab;
+            navButtons.forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+            Object.entries(panelEls).forEach(([k, v]) => { if (v) v.classList.toggle('active', k === tab); });
+            if (persist) localStorage.setItem(TAB_KEY, tab);
+            loadTabData(tab);
+        };
+
+        const loadTabData = async (tab, force = false) => {
+            if (tab === 'dashboard') return loadDashboardData(force);
+            if (PAGINATED_TABS.includes(tab)) return loadPagedTab(tab, force);
+        };
+
+        const loadDashboardData = async (force) => {
+            setSectionState('dashboard', 'loading', 'Đang tải...');
+            try {
+                const [a, h, s, p, r, n, u] = await Promise.all([
+                    adminApiFetch('/api/v1/adoption-requests/admin'),
+                    adminApiFetch('/api/v1/admin/housing-reviews?limit=100'),
+                    adminApiFetch('/api/v1/admin/shelters?limit=100'),
+                    adminApiFetch('/api/v1/pets'),
+                    adminApiFetch('/api/v1/admin/reports'), adminApiFetch('/api/v1/admin/news'),
+                    isAdmin() ? adminApiFetch('/api/v1/admin/users?limit=1') : Promise.resolve({ data: { total: 0 } })
+                ]);
+                state.adoptionRows = a.data?.data || a.data?.requests || [];
+                state.housingRows = h.data?.data || [];
+                state.shelterRows = s.data?.data || [];
+                state.petRows = p.data?.pets || [];
+                state.reportRows = (r.data?.data || r.data?.reports || []).map(row => {
+                    row.type = String(row.type || '').toLowerCase();
+                    row.status = String(row.status || '').toLowerCase();
+                    return row;
+                });
+                state.newsRows = n.data?.news || [];
+                state.pagination.users.total = u.data?.total || 0;
+
+                state.fetchedTabs.adoption = true;
+                state.fetchedTabs.housing = true;
+                state.fetchedTabs.shelters = true;
+                state.fetchedTabs.pets = true;
+                state.fetchedTabs.reports = true;
+                state.fetchedTabs.news = true;
+
+                renderDashboardStats();
+                setSectionState('dashboard', 'ready');
+            } catch (e) {
+                console.error('[Dashboard] Error:', e);
+                setSectionState('dashboard', 'error', 'Lỗi tải dữ liệu');
+            }
+        };
+
+        const renderDashboardStats = () => {
+            // Adoption
+            const aTotal = state.adoptionRows.length;
+            document.getElementById('statAdoptionTotal').textContent = aTotal;
+            document.getElementById('statAdoptionPending').textContent = `${state.adoptionRows.filter(r => r.status === 'pending').length} chờ duyệt`;
+            document.getElementById('statAdoptionApproved').textContent = `${state.adoptionRows.filter(r => r.status === 'approved').length} đã duyệt`;
+            document.getElementById('statAdoptionRejected').textContent = `${state.adoptionRows.filter(r => r.status === 'rejected').length} từ chối`;
+
+            // Pets
+            const pTotal = state.petRows.length;
+            document.getElementById('statPetsTotal').textContent = pTotal;
+            document.getElementById('statPetsAvailable').textContent = `${state.petRows.filter(p => p.status === 'available').length} sẵn sàng`;
+            document.getElementById('statPetsAdopted').textContent = `${state.petRows.filter(p => p.status === 'adopted').length} đã nhận nuôi`;
+
+            // Reports
+            const lost = state.reportRows.filter(r => r.type === 'lost');
+            const found = state.reportRows.filter(r => r.type === 'found');
+            document.getElementById('statReportsLostTotal').textContent = lost.length;
+            document.getElementById('statReportsLostPending').textContent = `${lost.filter(r => r.status === 'pending').length} chờ`;
+            document.getElementById('statReportsLostApproved').textContent = `${lost.filter(r => r.status === 'approved').length} duyệt`;
+
+            document.getElementById('statReportsFoundTotal').textContent = found.length;
+            document.getElementById('statReportsFoundPending').textContent = `${found.filter(r => r.status === 'pending').length} chờ`;
+            document.getElementById('statReportsFoundApproved').textContent = `${found.filter(r => r.status === 'approved').length} duyệt`;
+
+            // News
+            document.getElementById('statNewsTotal').textContent = state.newsRows.length;
+            document.getElementById('statNewsPending').textContent = `${state.newsRows.filter(n => n.status === 'pending').length} chờ`;
+            document.getElementById('statNewsApproved').textContent = `${state.newsRows.filter(n => n.status === 'approved').length} duyệt`;
+            document.getElementById('statNewsRejected').textContent = `${state.newsRows.filter(n => n.status === 'rejected').length} từ chối`;
+
+            // Housing Reviews
+            const hRows = state.housingRows;
+            document.getElementById('statHousingTotal').textContent = hRows.length;
+            document.getElementById('statHousingPending').textContent = `${hRows.filter(r => r.status === 'pending').length} chờ`;
+            document.getElementById('statHousingApproved').textContent = `${hRows.filter(r => r.status === 'approved').length} duyệt`;
+            document.getElementById('statHousingRejected').textContent = `${hRows.filter(r => r.status === 'rejected').length} từ chối`;
+
+            // Shelters
+            const sRows = state.shelterRows;
+            document.getElementById('statSheltersTotal').textContent = sRows.length;
+            document.getElementById('statSheltersPending').textContent = `${sRows.filter(r => r.status === 'pending').length} chờ`;
+            document.getElementById('statSheltersApproved').textContent = `${sRows.filter(r => r.status === 'approved').length} duyệt`;
+            document.getElementById('statSheltersRejected').textContent = `${sRows.filter(r => r.status === 'rejected').length} từ chối`;
+
+            if (isAdmin()) {
+                const el = document.getElementById('statUsersTotal');
+                if (el) el.textContent = state.pagination.users.total;
+            }
+
+            renderUrgentList();
+        };
+
+        const renderUrgentList = () => {
+            const list = [
+                ...state.adoptionRows.filter(r => r.status === 'pending').map(r => ({ type: 'adoption', label: 'Nhận nuôi', name: r.display_name || r.user_name, meta: r.pet_name ? `Thú cưng: ${r.pet_name}` : '', id: r.id })),
+                ...state.housingRows.filter(r => r.status === 'pending').map(r => ({ type: 'housing', label: 'Nhà ở', name: r.display_name || r.name, meta: `Loại: ${r.house_type || ''}`, id: r.id })),
+                ...state.shelterRows.filter(r => r.status === 'pending').map(r => ({ type: 'shelters', label: 'Trại', name: r.display_name || r.name, meta: `Tên: ${r.name || ''}`, id: r.id })),
+                ...state.reportRows.filter(r => r.status === 'pending').map(r => ({ type: 'report', label: 'Báo cáo', name: r.reporter_name || r.name, meta: r.found_location || '', id: r.id })),
+                ...state.newsRows.filter(r => r.status === 'pending').map(r => ({ type: 'news', label: 'Bài tin', name: r.title, meta: r.author_name || '', id: r.id }))
+            ].slice(0, 5);
+
+            const countEl = document.getElementById('urgentCount');
+            const listEl = document.getElementById('urgentList');
+            if (countEl) countEl.textContent = list.length;
+            if (listEl) {
+                listEl.innerHTML = list.length ? list.map(i => `
+                    <div class="urgent-row">
+                        <div class="urgent-row-left" style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+                            <div class="urgent-type-badge ${i.type}" style="flex-shrink:0;">${i.label}</div>
+                            <div style="min-width:0;">
+                                <div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(i.name)}</div>
+                                <div style="font-size:0.78rem;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(i.meta)}</div>
+                            </div>
+                        </div>
+                        <button class="tool-btn" data-jump-tab="${i.type === 'report' ? 'reports' : i.type === 'housing' ? 'housing' : i.type === 'shelters' ? 'shelters' : i.type}">Xử lý</button>
+                    </div>
+                `).join('') : '<div class="urgent-empty">✅ Tất cả đã được xử lý!</div>';
+            }
+        };
+
+        const loadPagedTab = async (tab, force) => {
+            const p = state.pagination[tab];
+            setSectionState(tab, 'loading', 'Đang tải...');
+            try {
+                const urlMap = {
+                    adoption: `/api/v1/adoption-requests/admin?page=${p.page}&limit=${p.pageSize}`,
+                    housing: `/api/v1/admin/housing-reviews?page=${p.page}&limit=${p.pageSize}`,
+                    shelters: `/api/v1/admin/shelters?page=${p.page}&limit=${p.pageSize}`,
+                    pets: `/api/v1/pets?page=${p.page}&limit=${p.pageSize}`,
+                    reports: `/api/v1/admin/reports?page=${p.page}&limit=${p.pageSize}`,
+                    news: `/api/v1/admin/news?page=${p.page}&limit=${p.pageSize}`,
+                    users: `/api/v1/admin/users?page=${p.page}&limit=${p.pageSize}`
+                };
+                const payload = await adminApiFetch(urlMap[tab]);
+                const data = payload.data || {};
+                const rows = data.requests || data.pets || data.reports || data.news || data.users || data.data || [];
+                state[TAB_ROWS_KEYS[tab]] = rows;
+                p.total = data.total || rows.length;
+                p.totalPages = data.totalPages || 1;
+                updatePagination(tab);
+                renderTabRows(tab);
+                setSectionState(tab, rows.length ? 'ready' : 'empty', 'Không có dữ liệu');
+            } catch (e) { setSectionState(tab, 'error', e.message); }
+        };
+
+        const renderTabRows = (tab) => {
+            const rows = state[TAB_ROWS_KEYS[tab]] || [];
+            const container = document.getElementById(`${tab}Body`);
+            if (!container) return;
+
+            let filteredRows = rows;
+            if (tab === 'reports' && state.reportFilter !== 'all') {
+                filteredRows = rows.filter(r => r.type === state.reportFilter);
+            }
+
+            container.innerHTML = filteredRows.map(row => {
+                if (tab === 'adoption') return `<tr><td>${escapeHtml(row.user_name || row.display_name || 'User')}</td><td>${escapeHtml(row.pet_name || 'Pet')}</td><td><span class="status-pill ${row.status}">${row.status}</span></td><td>${formatDate(row.created_at)}</td><td><button class="action-btn approve" data-action="status-adoption" data-id="${row.id}" data-next="approved">Duyệt</button> <button class="action-btn info" data-action="detail-adoption" data-id="${row.id}">Chi tiết</button></td></tr>`;
+                if (tab === 'housing') {
+                    const reviewedBy = row.reviewed_by ? `#${row.reviewed_by}` : '-';
+                    const houseTypeLabel = { apartment: 'Căn hộ', rental: 'Phòng thuê', house: 'Nhà riêng', townhouse: 'Nhà phố', other: 'Khác' };
+                    return `<tr><td><span class="font-mono text-xs font-bold text-slate-300">#${row.id}</span></td><td><div class="font-black text-slate-800">${escapeHtml(row.display_name || row.name || 'User')}</div><div style="font-size:0.75rem;color:#64748b;">${escapeHtml(row.email || '')}</div></td><td><span class="font-bold text-slate-500">${houseTypeLabel[row.house_type] || row.house_type || '-'}</span></td><td><span class="status-pill ${row.status}">${row.status}</span></td><td>${formatDate(row.created_at)}</td><td><span class="text-slate-400 text-sm">${reviewedBy}</span></td><td>${row.status === 'pending' ? `<button class="action-btn approve" data-action="status-housing" data-id="${row.id}" data-next="approved">Duyệt</button> <button class="action-btn reject" data-action="status-housing" data-id="${row.id}" data-next="rejected">Từ chối</button>` : ''} <button class="action-btn info" data-action="detail-housing" data-id="${row.id}">Chi tiết</button></td></tr>`;
+                }
+                if (tab === 'shelters') {
+                    const reviewedBy = row.reviewed_by ? `#${row.reviewed_by}` : '-';
+                    return `<tr><td><span class="font-mono text-xs font-bold text-slate-300">#${row.id}</span></td><td><div class="font-black text-slate-800">${escapeHtml(row.display_name || row.name || 'User')}</div><div style="font-size:0.75rem;color:#64748b;">${escapeHtml(row.email || '')}</div></td><td><span class="font-bold text-slate-500">${escapeHtml(row.name || '-')}</span></td><td><span class="status-pill ${row.status}">${row.status}</span></td><td>${formatDate(row.created_at)}</td><td><span class="text-slate-400 text-sm">${reviewedBy}</span></td><td>${row.status === 'pending' ? `<button class="action-btn approve" data-action="status-shelter" data-id="${row.id}" data-next="approved">Duyệt</button> <button class="action-btn reject" data-action="status-shelter" data-id="${row.id}" data-next="rejected">Từ chối</button>` : ''} <button class="action-btn info" data-action="detail-shelters" data-id="${row.id}">Chi tiết</button></td></tr>`;
+                }
+                if (tab === 'pets') return `<tr><td><span class="font-mono text-xs font-bold text-slate-300">#${row.id}</span></td><td><div class="font-black text-slate-800">${escapeHtml(row.name)}</div></td><td><span class="font-bold text-slate-500">${row.pet_type}</span></td><td><span class="status-pill ${row.status}">${row.status}</span></td><td><span class="text-slate-400 text-sm">${formatDate(row.updated_at)}</span></td><td><div class="flex gap-2"><a href="/adopt/admin/edit/${row.id}" class="action-btn unban" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Sửa</a><button class="action-btn delete" data-action="delete-pet" data-id="${row.id}">Xóa bỏ</button></div></td></tr>`;
+                if (tab === 'reports') return `<tr><td>${escapeHtml(row.reporter_name || row.name || 'User')}</td><td>${row.type}</td><td>${escapeHtml(row.found_location || '-')}</td><td><span class="status-pill ${row.status}">${row.status}</span></td><td>${formatDate(row.created_at)}</td><td><button class="action-btn approve" data-action="status-report" data-id="${row.id}" data-next="resolved">Xong</button> <button class="action-btn info" data-action="detail-reports" data-id="${row.id}">Chi tiết</button></td></tr>`;
+                if (tab === 'news') return `<tr><td>${escapeHtml(row.title)}</td><td>${escapeHtml(row.author_name)}</td><td><span class="status-pill ${row.status}">${row.status}</span></td><td>${formatDate(row.created_at)}</td><td><button class="action-btn approve" data-action="status-news" data-id="${row.id}" data-next="approved">Duyệt</button> <button class="action-btn delete" data-action="delete-news" data-id="${row.id}">Xóa</button></td></tr>`;
+                if (tab === 'users') {
+                    const roleName = { 0: 'Admin', 1: 'Staff', 2: 'User' };
+                    const roleClass = { 0: 'admin', 1: 'staff', 2: 'user' };
+                    const statusLabel = row.status === 'active' ? 'Hoạt động' : row.status === 'banned' ? 'Bị khóa' : row.status;
+                    const avatarSrc = row.avatar || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Ccircle cx='18' cy='18' r='18' fill='%23e2e8f0'/%3E%3Ccircle cx='18' cy='14' r='6' fill='%2394a3b8'/%3E%3Cpath d='M6 32c0-6.6 5.4-12 12-12s12 5.4 12 12' fill='%2394a3b8'/%3E%3C/svg%3E";
+                    return `<tr>
+                        <td><span style="font-weight:600;color:#64748b;font-size:0.82rem;">#${row.id}</span></td>
+                        <td><div class="user-cell">
+                            <img src="${avatarSrc}" class="user-avatar" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 36 36%27%3E%3Ccircle cx=%2718%27 cy=%2718%27 r=%2718%27 fill=%27%23e2e8f0%27/%3E%3Ccircle cx=%2718%27 cy=%2714%27 r=%276%27 fill=%27%2394a3b8%27/%3E%3Cpath d=%27M6 32c0-6.6 5.4-12 12-12s12 5.4 12 12%27 fill=%27%2394a3b8%27/%3E%3C/svg%3E'">
+                            <div><div class="user-name">${escapeHtml(row.display_name || row.name || 'Unknown')}</div><div class="user-email">${escapeHtml(row.email || '')}</div></div>
+                        </div></td>
+                        <td><span class="role-badge ${roleClass[row.role] || 'user'}">${roleName[row.role] ?? 'User'}</span></td>
+                        <td><span class="status-pill ${row.status}">${statusLabel}</span></td>
+                        <td>${formatDate(row.created_at)}</td>
+                        <td><div class="row-actions">
+                            <select class="role-select" data-id="${row.id}">
+                                <option value="0" ${row.role === 0 ? 'selected' : ''}>Admin</option>
+                                <option value="1" ${row.role === 1 ? 'selected' : ''}>Staff</option>
+                                <option value="2" ${row.role === 2 ? 'selected' : ''}>User</option>
+                            </select>
+                            <button class="action-btn ${row.status === 'active' ? 'ban' : 'unban'}" data-action="user-status" data-id="${row.id}" data-next="${row.status === 'active' ? 'banned' : 'active'}">${row.status === 'active' ? '🔒 Khóa' : '🔓 Mở'}</button>
+                        </div></td>
+                    </tr>`;
+                }
+                return '';
+            }).join('');
+        };
+
+        const houseTypeLabel = { apartment: 'Căn hộ', rental: 'Phòng thuê', house: 'Nhà riêng', townhouse: 'Nhà phố', other: 'Khác' };
+        const outdoorLabel = { none: 'Không có', balcony: 'Ban công', garden: 'Sân / vườn' };
+        const timeHomeLabel = { under4: '< 4 giờ', '4to8': '4 – 8 giờ', over8: '> 8 giờ' };
+        const expLabel = { none: 'Chưa có', '1to2': '1 – 2 năm', over2: 'Trên 2 năm' };
+        const incomeLabel = { u5m: '< 5 triệu', '5-10m': '5 – 10 triệu', '10-20m': '10 – 20 triệu', o20m: '> 20 triệu' };
+
+        const openDetailModal = (context, id) => {
+            const list = state[TAB_ROWS_KEYS[context]];
+            const item = list.find(i => Number(i.id) === Number(id));
+            if (!item) return;
+
+            const modal = document.getElementById('detailModal');
+            document.getElementById('detailModalTitle').textContent = `Chi tiết ${context}`;
+
+            const img = document.getElementById('detailModalImage');
+            const placeholder = document.getElementById('detailImagePlaceholder');
+            const src = item.pet_image || item.avatar_image || item.image_url || item.image;
+
+            if (src) { img.src = src; img.style.display = 'block'; placeholder.classList.remove('show'); }
+            else { img.style.display = 'none'; placeholder.classList.add('show'); }
+
+            document.getElementById('detailDescriptionValue').textContent = item.description || item.message || '-';
+            document.getElementById('detailUserValue').textContent = item.display_name || item.user_name || item.reporter_name || item.name || '-';
+            document.getElementById('detailEmailValue').textContent = item.email || '-';
+            document.getElementById('detailPhoneValue').textContent = item.phone || '-';
+            document.getElementById('detailPetValue').textContent = item.pet_name || '-';
+            document.getElementById('detailTypeValue').textContent = item.pet_type || item.type || '-';
+            document.getElementById('detailLocationValue').textContent = item.address || item.found_location || '-';
+            document.getElementById('detailStatusValue').innerHTML = `<span class="status-pill ${item.status}">${item.status}</span>`;
+            document.getElementById('detailDateValue').textContent = formatDate(item.created_at);
+
+            // Housing-specific fields
+            const housingFields = document.getElementById('detailHousingFields');
+            if (context === 'housing' || context === 'housing-reviews') {
+                if (housingFields) housingFields.classList.remove('hidden');
+                document.getElementById('detailHousingTypeValue').textContent = houseTypeLabel[item.house_type] || item.house_type || '-';
+                document.getElementById('detailOutdoorValue').textContent = outdoorLabel[item.outdoor_space] || item.outdoor_space || '-';
+                document.getElementById('detailPetsValue').textContent = Number(item.has_pets) ? 'Có' : 'Không';
+                document.getElementById('detailChildrenValue').textContent = Number(item.has_children) ? 'Có' : 'Không';
+                document.getElementById('detailTimeHomeValue').textContent = timeHomeLabel[item.time_at_home] || item.time_at_home || '-';
+                document.getElementById('detailExperienceValue').textContent = expLabel[item.experience] || item.experience || '-';
+                document.getElementById('detailIncomeValue').textContent = incomeLabel[item.income] || item.income || '-';
+                document.getElementById('detailWhenAwayValue').textContent = item.when_away && Array.isArray(item.when_away) ? item.when_away.join(', ') : '-';
+                document.getElementById('detailAdminNotesValue').textContent = item.admin_notes || '-';
+            } else {
+                if (housingFields) housingFields.classList.add('hidden');
+            }
+
+            // Shelter-specific fields
+            const shelterFields = document.getElementById('detailShelterFields');
+            if (context === 'shelters') {
+                if (shelterFields) shelterFields.classList.remove('hidden');
+                document.getElementById('detailShelterNameValue').textContent = item.name || '-';
+                document.getElementById('detailShelterPhoneValue').textContent = item.phone || '-';
+                document.getElementById('detailShelterAddressValue').textContent = item.address || '-';
+                document.getElementById('detailShelterDescriptionValue').textContent = item.description || '-';
+                document.getElementById('detailShelterAdminNotesValue').textContent = item.admin_notes || '-';
+            } else {
+                if (shelterFields) shelterFields.classList.add('hidden');
+            }
+
+            // Show relevant groups
+            ['Description', 'User', 'Email', 'Phone', 'Pet', 'Type', 'Location'].forEach(g => {
+                const el = document.getElementById(`detail${g}Group`);
+                if (el) el.classList.add('show');
+            });
+
+            modal.classList.add('show');
+        };
+
+        const updatePagination = (tab) => {
+            const p = state.pagination[tab];
+            const summaryEl = document.getElementById(`${tab}PaginationSummary`);
+            if (summaryEl && p) {
+                summaryEl.textContent = `Trang ${p.page} / ${p.totalPages} (Tổng ${p.total})`;
+            }
+        };
+
+        document.addEventListener('change', async (e) => {
+            const t = e.target.closest('.role-select');
+            if (t) {
+                const id = t.dataset.id;
+                const role = t.value;
+                try {
+                    await adminApiFetch(`/api/v1/admin/users/${id}/role`, { method: 'PATCH', body: { role } });
+                    Swal.fire({ icon: 'success', title: 'Cập nhật thành công', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
+                    loadPagedTab('users', true);
+                } catch (err) {
+                    Swal.fire({ icon: 'error', title: 'Lỗi', text: err.message });
+                    loadPagedTab('users'); // Reset select value
+                }
+            }
+        });
+
+        async function bootstrap() {
+            try {
+                const res = await adminApiFetch('/api/v1/auth/me');
+                state.currentUser = res.data.user;
+                state.currentRole = Number(state.currentUser.role);
+                if (state.currentRole > 1) { document.body.innerHTML = '<h1>403 Forbidden</h1>'; return; }
+                adminOnlyElements.forEach(el => el.style.display = isAdmin() ? '' : 'none');
+                const saved = localStorage.getItem(TAB_KEY);
+                switchTab(saved && TAB_LIST.includes(saved) ? saved : 'dashboard', false);
+            } catch (e) {
+                if (e && (e.code === 'unauthorized' || (e.message && e.message.includes('đăng nhập')))) {
+                    document.location.href = '/';
+                    return;
+                }
+                if (e instanceof TypeError && (!state.currentUser || !state.currentUser.id)) {
+                    document.location.href = '/';
+                    return;
+                }
+                console.error('[Admin] bootstrap error:', e);
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không thể tải dữ liệu. Vui lòng thử lại.', confirmButtonText: 'Đóng' });
+                }
+            }
+        }
+
+        document.addEventListener('click', async (e) => {
+            const t = e.target.closest('[data-action], [data-tab], [data-jump-tab], [data-page-nav], [data-refresh-tab], [data-report-type], [data-report-filter]');
+            if (!t) return;
+
+            const act = t.dataset.action;
+            const id = t.dataset.id;
+            const tab = t.dataset.tab;
+            const jump = t.dataset.jumpTab;
+            const pageNav = t.dataset.pageNav;
+            const refresh = t.dataset.refreshTab;
+            const reportType = t.dataset.reportType;
+            const reportFilter = t.dataset.reportFilter;
+
+            if (tab) switchTab(tab);
+            if (jump) switchTab(jump);
+            if (refresh) loadTabData(refresh, true);
+
+            if (reportType) {
+                state.reportFilter = reportType;
+                document.querySelectorAll('.report-filter-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.reportType === reportType));
+                renderTabRows('reports');
+            }
+
+            if (reportFilter) {
+                state.reportFilter = reportFilter;
+                document.querySelectorAll('.report-filter-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.reportType === reportFilter));
+                switchTab('reports');
+            }
+
+            if (pageNav) {
+                const pTab = t.dataset.pageTab;
+                const p = state.pagination[pTab];
+                if (p) {
+                    p.page = pageNav === 'prev' ? Math.max(1, p.page - 1) : Math.min(p.totalPages, p.page + 1);
+                    loadPagedTab(pTab);
+                }
+            }
+
+            if (act && id) {
+                if (act.startsWith('detail-')) { openDetailModal(act.replace('detail-', ''), id); }
+
+                else if (act === 'user-status') {
+                    const nextStatus = t.dataset.next;
+                    let reason = null;
+                    if (nextStatus === 'banned') {
+                        const { value: inputReason } = await Swal.fire({
+                            title: 'Khóa tài khoản',
+                            input: 'text',
+                            inputLabel: 'Lý do khóa',
+                            inputPlaceholder: 'Nhập lý do (Bắt buộc)...',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            confirmButtonText: 'Khóa',
+                            cancelButtonText: 'Hủy',
+                            inputValidator: (value) => {
+                                if (!value || !value.trim()) {
+                                    return 'Bạn phải nhập lý do khóa tài khoản!';
+                                }
+                            }
+                        });
+                        if (!inputReason) return;
+                        reason = inputReason.trim();
+                    }
+                    await adminApiFetch(`/api/v1/admin/users/${id}/status`, { method: 'PATCH', body: { status: nextStatus, reason } });
+                    loadPagedTab('users', true);
+                }
+                else if (act === 'status-adoption') { await adminApiFetch(`/api/v1/adoption-requests/${id}/status`, { method: 'PATCH', body: { status: t.dataset.next } }); loadPagedTab('adoption', true); }
+                else if (act === 'status-housing') {
+                    const nextStatus = t.dataset.next;
+                    let adminNotes = null;
+                    if (nextStatus === 'rejected') {
+                        const { value: inputNotes } = await Swal.fire({
+                            title: 'Từ chối đánh giá nhà ở',
+                            input: 'textarea',
+                            inputLabel: 'Lý do từ chối',
+                            inputPlaceholder: 'Nhập lý do...',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            confirmButtonText: 'Từ chối',
+                            cancelButtonText: 'Hủy',
+                            inputValidator: (value) => { if (!value || !value.trim()) return 'Vui lòng nhập lý do từ chối'; }
+                        });
+                        if (!inputNotes) return;
+                        adminNotes = inputNotes.trim();
+                    }
+                    await adminApiFetch(`/api/v1/admin/housing-reviews/${id}/status`, { method: 'PATCH', body: { status: t.dataset.next, admin_notes: adminNotes } });
+                    if (nextStatus === 'approved') toastSuccess('Đã duyệt đánh giá nhà ở');
+                    loadPagedTab('housing', true);
+                }
+                else if (act === 'status-shelter') {
+                    const nextStatus = t.dataset.next;
+                    let adminNotes = null;
+                    if (nextStatus === 'rejected') {
+                        const { value: inputNotes } = await Swal.fire({
+                            title: 'Từ chối trại cứu hộ',
+                            input: 'textarea',
+                            inputLabel: 'Lý do từ chối',
+                            inputPlaceholder: 'Nhập lý do...',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            confirmButtonText: 'Từ chối',
+                            cancelButtonText: 'Hủy',
+                            inputValidator: (value) => { if (!value || !value.trim()) return 'Vui lòng nhập lý do từ chối'; }
+                        });
+                        if (!inputNotes) return;
+                        adminNotes = inputNotes.trim();
+                    }
+                    await adminApiFetch(`/api/v1/admin/shelters/${id}/status`, { method: 'PATCH', body: { status: t.dataset.next, admin_notes: adminNotes } });
+                    if (nextStatus === 'approved') toastSuccess('Đã duyệt trại cứu hộ');
+                    loadPagedTab('shelters', true);
+                }
+                else if (act === 'delete-pet') { if (confirm('Xóa?')) { await adminApiFetch(`/api/v1/pets/${id}`, { method: 'DELETE' }); loadPagedTab('pets', true); } }
+                else if (act === 'status-report') { await adminApiFetch(`/api/v1/admin/reports/${id}/status`, { method: 'PATCH', body: { status: t.dataset.next } }); loadPagedTab('reports', true); }
+                else if (act === 'delete-report') { await adminApiFetch(`/api/v1/admin/reports/${id}`, { method: 'DELETE' }); loadPagedTab('reports', true); }
+                else if (act === 'status-news') { await adminApiFetch(`/api/v1/admin/news/${id}/status`, { method: 'PATCH', body: { status: t.dataset.next } }); loadPagedTab('news', true); }
+                else if (act === 'delete-news') { await adminApiFetch(`/api/v1/admin/news/${id}`, { method: 'DELETE' }); loadPagedTab('news', true); }
+            }
+        });
+
+        document.getElementById('refreshAllBtn').onclick = () => loadDashboardData(true);
+        document.getElementById('detailModalCloseBtn').onclick = () => document.getElementById('detailModal').classList.remove('show');
+        document.getElementById('detailModalCloseFooterBtn').onclick = () => document.getElementById('detailModal').classList.remove('show');
+
+        // User Background script
+        (function () {
+            function applyBg(val) {
+                var styleId = '__user_bg_style';
+                var el = document.getElementById(styleId);
+                if (!el) { el = document.createElement('style'); el.id = styleId; document.head.appendChild(el); }
+                if (!val) { el.textContent = ''; return; }
+                var bgRule = val && !/^(#|rgb\(|rgba\(|hsl\(|hsla\(|transparent$|inherit$|initial$|unset$)/i.test(val)
+                    ? 'background-image:url("' + val + '")!important;background-size:cover!important;background-attachment:fixed!important;background-repeat:no-repeat!important;background-position:center!important;background-color:transparent!important;'
+                    : 'background-color:' + val + '!important;background-image:none!important;';
+                el.textContent = 'body{' + bgRule + '} main,#main,.main,.profile-page,.page-wrapper,.page-body,.content-wrapper,.container-fluid,.app-content,.site-content,.page-content,.adopt-page,.admin-page,.reports-page,.favorites-page{background:transparent!important;}';
+            }
+            window.applyUserBackground = applyBg;
+            var _orig = window.applyHeaderUserState;
+            window.applyHeaderUserState = function (user) {
+                if (_orig) _orig(user);
+                if (user && user.bg_preference) applyBg(user.bg_preference);
+            };
+            window.addEventListener('load', function () {
+                fetch('/api/v1/auth/me', { credentials: 'include' })
+                    .then(r => r.ok ? r.json() : null)
+                    .then(data => { if (data?.success && data.data?.user?.bg_preference) applyBg(data.data.user.bg_preference); })
+                    .catch(() => { });
+            });
+        })();
+
+        bootstrap();
+    </script>
+</body>
+
+</html>

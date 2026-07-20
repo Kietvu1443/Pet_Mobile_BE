@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+actor User
+
+
+  (Gửi yêu cầu nhận nuôi) as adopt
+  (Xác thực người dùng) as auth
+  (Kiểm tra trạng thái thú cưng) as check_pet
+  (Lưu yêu cầu) as save
+
+  adopt --> auth : <<include>>
+  adopt --> check_pet : <<include>>
+  adopt --> save : <<include>>
+
+
+User --> adopt
+
+@enduml

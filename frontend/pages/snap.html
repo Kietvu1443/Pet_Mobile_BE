@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PetSnap - Swipe de tim ban bon chan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/auth.css">
+    <style>
+        :root {
+            --bg: #a3e635;
+            --bg-dark: #84cc16;
+            --bg-light: #bef264;
+            --card-bg: #ffffff;
+            --ink: #1a2e05;
+            --muted: #4b5563;
+            --like: #7c3aed;
+            --dislike: #ef4444;
+            --panel: #f2f5eb;
+            --border: #1f3d08;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: "Fredoka", "Segoe UI", sans-serif;
+            color: var(--ink);
+            background-color: var(--bg);
+            background-image:
+                url("data:image/svg+xml,%3Csvg width='160' height='160' viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-opacity='0.7'%3E%3Cg transform='translate(20,20) rotate(-15)'%3E%3Cpath d='M10 16 C6 12 2 10 2 6 C2 3.5 4 1.5 6.5 1.5 C7.8 1.5 9 2.1 10 3.2 C11 2.1 12.2 1.5 13.5 1.5 C16 1.5 18 3.5 18 6 C18 10 14 12 10 16'/%3E%3Ccircle cx='4' cy='3' r='2.5'/%3E%3Ccircle cx='8' cy='1' r='2.5'/%3E%3Ccircle cx='12' cy='1' r='2.5'/%3E%3Ccircle cx='16' cy='3' r='2.5'/%3E%3C/g%3E%3Cg transform='translate(100,40) rotate(20)'%3E%3Cpath d='M10 16 C6 12 2 10 2 6 C2 3.5 4 1.5 6.5 1.5 C7.8 1.5 9 2.1 10 3.2 C11 2.1 12.2 1.5 13.5 1.5 C16 1.5 18 3.5 18 6 C18 10 14 12 10 16'/%3E%3Ccircle cx='4' cy='3' r='2.5'/%3E%3Ccircle cx='8' cy='1' r='2.5'/%3E%3Ccircle cx='12' cy='1' r='2.5'/%3E%3Ccircle cx='16' cy='3' r='2.5'/%3E%3C/g%3E%3Cg transform='translate(50,110) rotate(-45)'%3E%3Cpath d='M10 16 C6 12 2 10 2 6 C2 3.5 4 1.5 6.5 1.5 C7.8 1.5 9 2.1 10 3.2 C11 2.1 12.2 1.5 13.5 1.5 C16 1.5 18 3.5 18 6 C18 10 14 12 10 16'/%3E%3Ccircle cx='4' cy='3' r='2.5'/%3E%3Ccircle cx='8' cy='1' r='2.5'/%3E%3Ccircle cx='12' cy='1' r='2.5'/%3E%3Ccircle cx='16' cy='3' r='2.5'/%3E%3C/g%3E%3Cg transform='translate(130,120) rotate(10)'%3E%3Cpath d='M10 16 C6 12 2 10 2 6 C2 3.5 4 1.5 6.5 1.5 C7.8 1.5 9 2.1 10 3.2 C11 2.1 12.2 1.5 13.5 1.5 C16 1.5 18 3.5 18 6 C18 10 14 12 10 16'/%3E%3Ccircle cx='4' cy='3' r='2.5'/%3E%3Ccircle cx='8' cy='1' r='2.5'/%3E%3Ccircle cx='12' cy='1' r='2.5'/%3E%3Ccircle cx='16' cy='3' r='2.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"),
+                radial-gradient(circle at 15% 18%, rgba(255, 255, 255, 0.4), transparent 30%),
+                radial-gradient(circle at 88% 10%, rgba(255, 255, 255, 0.3), transparent 25%),
+                linear-gradient(160deg, var(--bg-light) 0%, var(--bg) 50%, var(--bg-dark) 100%);
+            background-attachment: fixed;
+        }
+
+        .snap-app {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+        }
+
+        .brand-logo {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            object-fit: contain;
+            padding: 4px;
+        }
+
+        .brand-text {
+            font-size: 1.28rem;
+            letter-spacing: 0.4px;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-btn {
+            border: 0;
+            cursor: pointer;
+            border-radius: 999px;
+            font-weight: 700;
+            padding: 10px 14px;
+            line-height: 1;
+        }
+
+        .header-btn.ghost {
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .header-btn.liked {
+            background: #ffffff;
+            color: #4d7c0f;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .liked-badge {
+            min-width: 20px;
+            text-align: center;
+            padding: 2px 6px;
+            border-radius: 999px;
+            font-size: 0.76rem;
+            background: #7c3aed;
+            color: #fff;
+        }
+
+        .main-area {
+            display: grid;
+            grid-template-rows: 1fr auto;
+            min-height: 0;
+        }
+
+        .stage {
+            display: grid;
+            place-items: center;
+            min-height: 0;
+            padding: 6px 10px;
+            position: relative;
+        }
+
+        .card-stack {
+            position: relative;
+            width: min(100%, 410px);
+            height: min(78vh, 640px);
+            min-height: 460px;
+            display: none;
+        }
+
+        .card-stack.show {
+            display: block;
+        }
+
+        .pet-card {
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            border: 4px solid var(--border);
+            background: var(--card-bg);
+            box-shadow: 0 14px 36px rgba(19, 36, 5, 0.32);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform-origin: center center;
+            transition: transform 240ms cubic-bezier(0.23, 1, 0.32, 1), opacity 240ms ease;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .pet-card.is-back {
+            transform: scale(0.96) translateY(12px);
+            opacity: 0.75;
+            pointer-events: none;
+        }
+
+        .pet-card.dragging {
+            transition: none;
+            cursor: grabbing;
+        }
+
+        .card-image-wrap {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+            background: #d1d5db;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            pointer-events: none;
+        }
+
+        .image-dots {
+            position: absolute;
+            left: 50%;
+            bottom: 12px;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 7px;
+            z-index: 4;
+        }
+
+        .image-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 0, 0, 0.22);
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+        }
+
+        .image-dot.active {
+            background: #ffffff;
+            transform: scale(1.12);
+        }
+
+        .swipe-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 3;
+            transition: opacity 120ms linear;
+        }
+
+        .swipe-overlay .stamp {
+            border: 4px solid #fff;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 2rem;
+            font-weight: 700;
+            padding: 10px 20px;
+            letter-spacing: 2px;
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.25);
+            transform: rotate(-10deg);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+            background: rgba(0, 0, 0, 0.16);
+        }
+
+        .swipe-overlay.like {
+            background: rgba(124, 58, 237, 0.72);
+        }
+
+        .swipe-overlay.nope {
+            background: rgba(127, 29, 29, 0.72);
+        }
+
+        .card-body {
+            background: var(--panel);
+            padding: 14px 16px 110px;
+            position: relative;
+        }
+
+        .name-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .pet-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .pet-age {
+            font-size: 0.95rem;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .pet-meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 12px;
+            font-size: 0.86rem;
+            color: #334155;
+            margin-bottom: 8px;
+        }
+
+        .pet-meta-grid span strong {
+            color: #111827;
+        }
+
+        .pet-desc {
+            min-height: 38px;
+            font-size: 0.89rem;
+            line-height: 1.45;
+            color: #374151;
+        }
+
+        .floating-actions {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 12px;
+            display: flex;
+            justify-content: center;
+            gap: 62px;
+            pointer-events: none;
+            z-index: 6;
+        }
+
+        .fab-btn {
+            width: 74px;
+            height: 74px;
+            border-radius: 50%;
+            border: 0;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.34);
+            border: 3px solid rgba(255, 255, 255, 0.95);
+            pointer-events: auto;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: transform 120ms ease;
+        }
+
+        .fab-btn:active {
+            transform: scale(0.92);
+        }
+
+        .fab-btn.like {
+            background: var(--like);
+        }
+
+        .fab-btn.nope {
+            background: var(--dislike);
+        }
+
+        .fab-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .state-card {
+            width: min(100%, 410px);
+            min-height: 250px;
+            border-radius: 20px;
+            border: 3px solid var(--border);
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: 0 14px 30px rgba(19, 36, 5, 0.22);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 24px;
+            gap: 10px;
+        }
+
+        .state-card.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 42px;
+            height: 42px;
+            border: 4px solid #d1d5db;
+            border-top-color: #16a34a;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .state-btn {
+            border: 0;
+            background: #166534;
+            color: #fff;
+            font-weight: 700;
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .queue-line {
+            text-align: center;
+            color: #f8ffea;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+            font-size: 0.88rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            min-height: 22px;
+        }
+
+        .bottom-controls {
+            background: rgba(245, 245, 245, 0.96);
+            border-top: 1px solid rgba(0, 0, 0, 0.09);
+            padding: 9px 12px calc(10px + env(safe-area-inset-bottom));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .ctrl-btn {
+            border: 1px solid #d1d5db;
+            background: #fff;
+            color: #1f2937;
+            border-radius: 999px;
+            padding: 9px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            min-width: 110px;
+            justify-content: center;
+        }
+
+        .ctrl-btn.like {
+            border-color: rgba(124, 58, 237, 0.45);
+            color: #6d28d9;
+        }
+
+        .ctrl-btn.nope {
+            border-color: rgba(220, 38, 38, 0.45);
+            color: #b91c1c;
+        }
+
+        .ctrl-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .top-note {
+            position: fixed;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-12px);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.86rem;
+            font-weight: 700;
+            color: #ffffff;
+            background: rgba(15, 23, 42, 0.82);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 180ms ease, transform 180ms ease;
+            z-index: 400;
+            text-align: center;
+            max-width: 90vw;
+        }
+
+        .top-note.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .top-note.error {
+            background: rgba(153, 27, 27, 0.93);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.48);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 220ms ease;
+            z-index: 420;
+        }
+
+        .sidebar-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .liked-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: min(86vw, 360px);
+            background: #4d7c0f;
+            transform: translateX(-102%);
+            transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+            z-index: 430;
+            display: flex;
+            flex-direction: column;
+            padding: 14px;
+        }
+
+        .liked-sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-close {
+            border: 0;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .sidebar-body {
+            flex: 1;
+            background: #ffffff;
+            border-radius: 16px;
+            border: 3px solid var(--border);
+            padding: 12px;
+            overflow-y: auto;
+        }
+
+        .liked-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: inherit;
+            padding: 7px 0;
+        }
+
+        .liked-thumb {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #d1d5db;
+            background: #f1f5f9;
+        }
+
+        .liked-name {
+            font-size: 0.94rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .liked-empty {
+            margin-top: 36px;
+            color: #6b7280;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .detail-sheet {
+            position: fixed;
+            inset: 0;
+            z-index: 440;
+            display: grid;
+            grid-template-rows: 1fr;
+            pointer-events: none;
+        }
+
+        .detail-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            opacity: 0;
+            transition: opacity 220ms ease;
+        }
+
+        .detail-panel {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            max-height: 92vh;
+            background: #f8fafc;
+            border-radius: 18px 18px 0 0;
+            transform: translateY(103%);
+            transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .detail-sheet.open {
+            pointer-events: auto;
+        }
+
+        .detail-sheet.open .detail-backdrop {
+            opacity: 1;
+        }
+
+        .detail-sheet.open .detail-panel {
+            transform: translateY(0);
+        }
+
+        .detail-image-wrap {
+            position: relative;
+            height: 42vh;
+            min-height: 260px;
+            background: #d1d5db;
+        }
+
+        .detail-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .detail-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            border: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(17, 24, 39, 0.56);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .detail-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 0;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.86);
+            color: #111827;
+            cursor: pointer;
+        }
+
+        .detail-nav.prev {
+            left: 12px;
+        }
+
+        .detail-nav.next {
+            right: 12px;
+        }
+
+        .detail-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px 18px 22px;
+        }
+
+        .detail-title {
+            font-size: 1.46rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #111827;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 12px;
+            margin-bottom: 12px;
+        }
+
+        .detail-grid div {
+            font-size: 0.93rem;
+            color: #334155;
+        }
+
+        .detail-grid strong {
+            color: #111827;
+        }
+
+        .detail-desc {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+            color: #334155;
+            line-height: 1.5;
+            font-size: 0.92rem;
+        }
+
+        @media (max-width: 720px) {
+            .brand-text {
+                font-size: 1.12rem;
+            }
+
+            .header-btn.ghost {
+                display: none;
+            }
+
+            .card-stack {
+                min-height: 420px;
+                height: min(72vh, 580px);
+            }
+
+            .pet-name {
+                font-size: 1.35rem;
+            }
+
+            .floating-actions {
+                gap: 52px;
+                bottom: 10px;
+            }
+
+            .fab-btn {
+                width: 68px;
+                height: 68px;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ctrl-btn {
+                min-width: 102px;
+                font-size: 0.78rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="topNote" class="top-note" role="status"></div>
+
+    <div class="snap-app">
+        <header class="app-header">
+            <a href="/" class="brand" aria-label="Ve trang chu">
+                <img src="/images/bongocat.png" alt="PetSnap" class="brand-logo">
+                <span class="brand-text">PetSnap</span>
+            </a>
+
+            <div class="header-actions">
+                <button type="button" id="likedToggle" class="header-btn liked" aria-label="Mo danh sach da thich">
+                    <i class="fa-solid fa-heart"></i>
+                    <span>Đã thích</span>
+                    <span class="liked-badge" id="likedCount">0</span>
+                </button>
+                <a href="/adopt" class="header-btn ghost">Danh sách</a>
+            </div>
+        </header>
+
+        <section class="main-area">
+            <div class="stage">
+                <div id="loadingState" class="state-card show">
+                    <div class="spinner"></div>
+                    <h2>Đang tìm thú cưng phù hợp...</h2>
+                    <p>Hệ thống đang tìm thú cưng cho bạn.</p>
+                </div>
+
+                <div id="emptyState" class="state-card">
+                    <h2>Da het thu cung phu hop</h2>
+                    <p>Ban da xem het hoac hien chua co du lieu moi.</p>
+                    <button class="state-btn" id="reloadEmptyBtn" type="button">Tai lai</button>
+                </div>
+
+                <div id="errorState" class="state-card">
+                    <h2>Không thể tải Pet Snap</h2>
+                    <p id="errorText">Da xay ra loi khi goi API.</p>
+                    <button class="state-btn" id="retryErrorBtn" type="button">Thử lại</button>
+                </div>
+
+                <div id="cardStack" class="card-stack" aria-live="polite"></div>
+            </div>
+
+            <p class="queue-line" id="queueStatus">Dang dong bo danh sach...</p>
+        </section>
+
+        <footer class="bottom-controls">
+            <button id="nopeBtn" class="ctrl-btn nope" type="button">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Bỏ qua</span>
+            </button>
+            <button id="infoBtn" class="ctrl-btn" type="button">
+                <i class="fa-solid fa-arrow-up"></i>
+                <span>Thông tin</span>
+            </button>
+            <button id="likeBtn" class="ctrl-btn like" type="button">
+                <i class="fa-solid fa-arrow-right"></i>
+                <span>Thích</span>
+            </button>
+        </footer>
+    </div>
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <aside id="likedSidebar" class="liked-sidebar" aria-hidden="true">
+        <div class="sidebar-head">
+            <h3>Thú cưng đã thích</h3>
+            <button id="sidebarClose" class="sidebar-close" type="button" aria-label="Dong sidebar">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div id="likedList" class="sidebar-body">
+            <p class="liked-empty">Chưa có thú cưng được thích.</p>
+        </div>
+    </aside>
+
+    <div id="detailSheet" class="detail-sheet" aria-hidden="true">
+        <div id="detailBackdrop" class="detail-backdrop"></div>
+        <section id="detailPanel" class="detail-panel" role="dialog" aria-modal="true" aria-label="Thong tin thu cung">
+            <div class="detail-image-wrap">
+                <img id="detailImage" class="detail-image" src="/images/the_logo.webp" alt="Anh thu cung">
+                <button id="detailClose" class="detail-close" type="button" aria-label="Dong thong tin">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button id="detailPrev" class="detail-nav prev" type="button" aria-label="Anh truoc">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button id="detailNext" class="detail-nav next" type="button" aria-label="Anh sau">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <div id="detailDots" class="image-dots" aria-hidden="true"></div>
+            </div>
+            <div class="detail-content">
+                <h2 id="detailTitle" class="detail-title">Thong tin thu cung</h2>
+                <div id="detailGrid" class="detail-grid"></div>
+                <p id="detailDesc" class="detail-desc"></p>
+            </div>
+        </section>
+    </div>
+
+    <div id="auth-overlay-mount"></div>
+    <script src="/javascripts/authOverlayLoader.js" defer></script>
+
+    <script>
+        (function () {
+            var API_BASE = "/api/v1/pet-snap";
+            var PRELOAD_TARGET = 3;
+            var SWIPE_X_THRESHOLD = 120;
+            var SWIPE_UP_THRESHOLD = 110;
+
+            var topNote = document.getElementById("topNote");
+            var cardStack = document.getElementById("cardStack");
+            var queueStatus = document.getElementById("queueStatus");
+
+            var loadingState = document.getElementById("loadingState");
+            var emptyState = document.getElementById("emptyState");
+            var errorState = document.getElementById("errorState");
+            var errorText = document.getElementById("errorText");
+
+            var reloadEmptyBtn = document.getElementById("reloadEmptyBtn");
+            var retryErrorBtn = document.getElementById("retryErrorBtn");
+
+            var likeBtn = document.getElementById("likeBtn");
+            var nopeBtn = document.getElementById("nopeBtn");
+            var infoBtn = document.getElementById("infoBtn");
+
+            var likedToggle = document.getElementById("likedToggle");
+            var likedCount = document.getElementById("likedCount");
+            var likedSidebar = document.getElementById("likedSidebar");
+            var likedList = document.getElementById("likedList");
+            var sidebarClose = document.getElementById("sidebarClose");
+            var sidebarOverlay = document.getElementById("sidebarOverlay");
+
+            var detailSheet = document.getElementById("detailSheet");
+            var detailPanel = document.getElementById("detailPanel");
+            var detailBackdrop = document.getElementById("detailBackdrop");
+            var detailClose = document.getElementById("detailClose");
+            var detailPrev = document.getElementById("detailPrev");
+            var detailNext = document.getElementById("detailNext");
+            var detailImage = document.getElementById("detailImage");
+            var detailDots = document.getElementById("detailDots");
+            var detailTitle = document.getElementById("detailTitle");
+            var detailGrid = document.getElementById("detailGrid");
+            var detailDesc = document.getElementById("detailDesc");
+
+            var queue = [];
+            var likedPets = [];
+            var seenPetIds = new Set();
+
+            var hasMoreFromServer = true;
+            var fillInProgress = false;
+            var actionInProgress = false;
+            var isSidebarOpen = false;
+            var isDetailOpen = false;
+
+            var dragState = {
+                active: false,
+                startX: 0,
+                startY: 0,
+                dx: 0,
+                dy: 0,
+                card: null,
+                pet: null,
+            };
+
+            var detailState = {
+                pet: null,
+                images: [],
+                index: 0,
+                touching: false,
+                startY: 0,
+                translateY: 0,
+            };
+
+            function escapeHtml(value) {
+                return String(value || "")
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/\"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            }
+
+            function parseJsonSafe(response) {
+                return response.json().catch(function () {
+                    return null;
+                });
+            }
+
+            function getPoint(event) {
+                if (event.touches && event.touches[0]) {
+                    return {
+                        x: event.touches[0].clientX,
+                        y: event.touches[0].clientY,
+                    };
+                }
+                return {
+                    x: event.clientX || 0,
+                    y: event.clientY || 0,
+                };
+            }
+
+            function showNote(message, isError) {
+                if (!message) {
+                    topNote.className = "top-note";
+                    topNote.textContent = "";
+                    return;
+                }
+
+                topNote.className = "top-note show" + (isError ? " error" : "");
+                topNote.textContent = message;
+
+                window.clearTimeout(showNote._timer);
+                showNote._timer = window.setTimeout(function () {
+                    topNote.className = "top-note";
+                }, 2400);
+            }
+
+            function openLoginOverlay() {
+                if (typeof window.openLoginOverlaySafely === "function") {
+                    window.openLoginOverlaySafely();
+                    return;
+                }
+                if (typeof openOverlay === "function") {
+                    openOverlay("auth-overlay");
+                }
+                if (typeof overlayActivateTab === "function") {
+                    overlayActivateTab("login");
+                }
+            }
+
+            function setControlDisabled(disabled) {
+                likeBtn.disabled = disabled;
+                nopeBtn.disabled = disabled;
+                infoBtn.disabled = disabled;
+            }
+
+            function showScreen(mode, message) {
+                loadingState.classList.remove("show");
+                emptyState.classList.remove("show");
+                errorState.classList.remove("show");
+                cardStack.classList.remove("show");
+
+                if (mode === "loading") {
+                    loadingState.classList.add("show");
+                } else if (mode === "empty") {
+                    emptyState.classList.add("show");
+                } else if (mode === "error") {
+                    errorState.classList.add("show");
+                    errorText.textContent = message || "Khong the tai du lieu.";
+                } else {
+                    cardStack.classList.add("show");
+                }
+            }
+
+            function updateQueueStatus() {
+                if (!queue.length) {
+                    if (hasMoreFromServer) {
+                        queueStatus.textContent = "Đang tìm thêm thú cưng mới...";
+                    } else {
+                        queueStatus.textContent = "Danh sách đã hết. Bạn có thể thử lại sau";
+                    }
+                    return;
+                }
+
+                var tailText = hasMoreFromServer ? "-" : "-";
+                queueStatus.textContent = "Hàng chờ: " + queue.length + " | " + tailText;
+            }
+
+            function updateLikedBadge() {
+                likedCount.textContent = String(likedPets.length);
+            }
+
+            function getPetImages(pet) {
+                if (pet && Array.isArray(pet.images) && pet.images.length > 0) {
+                    var mapped = pet.images
+                        .map(function (item) { return item && item.image_path ? item.image_path : null; })
+                        .filter(Boolean);
+                    if (mapped.length > 0) {
+                        return mapped;
+                    }
+                }
+
+                if (pet && pet.image) {
+                    return [pet.image];
+                }
+
+                return ["/images/the_logo.webp"];
+            }
+
+            function pushUniquePet(pet) {
+                if (!pet || !pet.id) {
+                    return false;
+                }
+
+                var id = Number(pet.id);
+                if (!id || Number.isNaN(id)) {
+                    return false;
+                }
+
+                if (seenPetIds.has(id)) {
+                    return false;
+                }
+
+                if (queue.some(function (item) { return Number(item.id) === id; })) {
+                    return false;
+                }
+
+                seenPetIds.add(id);
+                queue.push(pet);
+                return true;
+            }
+
+            async function fetchNextPet() {
+                var response = await fetch(API_BASE, {
+                    method: "GET",
+                    credentials: "same-origin",
+                    headers: {
+                        Accept: "application/json",
+                    },
+                });
+
+                var payload = await parseJsonSafe(response);
+                if (response.status === 401) {
+                    openLoginOverlay();
+                    throw new Error((payload && payload.message) || "Vui long dang nhap de su dung PetSnap.");
+                }
+
+                if (!response.ok) {
+                    throw new Error((payload && payload.message) || "Khong the lay thu cung tiep theo.");
+                }
+
+                var data = payload && payload.data ? payload.data : {};
+                return {
+                    pet: data.pet || null,
+                    hasMore: Boolean(data.hasMore),
+                };
+            }
+
+            async function ensureQueue() {
+                if (fillInProgress) {
+                    return;
+                }
+
+                fillInProgress = true;
+                var attempts = 0;
+
+                try {
+                    while (queue.length < PRELOAD_TARGET && hasMoreFromServer && attempts < 12) {
+                        attempts += 1;
+
+                        var next = await fetchNextPet();
+                        hasMoreFromServer = next.hasMore;
+
+                        if (next.pet) {
+                            pushUniquePet(next.pet);
+                        }
+
+                        if (!next.pet && !next.hasMore) {
+                            break;
+                        }
+                    }
+
+                    if (queue.length === 0 && attempts >= 12) {
+                        hasMoreFromServer = false;
+                    }
+                } finally {
+                    fillInProgress = false;
+                }
+            }
+
+            function buildMetaCell(label, value) {
+                var safeValue = value ? escapeHtml(value) : "-";
+                return "<span><strong>" + label + ":</strong> " + safeValue + "</span>";
+            }
+
+            function buildCard(pet, index) {
+                var images = getPetImages(pet);
+                var dotsHtml = images.map(function (_, dotIndex) {
+                    return '<button class="image-dot' + (dotIndex === 0 ? " active" : "") + '" type="button" data-dot-index="' + dotIndex + '"></button>';
+                }).join("");
+
+                var card = document.createElement("article");
+                card.className = "pet-card" + (index === 0 ? " is-top" : " is-back");
+                card.dataset.petId = String(pet.id);
+                card.dataset.images = JSON.stringify(images);
+                card.dataset.imageIndex = "0";
+
+                card.innerHTML = ""
+                    + '<div class="card-image-wrap">'
+                    + '  <img class="card-image" src="' + escapeHtml(images[0]) + '" alt="' + escapeHtml(pet.name || "Pet") + '">'
+                    + '  <div class="swipe-overlay like"><span class="stamp">LIKE</span></div>'
+                    + '  <div class="swipe-overlay nope"><span class="stamp">NOPE</span></div>'
+                    + '  <div class="image-dots">' + dotsHtml + "</div>"
+                    + "</div>"
+                    + '<div class="card-body">'
+                    + '  <div class="name-row">'
+                    + '      <span class="pet-name">' + escapeHtml(pet.name || "Khong ten") + "</span>"
+                    + '      <span class="pet-age">Tuoi: ' + escapeHtml(pet.age || "?") + "</span>"
+                    + "  </div>"
+                    + '  <div class="pet-meta-grid">'
+                    + buildMetaCell("Loai", pet.pet_type)
+                    + buildMetaCell("Giong", pet.breed)
+                    + buildMetaCell("Gioi tinh", pet.gender)
+                    + buildMetaCell("Mau", pet.color)
+                    + "  </div>"
+                    + '  <p class="pet-desc">' + escapeHtml(pet.description || "Chưa có mô tả.") + "</p>"
+                    + '  <div class="floating-actions">'
+                    + '      <button class="fab-btn nope" type="button" data-card-action="dislike" aria-label="Bo qua">'
+                    + '          <img src="/images/btn-nope.png" alt="Nope">'
+                    + "      </button>"
+                    + '      <button class="fab-btn like" type="button" data-card-action="like" aria-label="Thich">'
+                    + '          <img src="/images/btn-like.png" alt="Like">'
+                    + "      </button>"
+                    + "  </div>"
+                    + "</div>";
+
+                var image = card.querySelector(".card-image");
+                image.addEventListener("error", function () {
+                    image.src = "/images/the_logo.webp";
+                });
+
+                var dotButtons = card.querySelectorAll("[data-dot-index]");
+                dotButtons.forEach(function (button) {
+                    button.addEventListener("click", function (event) {
+                        event.stopPropagation();
+                        var idx = Number(button.dataset.dotIndex);
+                        if (Number.isNaN(idx)) {
+                            return;
+                        }
+
+                        var allImages = JSON.parse(card.dataset.images || "[]");
+                        if (!allImages[idx]) {
+                            return;
+                        }
+
+                        card.dataset.imageIndex = String(idx);
+                        image.style.opacity = "0.45";
+                        window.setTimeout(function () {
+                            image.src = allImages[idx];
+                            image.style.opacity = "1";
+                        }, 90);
+
+                        dotButtons.forEach(function (dot) {
+                            dot.classList.remove("active");
+                        });
+                        button.classList.add("active");
+                    });
+                });
+
+                return card;
+            }
+
+            function renderCards() {
+                cardStack.innerHTML = "";
+
+                if (!queue.length) {
+                    showScreen(hasMoreFromServer ? "loading" : "empty");
+                    setControlDisabled(true);
+                    updateQueueStatus();
+                    return;
+                }
+
+                var count = Math.min(queue.length, 2);
+                for (var idx = count - 1; idx >= 0; idx -= 1) {
+                    var pet = queue[idx];
+                    var card = buildCard(pet, idx);
+                    card.style.zIndex = idx === 0 ? "2" : "1";
+                    cardStack.appendChild(card);
+
+                    if (idx === 0) {
+                        attachTopCardEvents(card, pet);
+                    }
+                }
+
+                showScreen("cards");
+                updateQueueStatus();
+                setControlDisabled(actionInProgress);
+            }
+
+            function setCardOverlay(card, dx) {
+                var likeOverlay = card.querySelector(".swipe-overlay.like");
+                var nopeOverlay = card.querySelector(".swipe-overlay.nope");
+                var intensity = Math.min(Math.abs(dx) / 150, 1);
+
+                if (dx > 0) {
+                    likeOverlay.style.opacity = String(intensity);
+                    nopeOverlay.style.opacity = "0";
+                } else if (dx < 0) {
+                    likeOverlay.style.opacity = "0";
+                    nopeOverlay.style.opacity = String(intensity);
+                } else {
+                    likeOverlay.style.opacity = "0";
+                    nopeOverlay.style.opacity = "0";
+                }
+            }
+
+            function resetTopCard(card) {
+                card.classList.remove("dragging");
+                card.style.transition = "transform 220ms cubic-bezier(0.22, 1, 0.36, 1)";
+                card.style.transform = "translate(0px, 0px) rotate(0deg)";
+                setCardOverlay(card, 0);
+
+                window.setTimeout(function () {
+                    card.style.transition = "";
+                }, 240);
+            }
+
+            function removeDragListeners() {
+                document.removeEventListener("mousemove", onDragMove);
+                document.removeEventListener("mouseup", onDragEnd);
+                document.removeEventListener("touchmove", onDragMove);
+                document.removeEventListener("touchend", onDragEnd);
+                document.removeEventListener("touchcancel", onDragEnd);
+            }
+
+            function onDragStart(event, card, pet) {
+                if (actionInProgress || isDetailOpen) {
+                    return;
+                }
+
+                if (event.target && (event.target.closest("[data-dot-index]") || event.target.closest(".fab-btn"))) {
+                    return;
+                }
+
+                var point = getPoint(event);
+                dragState.active = true;
+                dragState.startX = point.x;
+                dragState.startY = point.y;
+                dragState.dx = 0;
+                dragState.dy = 0;
+                dragState.card = card;
+                dragState.pet = pet;
+
+                card.classList.add("dragging");
+
+                document.addEventListener("mousemove", onDragMove);
+                document.addEventListener("mouseup", onDragEnd);
+                document.addEventListener("touchmove", onDragMove, { passive: true });
+                document.addEventListener("touchend", onDragEnd);
+                document.addEventListener("touchcancel", onDragEnd);
+            }
+
+            function onDragMove(event) {
+                if (!dragState.active || !dragState.card) {
+                    return;
+                }
+
+                var point = getPoint(event);
+                dragState.dx = point.x - dragState.startX;
+                dragState.dy = point.y - dragState.startY;
+
+                var rotation = dragState.dx * 0.06;
+                var translateY = Math.max(-30, dragState.dy * 0.22);
+
+                dragState.card.style.transform = "translate(" + dragState.dx + "px, " + translateY + "px) rotate(" + rotation + "deg)";
+                setCardOverlay(dragState.card, dragState.dx);
+            }
+
+            function onDragEnd() {
+                if (!dragState.active || !dragState.card || !dragState.pet) {
+                    dragState.active = false;
+                    removeDragListeners();
+                    return;
+                }
+
+                dragState.active = false;
+                removeDragListeners();
+
+                var card = dragState.card;
+                var pet = dragState.pet;
+                var dx = dragState.dx;
+                var dy = dragState.dy;
+
+                dragState.card = null;
+                dragState.pet = null;
+
+                if (dy < -SWIPE_UP_THRESHOLD && Math.abs(dx) < 90) {
+                    resetTopCard(card);
+                    openDetailSheet(pet);
+                    return;
+                }
+
+                if (Math.abs(dx) >= SWIPE_X_THRESHOLD) {
+                    var action = dx > 0 ? "like" : "dislike";
+                    triggerAction(action, card, pet);
+                    return;
+                }
+
+                resetTopCard(card);
+            }
+
+            function attachTopCardEvents(card, pet) {
+                card.addEventListener("mousedown", function (event) {
+                    onDragStart(event, card, pet);
+                });
+
+                card.addEventListener("touchstart", function (event) {
+                    onDragStart(event, card, pet);
+                }, { passive: true });
+
+                var likeActionBtn = card.querySelector("[data-card-action='like']");
+                var nopeActionBtn = card.querySelector("[data-card-action='dislike']");
+
+                likeActionBtn.addEventListener("click", function (event) {
+                    event.stopPropagation();
+                    triggerAction("like", card, pet);
+                });
+
+                nopeActionBtn.addEventListener("click", function (event) {
+                    event.stopPropagation();
+                    triggerAction("dislike", card, pet);
+                });
+
+                card.addEventListener("dblclick", function () {
+                    openDetailSheet(pet);
+                });
+            }
+
+            function animateCardOut(card, direction) {
+                return new Promise(function (resolve) {
+                    var likeOverlay = card.querySelector(".swipe-overlay.like");
+                    var nopeOverlay = card.querySelector(".swipe-overlay.nope");
+
+                    if (direction > 0) {
+                        likeOverlay.style.opacity = "1";
+                        nopeOverlay.style.opacity = "0";
+                    } else {
+                        likeOverlay.style.opacity = "0";
+                        nopeOverlay.style.opacity = "1";
+                    }
+
+                    card.classList.remove("dragging");
+                    card.style.transition = "transform 320ms cubic-bezier(0.22, 1, 0.36, 1), opacity 320ms ease";
+                    card.style.transform = "translate(" + (direction * (window.innerWidth + 260)) + "px, -24px) rotate(" + (direction * 24) + "deg)";
+                    card.style.opacity = "0";
+
+                    window.setTimeout(resolve, 320);
+                });
+            }
+
+            function removePetFromQueue(petId) {
+                if (!petId) {
+                    return;
+                }
+
+                var first = queue[0];
+                if (first && Number(first.id) === Number(petId)) {
+                    queue.shift();
+                    return;
+                }
+
+                queue = queue.filter(function (item) {
+                    return Number(item.id) !== Number(petId);
+                });
+            }
+
+            function addLikedPet(pet) {
+                if (!pet || !pet.id) {
+                    return;
+                }
+
+                var exists = likedPets.some(function (item) {
+                    return Number(item.id) === Number(pet.id);
+                });
+
+                if (exists) {
+                    return;
+                }
+
+                likedPets.unshift({
+                    id: pet.id,
+                    name: pet.name || "Khong ten",
+                    image: pet.image || "/images/the_logo.webp",
+                });
+
+                // Cập nhật: Giữ đồng bộ với database thay vì chỉ giới hạn 40 cái local
+                renderLikedList();
+                showNote("Đã thêm vào danh sách yêu thích.", false);
+            }
+
+            function renderLikedList() {
+                updateLikedBadge();
+
+                if (!likedPets.length) {
+                    likedList.innerHTML = '<p class="liked-empty">Chưa có thú cưng được thích.</p>';
+                    return;
+                }
+
+                likedList.innerHTML = likedPets.map(function (pet) {
+                    return ""
+                        + '<a class="liked-item" href="/adopt/' + escapeHtml(pet.id) + '">'
+                        + '  <img class="liked-thumb" src="' + escapeHtml(pet.image || "/images/the_logo.webp") + '" alt="' + escapeHtml(pet.name) + '">'
+                        + '  <span class="liked-name">' + escapeHtml(pet.name) + "</span>"
+                        + "</a>";
+                }).join("");
+
+                likedList.querySelectorAll(".liked-thumb").forEach(function (img) {
+                    img.addEventListener("error", function () {
+                        img.src = "/images/the_logo.webp";
+                    });
+                });
+            }
+
+            function openSidebar() {
+                isSidebarOpen = true;
+                likedSidebar.classList.add("open");
+                sidebarOverlay.classList.add("show");
+                likedSidebar.setAttribute("aria-hidden", "false");
+            }
+
+            function closeSidebar() {
+                isSidebarOpen = false;
+                likedSidebar.classList.remove("open");
+                sidebarOverlay.classList.remove("show");
+                likedSidebar.setAttribute("aria-hidden", "true");
+            }
+
+            function renderDetailImage() {
+                if (!detailState.images.length) {
+                    detailImage.src = "/images/the_logo.webp";
+                    detailPrev.style.display = "none";
+                    detailNext.style.display = "none";
+                    detailDots.innerHTML = "";
+                    return;
+                }
+
+                var current = detailState.images[detailState.index] || "/images/the_logo.webp";
+                detailImage.style.opacity = "0.4";
+                window.setTimeout(function () {
+                    detailImage.src = current;
+                    detailImage.style.opacity = "1";
+                }, 90);
+
+                detailPrev.style.display = detailState.index > 0 ? "block" : "none";
+                detailNext.style.display = detailState.index < detailState.images.length - 1 ? "block" : "none";
+
+                detailDots.innerHTML = detailState.images.map(function (_, idx) {
+                    return '<span class="image-dot' + (idx === detailState.index ? " active" : "") + '"></span>';
+                }).join("");
+            }
+
+            function openDetailSheet(pet) {
+                if (!pet) {
+                    return;
+                }
+
+                detailState.pet = pet;
+                detailState.images = getPetImages(pet);
+                detailState.index = 0;
+                detailState.translateY = 0;
+
+                detailTitle.textContent = pet.name || "Thu cung";
+
+                detailGrid.innerHTML = ""
+                    + "<div><strong>Loai:</strong> " + escapeHtml(pet.pet_type || "-") + "</div>"
+                    + "<div><strong>Giong:</strong> " + escapeHtml(pet.breed || "-") + "</div>"
+                    + "<div><strong>Tuoi:</strong> " + escapeHtml(pet.age || "-") + "</div>"
+                    + "<div><strong>Gioi tinh:</strong> " + escapeHtml(pet.gender || "-") + "</div>"
+                    + "<div><strong>Mau:</strong> " + escapeHtml(pet.color || "-") + "</div>"
+                    + "<div><strong>Can nang:</strong> " + escapeHtml(pet.weight || "-") + "</div>";
+
+                detailDesc.textContent = pet.description || "Thú cưng này chưa có mô tả chi tiết";
+                renderDetailImage();
+
+                isDetailOpen = true;
+                detailSheet.classList.add("open");
+                detailSheet.setAttribute("aria-hidden", "false");
+                detailPanel.style.transform = "";
+            }
+
+            function closeDetailSheet() {
+                isDetailOpen = false;
+                detailSheet.classList.remove("open");
+                detailSheet.setAttribute("aria-hidden", "true");
+                detailPanel.style.transform = "";
+                detailState.touching = false;
+                detailState.translateY = 0;
+            }
+
+            async function commitAction(action, pet) {
+                try {
+                    var response = await fetch(API_BASE + "/" + pet.id + "/" + action, {
+                        method: "POST",
+                        credentials: "same-origin",
+                        headers: {
+                            Accept: "application/json",
+                        },
+                    });
+
+                    var payload = await parseJsonSafe(response);
+                    if (response.status === 401) {
+                        openLoginOverlay();
+                        throw new Error((payload && payload.message) || "Vui long dang nhap de tiep tuc.");
+                    }
+
+                    if (!response.ok) {
+                        throw new Error((payload && payload.message) || "Khong the xu ly thao tac vua chon.");
+                    }
+
+                    var data = payload && payload.data ? payload.data : {};
+                    removePetFromQueue(pet.id);
+
+                    hasMoreFromServer = Boolean(data.hasMore);
+                    if (data.pet) {
+                        pushUniquePet(data.pet);
+                    }
+
+                    if (action === "like") {
+                        addLikedPet(pet);
+                    }
+
+                    renderCards();
+
+                    ensureQueue().then(function () {
+                        renderCards();
+                    }).catch(function (error) {
+                        showNote(error.message || "Khong the nap them thu cung.", true);
+                    });
+                } catch (error) {
+                    showNote(error.message || "Da xay ra loi khi gui tuong tac.", true);
+                    renderCards();
+                }
+            }
+
+            async function triggerAction(action, card, pet) {
+                if (actionInProgress) {
+                    return;
+                }
+
+                if (action === "info") {
+                    openDetailSheet(queue[0] || pet);
+                    return;
+                }
+
+                var topCard = card || cardStack.querySelector(".pet-card.is-top");
+                var currentPet = pet || queue[0];
+                if (!topCard || !currentPet) {
+                    return;
+                }
+
+                actionInProgress = true;
+                setControlDisabled(true);
+
+                var direction = action === "like" ? 1 : -1;
+                await animateCardOut(topCard, direction);
+                await commitAction(action, currentPet);
+
+                actionInProgress = false;
+                setControlDisabled(false);
+            }
+
+            async function initializeSnap() {
+                showNote("", false);
+                queue = [];
+                seenPetIds.clear();
+                hasMoreFromServer = true;
+                actionInProgress = false;
+                fillInProgress = false;
+
+                setControlDisabled(true);
+                showScreen("loading");
+                updateQueueStatus();
+
+                try {
+                    // Fetch existing favorites to sync with PetSnap
+                    var favResponse = await fetch("/api/v1/favorites/my", {
+                        method: "GET",
+                        credentials: "same-origin",
+                        headers: { Accept: "application/json" }
+                    });
+                    var favPayload = await parseJsonSafe(favResponse);
+                    if (favResponse.ok && favPayload && favPayload.data && Array.isArray(favPayload.data.favorites)) {
+                        likedPets = favPayload.data.favorites.map(function (f) {
+                            return {
+                                id: f.id,
+                                name: f.name,
+                                image: f.image
+                            };
+                        });
+                        renderLikedList();
+                    }
+
+                    await ensureQueue();
+
+                    if (!queue.length && !hasMoreFromServer) {
+                        showScreen("empty");
+                    } else {
+                        renderCards();
+                    }
+                } catch (error) {
+                    showScreen("error", error.message || "Khong the tai danh sach PetSnap.");
+                }
+            }
+
+            function setupDetailInteractions() {
+                detailPrev.addEventListener("click", function () {
+                    if (detailState.index > 0) {
+                        detailState.index -= 1;
+                        renderDetailImage();
+                    }
+                });
+
+                detailNext.addEventListener("click", function () {
+                    if (detailState.index < detailState.images.length - 1) {
+                        detailState.index += 1;
+                        renderDetailImage();
+                    }
+                });
+
+                detailClose.addEventListener("click", closeDetailSheet);
+                detailBackdrop.addEventListener("click", closeDetailSheet);
+
+                detailPanel.addEventListener("touchstart", function (event) {
+                    if (detailPanel.scrollTop > 0) {
+                        detailState.touching = false;
+                        return;
+                    }
+                    detailState.touching = true;
+                    detailState.startY = getPoint(event).y;
+                    detailState.translateY = 0;
+                }, { passive: true });
+
+                detailPanel.addEventListener("touchmove", function (event) {
+                    if (!detailState.touching) {
+                        return;
+                    }
+
+                    var currentY = getPoint(event).y;
+                    var delta = currentY - detailState.startY;
+                    if (delta > 0) {
+                        detailState.translateY = delta;
+                        detailPanel.style.transform = "translateY(" + delta + "px)";
+                    }
+                }, { passive: true });
+
+                detailPanel.addEventListener("touchend", function () {
+                    if (!detailState.touching) {
+                        return;
+                    }
+
+                    detailState.touching = false;
+                    if (detailState.translateY > 95) {
+                        closeDetailSheet();
+                    } else {
+                        detailPanel.style.transform = "translateY(0px)";
+                        window.setTimeout(function () {
+                            if (isDetailOpen) {
+                                detailPanel.style.transform = "";
+                            }
+                        }, 220);
+                    }
+
+                    detailState.translateY = 0;
+                });
+            }
+
+            function setupGlobalEvents() {
+                reloadEmptyBtn.addEventListener("click", initializeSnap);
+                retryErrorBtn.addEventListener("click", initializeSnap);
+
+                likeBtn.addEventListener("click", function () {
+                    triggerAction("like");
+                });
+
+                nopeBtn.addEventListener("click", function () {
+                    triggerAction("dislike");
+                });
+
+                infoBtn.addEventListener("click", function () {
+                    triggerAction("info");
+                });
+
+                likedToggle.addEventListener("click", function () {
+                    if (isSidebarOpen) {
+                        closeSidebar();
+                    } else {
+                        openSidebar();
+                    }
+                });
+
+                sidebarClose.addEventListener("click", closeSidebar);
+                sidebarOverlay.addEventListener("click", closeSidebar);
+
+                document.addEventListener("keydown", function (event) {
+                    if (event.key === "Escape") {
+                        if (isDetailOpen) {
+                            closeDetailSheet();
+                            return;
+                        }
+                        if (isSidebarOpen) {
+                            closeSidebar();
+                            return;
+                        }
+                    }
+
+                    if (isDetailOpen) {
+                        if (event.key === "ArrowLeft" && detailState.index > 0) {
+                            detailState.index -= 1;
+                            renderDetailImage();
+                        }
+                        if (event.key === "ArrowRight" && detailState.index < detailState.images.length - 1) {
+                            detailState.index += 1;
+                            renderDetailImage();
+                        }
+                        return;
+                    }
+
+                    if (event.key === "ArrowRight") {
+                        event.preventDefault();
+                        triggerAction("like");
+                    }
+
+                    if (event.key === "ArrowLeft") {
+                        event.preventDefault();
+                        triggerAction("dislike");
+                    }
+
+                    if (event.key === "ArrowUp") {
+                        event.preventDefault();
+                        if (queue[0]) {
+                            openDetailSheet(queue[0]);
+                        }
+                    }
+                });
+            }
+
+            setupDetailInteractions();
+            setupGlobalEvents();
+            renderLikedList();
+            initializeSnap();
+        })();
+    </script>
+</body>
+
+</html>

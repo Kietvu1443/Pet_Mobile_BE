@@ -1,0 +1,20 @@
+@startuml
+left to right direction
+actor Staff
+
+
+  (Xử lý yêu cầu nhận nuôi) as process
+  (Xác thực) as auth
+  (Xem danh sách yêu cầu) as view
+  (Cập nhật trạng thái yêu cầu) as update_req
+  (Cập nhật trạng thái thú cưng) as update_pet
+
+  process --> auth : <<include>>
+  process --> view : <<include>>
+  process --> update_req : <<include>>
+  process --> update_pet : <<include>>
+
+
+Staff --> process
+
+@enduml

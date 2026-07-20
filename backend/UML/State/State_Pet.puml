@@ -1,0 +1,23 @@
+@startuml State_Pet
+
+title Sơ đồ trạng thái thú cưng
+
+[*] --> Available : Thêm vào hệ thống
+
+Available --> Pending : Có yêu cầu nhận nuôi
+Pending --> Adopted : Duyệt yêu cầu
+
+Pending --> Available : Từ chối tất cả yêu cầu
+Adopted --> Available : Admin hoàn tác
+
+note right of Pending
+  Có thể có nhiều yêu cầu
+  đang chờ xử lý
+end note
+
+note right of Adopted
+  Thú cưng đã có chủ
+  không thể nhận nuôi thêm
+end note
+
+@enduml

@@ -1,0 +1,20 @@
+@startuml
+actor User
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+User -> FE : Nhập filter (loại, tuổi...)
+FE -> BE : GET /pets?type=dog&age=2&page=1
+
+BE -> DB : Query pet theo điều kiện
+
+alt Có dữ liệu
+    BE --> FE : Trả danh sách pet
+    FE --> User : Hiển thị danh sách
+else Không có dữ liệu
+    BE --> FE : Danh sách rỗng
+    FE --> User : Hiển thị "Không có kết quả"
+end
+
+@enduml

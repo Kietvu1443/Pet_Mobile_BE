@@ -1,0 +1,25 @@
+@startuml State_Report
+
+title Sơ đồ trạng thái báo cáo thú cưng
+
+[*] --> Pending : Gửi báo cáo
+
+Pending --> Approved : Staff duyệt
+Pending --> Rejected : Staff từ chối
+
+Approved --> Resolved : Đã xử lý / tìm thấy thú
+
+note right of Pending
+  Báo cáo đang chờ kiểm duyệt
+end note
+
+note right of Approved
+  Báo cáo hợp lệ,
+  được hiển thị hệ thống
+end note
+
+note right of Resolved
+  Vấn đề đã được xử lý xong
+end note
+
+@enduml

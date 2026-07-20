@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thú Cưng Yêu Thích Của Tôi - Pet Helper</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/auth.css">
+    <link rel="stylesheet" href="/stylesheets/staticHeader.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .page-wrap {
+            background: #f4fbf7;
+            min-height: calc(100vh - 140px);
+            padding: 36px 16px;
+        }
+
+        .favorites-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .favorites-header {
+            margin-bottom: 18px;
+        }
+
+        .favorites-header h1 {
+            margin: 0 0 8px;
+            color: #1f5133;
+        }
+
+        .favorites-header p {
+            margin: 0;
+            color: #5f6f67;
+        }
+
+        .status-note {
+            display: none;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .status-note.warning {
+            display: block;
+            background: #fff7ed;
+            color: #9a3412;
+        }
+
+        .status-note.error {
+            display: block;
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .status-note.success {
+            display: block;
+            background: #ecfdf3;
+            color: #166534;
+        }
+
+        .loading-box {
+            background: #e8f5ec;
+            color: #1f5133;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .empty-box {
+            display: none;
+            background: #fff;
+            border: 1px dashed #b9d2c0;
+            border-radius: 14px;
+            padding: 36px 20px;
+            text-align: center;
+            color: #5f6f67;
+        }
+
+        .empty-box.show {
+            display: block;
+        }
+
+        .favorite-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 18px;
+        }
+
+        .favorite-card {
+            background: #fff;
+            border: 1px solid #e5efe8;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(14, 54, 34, 0.05);
+        }
+
+        .favorite-card.is-adopted {
+            opacity: 0.75;
+        }
+
+        .favorite-card img {
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+            background: #f3f4f6;
+        }
+
+        .favorite-card-body {
+            padding: 14px;
+        }
+
+        .favorite-card h3 {
+            margin: 0 0 8px;
+            color: #1f5133;
+            font-size: 1.07rem;
+        }
+
+        .favorite-meta {
+            margin: 0 0 10px;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .favorite-description {
+            margin: 0;
+            color: #1f2937;
+            font-size: 0.95rem;
+            line-height: 1.45;
+        }
+
+        .favorite-footer {
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .favorite-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .favorite-tag.available {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .favorite-tag.adopted {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .favorite-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .favorite-detail-link {
+            display: inline-block;
+            padding: 8px 14px;
+            background: #2d6a4f;
+            color: #fff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .favorite-detail-link:hover {
+            background: #1b4332;
+        }
+
+        .favorite-remove-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid #fecaca;
+            background: #fff1f2;
+            color: #e11d48;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .favorite-remove-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .favorite-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Tabs ── */
+        .page-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #e8f4ed;
+            padding-bottom: 0;
+        }
+
+        .page-tab-btn {
+            padding: 10px 22px;
+            border: none;
+            background: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+
+        .page-tab-btn.active {
+            color: #1f5133;
+            border-bottom-color: #2d6a4f;
+        }
+
+        .page-tab-btn:hover {
+            color: #1f5133;
+        }
+
+        /* ── News cards ── */
+        .news-follow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .news-follow-card {
+            background: #fff;
+            border: 1px solid #e5efe8;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(14, 54, 34, 0.05);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .news-follow-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(14, 54, 34, 0.12);
+        }
+
+        .news-follow-img {
+            width: 100%;
+            height: 170px;
+            object-fit: cover;
+            background: #e8f5e9;
+        }
+
+        .news-follow-body {
+            padding: 14px;
+            flex: 1;
+        }
+
+        .news-follow-cat {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #2d6a4f;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .news-follow-title {
+            font-size: 0.97rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .news-follow-meta {
+            font-size: 0.78rem;
+            color: #bbb;
+        }
+
+        .news-unfollow-btn {
+            margin: 0 14px 14px;
+            padding: 7px;
+            border: 1px solid #fecaca;
+            background: #fff1f2;
+            color: #e11d48;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 700;
+            width: calc(100% - 28px);
+        }
+
+        .news-unfollow-btn:hover {
+            background: #fee2e2;
+        }
+
+        .lang-switcher {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .lang-switcher-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 8px;
+            padding: 5px 10px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.18s;
+            white-space: nowrap;
+        }
+
+        .lang-switcher-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .lang-switcher-btn svg {
+            width: 14px;
+            height: 14px;
+            opacity: .8;
+        }
+
+        .lang-switcher-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            min-width: 140px;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .lang-switcher-dropdown.open {
+            display: block;
+        }
+
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
+            transition: background 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .lang-option:hover {
+            background: #f1f5f9;
+        }
+
+        .lang-option.active {
+            background: #f0fdf4;
+            color: #166534;
+            font-weight: 600;
+        }
+
+        .lang-option .flag {
+            font-size: 16px;
+        }
+
+        .goog-te-banner-frame,
+        .skiptranslate {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="top-bar">
+            <a href="/" class="logo-group">
+                <div class="logo-circle">
+                    <img src="/images/the_logo.webp" alt="logo" id="the_logo">
+                </div>
+                <div class="web-name">PET HELPER</div>
+            </a>
+            <div class="user-actions">
+                <div class="auth-user-actions is-auth-hidden" id="headerAuthUserState">
+                    <div class="user-dropdown" id="headerUserDropdown">
+                        <span id="userDropdownBtn" style="cursor: pointer;">
+                            <span id="headerDisplayNameText">Tài khoản</span> ▼
+                        </span>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-header">
+                                <strong id="headerDropdownDisplayName">Tài khoản</strong>
+                                <span class="user-role" id="headerUserRole">👤 User</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="/profile" class="dropdown-item">👤 Tài khoản</a>
+                            <a href="/my-favorites" class="dropdown-item">❤️ Thú cưng đã yêu thích</a>
+                            <a href="/my-reports" class="dropdown-item">📋 Báo cáo của tôi</a>
+                            <a href="/my-adoption-requests" class="dropdown-item">🏠 Yêu cầu nhận nuôi</a>
+                            <a href="/adopt/admin/add" class="dropdown-item role-staff-only is-auth-hidden">🐾 Thêm thú
+                                cưng</a>
+                            <a href="/admin" class="dropdown-item role-management-link is-auth-hidden"
+                                id="headerManagementLink">🛠️ Quản lý</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item logout" id="logoutBtn" onclick="handleLogout(event)">🚪
+                                Đăng xuất</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-guest-actions is-auth-visible" id="headerAuthGuestState">
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('login'); } return false;"><span>Đăng
+                            nhập</span></a>
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('register'); } return false;"><span>Đăng
+                            ký</span></a>
+                </div>
+                <span>Giỏ hàng <span id="cart-count-display">(0)</span></span>
+                <div class="lang-switcher" id="langSwitcher">
+                    <button class="lang-switcher-btn" onclick="toggleLangDropdown(event)" id="langBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" />
+                        </svg>
+                        <span id="langBtnLabel">VI</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </button>
+                    <div class="lang-switcher-dropdown" id="langDropdown">
+                        <button class="lang-option active" onclick="setLang('vi','VI')" data-lang="vi"><span
+                                class="flag">🇻🇳</span> Tiếng Việt</button>
+                        <button class="lang-option" onclick="setLang('/en','EN')" data-lang="en"><span
+                                class="flag">🇺🇸</span> English</button>
+                        <button class="lang-option" onclick="setLang('/zh-TW','中文')" data-lang="zh-TW"><span
+                                class="flag">🇹🇼</span> 中文</button>
+                        <button class="lang-option" onclick="setLang('/ja','日本語')" data-lang="ja"><span
+                                class="flag">🇯🇵</span> 日本語</button>
+                    </div>
+                </div>
+            </div>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Mở menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+
+        <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+
+        <nav class="main-nav" id="mainNav">
+            <button class="mobile-nav-close" id="mobileNavClose" aria-label="Đóng menu">✕</button>
+            <ul>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Nhận nuôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/adopt">Xem vật nuôi có thể nhận nuôi</a></li>
+                        <li><a href="/snap" style="color: #ea580c; font-weight: bold;">PetSnap (Tìm kiếm ngẫu hứng!)</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Thất lạc <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/lost">Báo mất thú cưng</a></li>
+                        <li><a href="/found">Báo tin nhặt được</a></li>
+                        <li><a href="/tips">Mẹo tìm kiếm hiệu quả</a></li>
+                        <li><a href="/reports/list">Xem báo cáo thất lạc</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Dịch vụ <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/booking">Đặt lịch tiêm phòng</a></li>
+                        <li><a href="/shop">Danh mục đồ ăn/ đồ dùng</a></li>
+                    </ul>
+                </li>
+                <li><a href="/news">Tin tức</a></li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Về chúng tôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="#contact-section">Liên hệ với chúng tôi</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="auth-overlay-mount"></div>
+    <script src="/javascripts/authOverlayLoader.js" defer></script>
+
+    <main class="page-wrap">
+        <section class="favorites-container">
+            <div class="favorites-header">
+                <h1>Yêu Thích Của Tôi</h1>
+                <p>Danh sách thú cưng và bài tin bạn đã lưu để theo dõi.</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="page-tabs">
+                <button class="page-tab-btn active" id="tabPets" onclick="switchTab('pets')">🐾 Thú cưng yêu
+                    thích</button>
+                <button class="page-tab-btn" id="tabNews" onclick="switchTab('news')">📰 Bài tin quan tâm</button>
+            </div>
+
+            <!-- Tab: Thú cưng -->
+            <div id="panelPets">
+                <div id="statusNote" class="status-note"></div>
+                <div id="loadingBox" class="loading-box">Đang tải danh sách thú cưng yêu thích...</div>
+                <div id="emptyBox" class="empty-box">Bạn chưa có thú cưng yêu thích nào.</div>
+                <div id="favoriteList" class="favorite-list"></div>
+            </div>
+
+            <!-- Tab: Bài tin quan tâm -->
+            <div id="panelNews" style="display:none">
+                <div id="newsFollowStatus" style="color:#64748b;font-size:0.9rem;margin-bottom:12px;"></div>
+                <div id="newsFollowGrid" class="news-follow-grid"></div>
+                <div id="newsFollowEmpty" class="empty-box" style="display:none">Bạn chưa quan tâm bài tin nào.</div>
+                <div id="newsFollowPagination"
+                    style="display:flex;gap:6px;justify-content:center;margin-top:16px;flex-wrap:wrap;"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="/" class="logo">
+                    <span style="font-size: 1.5rem;">🐾</span>
+                    <span>Pet Helper</span>
+                </a>
+                <p>Nền tảng hỗ trợ và bảo vệ vật nuôi hàng đầu Việt Nam. Cùng nhau xây dựng cộng đồng yêu thương động
+                    vật - Green Project 2026.</p>
+            </div>
+
+            <div class="footer-links">
+                <h4>Dịch vụ</h4>
+                <ul>
+                    <li><a href="/adopt">Nhận nuôi thú cưng</a></li>
+                    <li><a href="/reports">Báo cáo thất lạc</a></li>
+                    <li><a href="/shop">Cửa hàng</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Liên hệ</h4>
+                <ul>
+                    <li>📧 support@pethelper.vn</li>
+                    <li>📞 1900-XXXX</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 Pet Helper Green Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/javascripts/staticHeader.js"></script>
+    <script src="/javascripts/staticFooter.js"></script>
+
+    <script>
+        const statusNote = document.getElementById('statusNote');
+        const loadingBox = document.getElementById('loadingBox');
+        const emptyBox = document.getElementById('emptyBox');
+        const favoriteList = document.getElementById('favoriteList');
+
+        const escapeHtml = (value) => String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
+        const setNote = (type, message) => {
+            statusNote.className = 'status-note';
+            statusNote.textContent = '';
+            if (!message) return;
+            statusNote.classList.add(type);
+            statusNote.textContent = message;
+        };
+
+        const setLoading = (isLoading) => {
+            loadingBox.style.display = isLoading ? 'block' : 'none';
+        };
+
+        const openLoginOverlay = () => {
+            if (typeof window.openLoginOverlaySafely === 'function') {
+                window.openLoginOverlaySafely();
+                return;
+            }
+            if (typeof openOverlay === 'function') {
+                openOverlay('auth-overlay');
+            }
+            if (typeof overlayActivateTab === 'function') {
+                overlayActivateTab('login');
+            }
+        };
+
+        const parseJsonSafe = async (response) => {
+            try {
+                return await response.json();
+            } catch (error) {
+                return null;
+            }
+        };
+
+        const getStatusTag = (status) => {
+            if (status === 'available') {
+                return '<span class="favorite-tag available">🟢 Sẵn sàng nhận nuôi</span>';
+            }
+            return '<span class="favorite-tag adopted">🏠 Đã được nhận nuôi</span>';
+        };
+
+        const renderFavorites = (favorites) => {
+            favoriteList.innerHTML = '';
+
+            if (!Array.isArray(favorites) || favorites.length === 0) {
+                emptyBox.classList.add('show');
+                return;
+            }
+
+            emptyBox.classList.remove('show');
+            favoriteList.innerHTML = favorites.map((item) => {
+                const statusClass = item.status !== 'available' ? 'is-adopted' : '';
+                const likedAtText = item.liked_at
+                    ? new Date(item.liked_at).toLocaleDateString('vi-VN')
+                    : '-';
+
+                return `
+                    <article class="favorite-card ${statusClass}" id="favorite-card-${escapeHtml(item.id)}">
+                        <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name || 'Pet')}" onerror="fallbackPetImage(this, '${escapeHtml(item.id)}')">
+                        <div class="favorite-card-body">
+                            <h3>${escapeHtml(item.name || 'Không rõ tên thú cưng')}</h3>
+                            <p class="favorite-meta">Loài: ${escapeHtml(item.pet_type || '-')} • Đã thích: ${escapeHtml(likedAtText)}</p>
+                            <p class="favorite-description">${escapeHtml(item.description || 'Không có mô tả')}</p>
+                            <div class="favorite-footer">
+                                ${getStatusTag(String(item.status || ''))}
+                                <div class="favorite-actions">
+                                    <button class="favorite-remove-btn" data-pet-id="${escapeHtml(item.id)}" title="Bỏ yêu thích">🤍</button>
+                                    <a class="favorite-detail-link" href="/adopt/${escapeHtml(item.id)}">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        };
+
+        async function removeFavorite(petId, buttonEl) {
+            if (!petId) return;
+            buttonEl.disabled = true;
+
+            const cardEl = document.getElementById(`favorite-card-${petId}`);
+            if (cardEl) cardEl.style.opacity = '0.65';
+
+            try {
+                const response = await fetch(`/api/v1/favorites/${petId}`, {
+                    method: 'DELETE',
+                    headers: { Accept: 'application/json' },
+                    credentials: 'same-origin',
+                });
+
+                const payload = await parseJsonSafe(response);
+
+                if (response.status === 401) {
+                    openLoginOverlay();
+                    throw new Error('Vui lòng đăng nhập để bỏ yêu thích thú cưng.');
+                }
+
+                if (!response.ok) {
+                    throw new Error((payload && payload.message) || 'Không thể bỏ yêu thích thú cưng.');
+                }
+
+                if (cardEl) {
+                    cardEl.remove();
+                }
+
+                const remaining = favoriteList.querySelectorAll('.favorite-card').length;
+                if (remaining === 0) {
+                    emptyBox.classList.add('show');
+                }
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: (payload && payload.message) || 'Đã bỏ yêu thích',
+                    showConfirmButton: false,
+                    timer: 1700,
+                });
+            } catch (error) {
+                if (cardEl) cardEl.style.opacity = '1';
+                buttonEl.disabled = false;
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: error.message || 'Không thể bỏ yêu thích',
+                    showConfirmButton: false,
+                    timer: 2200,
+                });
+            }
+        }
+
+        async function loadMyFavorites() {
+            setLoading(true);
+            setNote('', '');
+            emptyBox.classList.remove('show');
+
+            try {
+                const meResponse = await fetch('/api/v1/auth/me', {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' },
+                    credentials: 'same-origin',
+                });
+
+                if (meResponse.status === 401) {
+                    setNote('warning', 'Vui lòng đăng nhập để xem thú cưng yêu thích của bạn.');
+                    favoriteList.innerHTML = '';
+                    openLoginOverlay();
+                    return;
+                }
+
+                if (!meResponse.ok) {
+                    setNote('error', 'Không thể xác minh trạng thái đăng nhập.');
+                    favoriteList.innerHTML = '';
+                    return;
+                }
+
+                const response = await fetch('/api/v1/favorites/my', {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' },
+                    credentials: 'same-origin',
+                });
+
+                const payload = await parseJsonSafe(response);
+
+                if (response.status === 401) {
+                    setNote('warning', 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+                    favoriteList.innerHTML = '';
+                    openLoginOverlay();
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error((payload && payload.message) || 'Không thể tải danh sách yêu thích.');
+                }
+
+                const favorites = payload && payload.data ? payload.data.favorites : [];
+                renderFavorites(favorites);
+            } catch (error) {
+                favoriteList.innerHTML = '';
+                setNote('error', error.message || 'Không thể tải dữ liệu. Vui lòng thử lại.');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        favoriteList.addEventListener('click', (event) => {
+            const btn = event.target.closest('.favorite-remove-btn');
+            if (!btn) return;
+
+            const petId = Number(btn.dataset.petId || 0);
+            if (!petId) return;
+
+            removeFavorite(petId, btn);
+        });
+
+        loadMyFavorites();
+
+        // ── Tab switching ─────────────────────────────────────────────
+        window.switchTab = function (tab) {
+            document.getElementById('panelPets').style.display = tab === 'pets' ? '' : 'none';
+            document.getElementById('panelNews').style.display = tab === 'news' ? '' : 'none';
+            document.getElementById('tabPets').classList.toggle('active', tab === 'pets');
+            document.getElementById('tabNews').classList.toggle('active', tab === 'news');
+            if (tab === 'news' && !window.__newsFollowLoaded) {
+                window.__newsFollowLoaded = true;
+                loadFollowedNews(1);
+            }
+        };
+
+        // ── Followed news ─────────────────────────────────────────────
+        const CATEGORY_LABELS = { community: '🐾 Cộng đồng', health: '💉 Sức khỏe', adoption: '🏠 Nhận nuôi', knowledge: '📚 Kiến thức', rescue: '🆘 Cứu hộ' };
+
+        function timeAgo(dateStr) {
+            const diff = (Date.now() - new Date(dateStr)) / 1000;
+            if (diff < 3600) return Math.floor(diff / 60) + ' phút trước';
+            if (diff < 86400) return Math.floor(diff / 3600) + ' giờ trước';
+            if (diff < 604800) return Math.floor(diff / 86400) + ' ngày trước';
+            return new Date(dateStr).toLocaleDateString('vi-VN');
+        }
+
+        async function loadFollowedNews(page) {
+            const grid = document.getElementById('newsFollowGrid');
+            const empty = document.getElementById('newsFollowEmpty');
+            const status = document.getElementById('newsFollowStatus');
+            const pag = document.getElementById('newsFollowPagination');
+
+            grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#aaa;padding:20px;">Đang tải...</div>';
+            empty.style.display = 'none';
+            pag.innerHTML = '';
+            status.textContent = '';
+
+            try {
+                const res = await fetch('/api/v1/news/followed?page=' + page + '&limit=12', { credentials: 'include' });
+                const payload = await res.json();
+                if (!payload.success) throw new Error(payload.message);
+
+                const { news, total, totalPages } = payload.data;
+                if (!news || !news.length) {
+                    grid.innerHTML = '';
+                    empty.style.display = 'block';
+                    return;
+                }
+
+                status.textContent = 'Đang theo dõi ' + total + ' bài tin';
+                grid.innerHTML = news.map(n => `
+                    <div class="news-follow-card" style="display:flex;flex-direction:column;">
+                        <a href="/news/${n.id}" style="text-decoration:none;color:inherit;flex:1;display:flex;flex-direction:column;">
+                            <img class="news-follow-img" src="${n.image || ''}" alt="${escapeHtml(n.title)}"
+                                 onerror="this.style.display='none'">
+                            <div class="news-follow-body">
+                                <div class="news-follow-cat">${CATEGORY_LABELS[n.category] || n.category}</div>
+                                <div class="news-follow-title">${escapeHtml(n.title)}</div>
+                                <div class="news-follow-meta">⏱ ${timeAgo(n.created_at)} · ❤️ ${n.like_count || 0}</div>
+                            </div>
+                        </a>
+                        <button class="news-unfollow-btn" onclick="unfollowNews(${n.id}, this)">🔕 Bỏ quan tâm</button>
+                    </div>
+                `).join('');
+
+                // Pagination
+                if (totalPages > 1) {
+                    pag.innerHTML = Array.from({ length: totalPages }, (_, i) => i + 1).map(i =>
+                        `<button onclick="loadFollowedNews(${i})" style="min-width:34px;height:34px;border-radius:8px;border:1px solid #cbd5e1;background:${i === page ? '#2d6a4f' : '#fff'};color:${i === page ? '#fff' : '#0f172a'};font-weight:700;cursor:pointer;">${i}</button>`
+                    ).join('');
+                }
+            } catch (e) {
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#aaa;padding:20px;">Không thể tải bài tin quan tâm.</div>';
+            }
+        }
+
+        window.unfollowNews = async function (newsId, btn) {
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/v1/news/' + newsId + '/follow', { method: 'POST', credentials: 'include' });
+                const payload = await res.json();
+                if (payload.success && !payload.data.followed) {
+                    btn.closest('.news-follow-card').remove();
+                    const remaining = document.querySelectorAll('.news-follow-card').length;
+                    if (!remaining) document.getElementById('newsFollowEmpty').style.display = 'block';
+                }
+            } catch (e) { btn.disabled = false; }
+        };
+    </script>
+    <div id="google_translate_element" style="display:none"></div>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ pageLanguage: 'vi', includedLanguages: 'vi,en,zh-TW,ja', autoDisplay: false }, 'google_translate_element');
+        }
+        function setLang(lang, label) {
+            document.getElementById('langBtnLabel').textContent = label;
+            document.querySelectorAll('.lang-option').forEach(function (el) {
+                el.classList.toggle('active', el.dataset.lang === (lang === 'vi' ? 'vi' : lang.replace('/', '')));
+            });
+            document.getElementById('langDropdown').classList.remove('open');
+            if (lang === 'vi') {
+                document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname;
+                location.reload(); return;
+            }
+            var val = '/vi' + lang;
+            document.cookie = 'googtrans=' + val + '; path=/';
+            document.cookie = 'googtrans=' + val + '; path=/; domain=' + location.hostname;
+            location.reload();
+        }
+        function toggleLangDropdown(e) {
+            e.stopPropagation();
+            document.getElementById('langDropdown').classList.toggle('open');
+        }
+        document.addEventListener('click', function () {
+            var dd = document.getElementById('langDropdown');
+            if (dd) dd.classList.remove('open');
+        });
+        (function () {
+            var m = document.cookie.match(/googtrans=\/vi\/([^;]+)/);
+            if (!m) return;
+            var map = { 'en': 'EN', 'zh-TW': '中文', 'ja': '日本語' };
+            if (map[m[1]]) {
+                var lbl = document.getElementById('langBtnLabel');
+                if (lbl) lbl.textContent = map[m[1]];
+                document.querySelectorAll('.lang-option').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.lang === m[1]);
+                });
+            }
+        })();
+    </script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+
+</html>

@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Đặt lịch tiêm phòng - Pet Helper">
+    <title>Đặt Lịch Tiêm Phòng | Pet Helper</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .page-hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: #fff;
+            padding: 50px 0 40px;
+            margin-bottom: 40px;
+        }
+
+        .page-hero h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .page-hero p {
+            font-size: 1rem;
+            opacity: 0.85;
+        }
+
+        /* --- LAYOUT CHÍNH --- */
+        .booking-page-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;
+            gap: 32px;
+            margin-bottom: 60px;
+            align-items: start;
+        }
+
+        /* --- SIDEBAR INFO --- */
+        .booking-info-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .booking-info-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(45, 106, 79, 0.08);
+            border: 1px solid #e0f0e8;
+        }
+
+        .booking-info-card h3 {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .service-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .service-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 0.92rem;
+            color: #444;
+        }
+
+        .service-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .service-text strong {
+            display: block;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 2px;
+        }
+
+        .service-text span {
+            font-size: 0.82rem;
+            color: #888;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.92rem;
+            color: #555;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .booking-img-card {
+            border-radius: 14px;
+            overflow: hidden;
+            height: 200px;
+        }
+
+        .booking-img-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- FORM ĐẶT LỊCH --- */
+        .booking-form-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(45, 106, 79, 0.10);
+            border: 1px solid #e0f0e8;
+            overflow: hidden;
+        }
+
+        .booking-form-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: #fff;
+            padding: 24px 28px;
+        }
+
+        .booking-form-header h2 {
+            font-size: 1.3rem;
+            font-weight: 900;
+            margin-bottom: 4px;
+        }
+
+        .booking-form-header p {
+            font-size: 0.87rem;
+            opacity: 0.85;
+        }
+
+        .booking-form-body {
+            padding: 28px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group-page {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group-page.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-label-page {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .form-label-page .req {
+            color: #ef4444;
+            margin-left: 2px;
+        }
+
+        .form-input-page {
+            padding: 11px 14px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 0.92rem;
+            font-family: inherit;
+            color: #1f2937;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fff;
+        }
+
+        .form-input-page:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.1);
+        }
+
+        .form-select-page {
+            padding: 11px 14px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 0.92rem;
+            font-family: inherit;
+            color: #1f2937;
+            outline: none;
+            background: #fff;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .form-select-page:focus {
+            border-color: var(--primary-color);
+        }
+
+        .form-textarea-page {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .note-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 0.85rem;
+            color: #166534;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .booking-submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(45, 106, 79, 0.3);
+        }
+
+        .booking-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(45, 106, 79, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .booking-page-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-hero {
+                padding: 35px 0 30px;
+                margin-bottom: 24px;
+            }
+
+            .page-hero h1 {
+                font-size: 1.6rem;
+            }
+
+            .booking-form-body {
+                padding: 20px;
+            }
+
+            .booking-form-header {
+                padding: 18px 20px;
+            }
+
+            .booking-form-header h2 {
+                font-size: 1.1rem;
+            }
+
+            .booking-img-card {
+                height: 160px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .booking-info-card {
+                padding: 18px;
+            }
+
+            .page-hero h1 {
+                font-size: 1.35rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="/stylesheets/staticHeader.css">
+
+    <style id="gtranslate-css">
+        .lang-switcher {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .lang-switcher-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 8px;
+            padding: 5px 10px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.18s;
+            white-space: nowrap;
+        }
+
+        .lang-switcher-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .lang-switcher-btn svg {
+            width: 14px;
+            height: 14px;
+            opacity: .8;
+        }
+
+        .lang-switcher-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            min-width: 140px;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .lang-switcher-dropdown.open {
+            display: block;
+        }
+
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
+            transition: background 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .lang-option:hover {
+            background: #f1f5f9;
+        }
+
+        .lang-option.active {
+            background: #f0fdf4;
+            color: #166534;
+            font-weight: 600;
+        }
+
+        .lang-option .flag {
+            font-size: 16px;
+        }
+
+        .goog-te-banner-frame,
+        .skiptranslate {
+            display: none !important;
+        }
+
+        body {
+            top: 0 !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="top-bar">
+            <a href="/" class="logo-group">
+                <div class="logo-circle">
+                    <img src="/images/the_logo.webp" alt="logo" id="the_logo">
+                </div>
+                <div class="web-name">PET HELPER</div>
+            </a>
+            <div class="user-actions">
+                <div class="auth-user-actions is-auth-hidden" id="headerAuthUserState">
+                    <div class="user-dropdown" id="headerUserDropdown">
+                        <span id="userDropdownBtn" style="cursor: pointer;">
+                            <span id="headerDisplayNameText">Tài khoản</span> ▼
+                        </span>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-header">
+                                <strong id="headerDropdownDisplayName">Tài khoản</strong>
+                                <span class="user-role" id="headerUserRole">👤 User</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="/profile" class="dropdown-item">👤 Tài khoản</a>
+                            <a href="/my-favorites" class="dropdown-item">❤️ Thú cưng đã yêu thích</a>
+                            <a href="/my-reports" class="dropdown-item">📋 Báo cáo của tôi</a>
+                            <a href="/adopt/admin/add" class="dropdown-item role-staff-only is-auth-hidden">🐾 Thêm thú
+                                cưng</a>
+                            <a href="/admin/reports" class="dropdown-item role-staff-only is-auth-hidden">📋 Duyệt báo
+                                cáo</a>
+                            <a href="/admin/adoption-requests" class="dropdown-item role-staff-only is-auth-hidden">🏠
+                                Xét duyệt nhận nuôi</a>
+                            <a href="/admin" class="dropdown-item role-admin-only is-auth-hidden">⚙️ Quản trị</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item logout" id="logoutBtn" onclick="handleLogout(event)">🚪
+                                Đăng xuất</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-guest-actions is-auth-visible" id="headerAuthGuestState">
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('login'); } return false;"><span>Đăng
+                            nhập</span></a>
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('register'); } return false;"><span>Đăng
+                            ký</span></a>
+                </div>
+                <span onclick="toggleCart()" style="cursor:pointer;">Giỏ hàng <span
+                        id="cart-count-display">(0)</span></span>
+                <div class="lang-switcher" id="langSwitcher">
+                    <button class="lang-switcher-btn" onclick="toggleLangDropdown(event)" id="langBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" />
+                        </svg>
+                        <span id="langBtnLabel">VI</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </button>
+                    <div class="lang-switcher-dropdown" id="langDropdown">
+                        <button class="lang-option active" onclick="setLang('vi','VI')" data-lang="vi"><span
+                                class="flag">🇻🇳</span> Tiếng Việt</button>
+                        <button class="lang-option" onclick="setLang('/en','EN')" data-lang="en"><span
+                                class="flag">🇺🇸</span> English</button>
+                        <button class="lang-option" onclick="setLang('/zh-TW','中文')" data-lang="zh-TW"><span
+                                class="flag">🇹🇼</span> 中文</button>
+                        <button class="lang-option" onclick="setLang('/ja','日本語')" data-lang="ja"><span
+                                class="flag">🇯🇵</span> 日本語</button>
+                    </div>
+                </div>
+            </div>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Mở menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+        <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+        <nav class="main-nav" id="mainNav">
+            <button class="mobile-nav-close" id="mobileNavClose" aria-label="Đóng menu">✕</button>
+            <ul>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Nhận nuôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/adopt">Xem vật nuôi có thể nhận nuôi</a></li>
+                        <li><a href="/snap" style="color: #ea580c; font-weight: bold;">PetSnap (Tìm kiếm ngẫu hứng!)</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Thất lạc <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/lost">Báo mất thú cưng</a></li>
+                        <li><a href="/found">Báo tin nhặt được</a></li>
+                        <li><a href="/tips">Mẹo chăm sóc thú cưng</a></li>
+                        <li><a href="/reports/list">Xem báo cáo thất lạc</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Dịch vụ <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/booking">Đặt lịch tiêm phòng</a></li>
+                        <li><a href="/shop">Danh mục đồ ăn/ đồ dùng</a></li>
+                    </ul>
+                </li>
+                <li><a href="/news">Tin tức</a></li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Về chúng tôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="#contact-section">Liên hệ với chúng tôi</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="page-hero">
+        <div class="container">
+            <h1>🩺 Đặt Lịch Tiêm Phòng</h1>
+            <p>Bảo vệ sức khỏe thú cưng — đặt lịch nhanh chóng, xác nhận trong vòng 24 giờ</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="booking-page-layout">
+
+            <!-- Sidebar thông tin -->
+            <div class="booking-info-sidebar">
+
+                <div class="booking-img-card">
+                    <img src="https://thuythithi.com/wp-content/uploads/2020/08/5-chu-y-quan-trong-khi-ban-dua-thu-cung-di-kham-cho-meo.jpg"
+                        alt="Thú cưng khám bệnh">
+                </div>
+
+                <div class="booking-info-card">
+                    <h3>🩺 Dịch vụ của chúng tôi</h3>
+                    <ul class="service-list">
+                        <li>
+                            <div class="service-icon">💉</div>
+                            <div class="service-text">
+                                <strong>Tiêm phòng dại</strong>
+                                <span>Bắt buộc theo quy định pháp luật</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="service-icon">🛡️</div>
+                            <div class="service-text">
+                                <strong>Tiêm đa giá (5 bệnh)</strong>
+                                <span>Bảo vệ toàn diện cho chó & mèo</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="service-icon">🪱</div>
+                            <div class="service-text">
+                                <strong>Tẩy giun sán</strong>
+                                <span>Định kỳ 3–6 tháng/lần</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="service-icon">🔬</div>
+                            <div class="service-text">
+                                <strong>Khám tổng quát</strong>
+                                <span>Kiểm tra sức khỏe toàn diện</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="booking-info-card">
+                    <h3>📍 Thông tin liên hệ</h3>
+                    <div class="info-row">📍 BDU UNIS Campus, Bình Dương</div>
+                    <div class="info-row">📞 Hotline: 1900-XXXX</div>
+                    <div class="info-row">📧 support@pethelper.vn</div>
+                    <div class="info-row">🕐 Thứ 2 – Thứ 7: 8:00 – 18:00</div>
+                </div>
+
+            </div>
+
+            <!-- Form đặt lịch -->
+            <div class="booking-form-card">
+                <div class="booking-form-header">
+                    <h2>📋 Phiếu Đăng Ký Dịch Vụ</h2>
+                    <p>Điền đầy đủ thông tin để chúng tôi chuẩn bị tốt nhất cho bé nhà bạn</p>
+                </div>
+                <div class="booking-form-body">
+
+                    <div class="form-row">
+                        <div class="form-group-page">
+                            <label class="form-label-page">Tên chủ nuôi <span class="req">*</span></label>
+                            <input type="text" class="form-input-page" placeholder="Nguyễn Văn A">
+                        </div>
+                        <div class="form-group-page">
+                            <label class="form-label-page">Số điện thoại <span class="req">*</span></label>
+                            <input type="tel" class="form-input-page" placeholder="0909 xxx xxx">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group-page">
+                            <label class="form-label-page">Tên thú cưng <span class="req">*</span></label>
+                            <input type="text" class="form-input-page" placeholder="Bé Miu">
+                        </div>
+                        <div class="form-group-page">
+                            <label class="form-label-page">Loài <span class="req">*</span></label>
+                            <select class="form-select-page">
+                                <option value="">-- Chọn loài --</option>
+                                <option>Chó</option>
+                                <option>Mèo</option>
+                                <option>Thỏ</option>
+                                <option>Khác</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group-page">
+                            <label class="form-label-page">Ngày hẹn <span class="req">*</span></label>
+                            <input type="date" class="form-input-page">
+                        </div>
+                        <div class="form-group-page">
+                            <label class="form-label-page">Giờ hẹn <span class="req">*</span></label>
+                            <select class="form-select-page">
+                                <option value="">-- Chọn giờ --</option>
+                                <option>08:00 – 09:00</option>
+                                <option>09:00 – 10:00</option>
+                                <option>10:00 – 11:00</option>
+                                <option>13:00 – 14:00</option>
+                                <option>14:00 – 15:00</option>
+                                <option>15:00 – 16:00</option>
+                                <option>16:00 – 17:00</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group-page full">
+                            <label class="form-label-page">Dịch vụ cần đăng ký <span class="req">*</span></label>
+                            <select class="form-select-page">
+                                <option value="">-- Chọn dịch vụ --</option>
+                                <option>Tiêm phòng dại</option>
+                                <option>Tiêm đa giá (5 bệnh)</option>
+                                <option>Tẩy giun sán</option>
+                                <option>Khám tổng quát</option>
+                                <option>Combo tiêm phòng + khám tổng quát</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group-page full">
+                            <label class="form-label-page">Ghi chú thêm</label>
+                            <textarea class="form-input-page form-textarea-page"
+                                placeholder="Ví dụ: bé hay cắn, cần mõm..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="note-box">
+                        <span>ℹ️</span>
+                        <span>Sau khi đặt lịch, đội ngũ Pet Helper sẽ gọi điện xác nhận trong vòng <strong>24
+                                giờ</strong>. Vui lòng đến đúng giờ đã hẹn.</span>
+                    </div>
+
+                    <button class="booking-submit-btn"
+                        onclick="Swal.fire({icon:'success', title:'Đặt lịch thành công! 🎉', text:'Chúng tôi sẽ gọi lại xác nhận trong vòng 24 giờ.', confirmButtonColor: '#2d6a4f'})">
+                        ✅ Xác Nhận Đặt Lịch
+                    </button>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer được inject bởi staticFooter.js -->
+
+    <div id="auth-overlay-mount"></div>
+    <script src="/javascripts/authOverlayLoader.js" defer></script>
+    <script src="/javascripts/staticHeader.js"></script>
+    <script src="/javascripts/staticFooter.js"></script>
+
+    <div id="google_translate_element" style="display:none"></div>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ pageLanguage: 'vi', includedLanguages: 'vi,en,zh-TW,ja', autoDisplay: false }, 'google_translate_element');
+        }
+        function setLang(lang, label) {
+            document.getElementById('langBtnLabel').textContent = label;
+            document.querySelectorAll('.lang-option').forEach(function (el) {
+                el.classList.toggle('active', el.dataset.lang === (lang === 'vi' ? 'vi' : lang.replace('/', '')));
+            });
+            document.getElementById('langDropdown').classList.remove('open');
+            if (lang === 'vi') {
+                document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname;
+                location.reload(); return;
+            }
+            var val = '/vi' + lang;
+            document.cookie = 'googtrans=' + val + '; path=/';
+            document.cookie = 'googtrans=' + val + '; path=/; domain=' + location.hostname;
+            location.reload();
+        }
+        function toggleLangDropdown(e) {
+            e.stopPropagation();
+            document.getElementById('langDropdown').classList.toggle('open');
+        }
+        document.addEventListener('click', function () {
+            var dd = document.getElementById('langDropdown');
+            if (dd) dd.classList.remove('open');
+        });
+        (function () {
+            var m = document.cookie.match(/googtrans=\/vi\/([^;]+)/);
+            if (!m) return;
+            var map = { 'en': 'EN', 'zh-TW': '中文', 'ja': '日本語' };
+            if (map[m[1]]) {
+                document.getElementById('langBtnLabel').textContent = map[m[1]];
+                document.querySelectorAll('.lang-option').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.lang === m[1]);
+                });
+            }
+        })();
+    </script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+</body>
+
+</html>

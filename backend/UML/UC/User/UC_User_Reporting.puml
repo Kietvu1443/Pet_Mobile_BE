@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+actor User
+
+
+  (Báo cáo thú cưng) as report
+  (Xác thực người dùng) as auth
+  (Kiểm tra dữ liệu) as validate
+  (Lưu báo cáo) as save
+
+  report --> auth : <<include>>
+  report --> validate : <<include>>
+  report --> save : <<include>>
+
+
+User --> report
+
+@enduml

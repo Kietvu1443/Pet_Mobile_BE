@@ -1,0 +1,17 @@
+@startuml
+left to right direction
+actor Staff
+
+rectangle "Quản lý Hồ sơ Nhận nuôi" {
+  (Xem danh sách hồ sơ đăng ký) as view_requests
+  (Xét duyệt hồ sơ) as approve_req
+  (Từ chối hồ sơ) as reject_req
+  (Liên hệ người nhận nuôi) as contact_user
+}
+
+Staff --> view_requests
+Staff --> approve_req
+Staff --> reject_req
+Staff --> contact_user
+
+@enduml

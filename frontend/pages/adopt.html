@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Nhận nuôi thú cưng - Pet Helper">
+    <title>Nhận Nuôi Thú Cưng - Pet Helper</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/staticHeader.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .adopt-hero {
+            background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%);
+            color: white !important;
+            padding: 60px 20px;
+            margin-top: 0;
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .adopt-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .adopt-hero p {
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .adopt-filters {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            min-width: 200px;
+        }
+
+        .pets-section {
+            background: #f1f8f5;
+            padding: 60px 20px;
+            min-height: 400px;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .pet-card {
+            background: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eee;
+            transition: 0.3s;
+        }
+
+        .pet-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(45, 106, 79, 0.2);
+            border-color: #2d6a4f;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .card-tag {
+            background: #d8f3dc;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #2d6a4f;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #1b4332;
+        }
+
+        .card-text {
+            color: #64748B;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .pet-info {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            color: #64748B;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #64748B;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .card-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-list-favorite {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid #fecaca;
+            background: #fff;
+            color: #e11d48;
+            cursor: pointer;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-list-favorite:hover {
+            background: #fff1f2;
+            transform: scale(1.05);
+        }
+
+        .btn-list-favorite.is-liked {
+            background: #ffe4e6;
+            border-color: #fda4af;
+            color: #be123c;
+        }
+
+        .btn-list-favorite:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            color: #1b4332;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #64748B;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .adopt-hero {
+                padding: 40px 16px;
+            }
+
+            .adopt-hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .adopt-filters {
+                max-width: 100%;
+            }
+
+            .filter-group select,
+            .filter-group input {
+                min-width: 0;
+                width: 100%;
+            }
+
+            .pets-section {
+                padding: 30px 12px;
+            }
+
+            .card-grid {
+                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+                gap: 16px;
+            }
+
+            .card-image {
+                height: 190px;
+            }
+
+            .card-body {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .adopt-hero {
+                padding: 30px 12px;
+            }
+
+            .adopt-hero h1 {
+                font-size: 1.5rem;
+            }
+
+            .adopt-hero p {
+                font-size: 0.9rem;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card-image {
+                height: 200px;
+            }
+
+            .empty-state {
+                padding: 50px 16px;
+            }
+
+            .empty-icon {
+                font-size: 3rem;
+            }
+        }
+    </style>
+    <style id="gtranslate-css">
+        .lang-switcher {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .lang-switcher-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 8px;
+            padding: 5px 10px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.18s;
+            white-space: nowrap;
+        }
+
+        .lang-switcher-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .lang-switcher-btn svg {
+            width: 14px;
+            height: 14px;
+            opacity: .8;
+        }
+
+        .lang-switcher-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            min-width: 140px;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .lang-switcher-dropdown.open {
+            display: block;
+        }
+
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
+            transition: background 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .lang-option:hover {
+            background: #f1f5f9;
+        }
+
+        .lang-option.active {
+            background: #f0fdf4;
+            color: #166534;
+            font-weight: 600;
+        }
+
+        .lang-option .flag {
+            font-size: 16px;
+        }
+
+        .goog-te-banner-frame,
+        .skiptranslate {
+            display: none !important;
+        }
+
+        body {
+            top: 0 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="top-bar">
+            <a href="/" class="logo-group">
+                <div class="logo-circle">
+                    <img src="/images/the_logo.webp" alt="logo" id="the_logo">
+                </div>
+                <div class="web-name">PET HELPER</div>
+            </a>
+            <div class="user-actions">
+                <div class="auth-user-actions is-auth-hidden" id="headerAuthUserState">
+                    <div class="user-dropdown" id="headerUserDropdown">
+                        <span id="userDropdownBtn" style="cursor: pointer;">
+                            <span id="headerDisplayNameText">Tài khoản</span> ▼
+                        </span>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-header">
+                                <strong id="headerDropdownDisplayName">Tài khoản</strong>
+                                <span class="user-role" id="headerUserRole">👤 User</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="/profile" class="dropdown-item">👤 Tài khoản</a>
+                            <a href="/my-favorites" class="dropdown-item">❤️ Thú cưng đã yêu thích</a>
+                            <a href="/my-reports" class="dropdown-item">📋 Báo cáo của tôi</a>
+                            <a href="/adopt/admin/add" class="dropdown-item role-staff-only is-auth-hidden">🐾 Thêm thú
+                                cưng</a>
+                            <a href="/admin" class="dropdown-item role-admin-only is-auth-hidden">⚙️ Quản trị</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item logout" id="logoutBtn" onclick="handleLogout(event)">🚪
+                                Đăng xuất</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-guest-actions is-auth-visible" id="headerAuthGuestState">
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('login'); } return false;"><span>Đăng
+                            nhập</span></a>
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('register'); } return false;"><span>Đăng
+                            ký</span></a>
+                </div>
+                <span>Giỏ hàng <span id="cart-count-display">(0)</span></span>
+                <div class="lang-switcher" id="langSwitcher">
+                    <button class="lang-switcher-btn" onclick="toggleLangDropdown(event)" id="langBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" />
+                        </svg>
+                        <span id="langBtnLabel">VI</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </button>
+                    <div class="lang-switcher-dropdown" id="langDropdown">
+                        <button class="lang-option active" onclick="setLang('vi','VI')" data-lang="vi"><span
+                                class="flag">🇻🇳</span> Tiếng Việt</button>
+                        <button class="lang-option" onclick="setLang('/en','EN')" data-lang="en"><span
+                                class="flag">🇺🇸</span> English</button>
+                        <button class="lang-option" onclick="setLang('/zh-TW','中文')" data-lang="zh-TW"><span
+                                class="flag">🇹🇼</span> 中文</button>
+                        <button class="lang-option" onclick="setLang('/ja','日本語')" data-lang="ja"><span
+                                class="flag">🇯🇵</span> 日本語</button>
+                    </div>
+                </div>
+            </div>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Mở menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+
+        <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+
+        <nav class="main-nav" id="mainNav">
+            <button class="mobile-nav-close" id="mobileNavClose" aria-label="Đóng menu">✕</button>
+            <ul>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Nhận nuôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/adopt">Xem vật nuôi có thể nhận nuôi</a></li>
+                        <li><a href="/snap" style="color: #ea580c; font-weight: bold;">PetSnap(Tìm kiếm thú cưng ngẫu
+                                hứng!)</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Thất lạc <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/reports">Báo mất thú cưng</a></li>
+                        <li><a href="/reports">Báo tin nhặt được</a></li>
+                        <li><a href="/about">Mẹo tìm kiếm hiệu quả</a></li>
+                        <li><a href="/reports/list">Xem báo cáo thất lạc</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Dịch vụ <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/booking">Đặt lịch tiêm phòng</a></li>
+                        <li><a href="/shop">Danh mục đồ ăn/ đồ dùng</a></li>
+                    </ul>
+                </li>
+                <li><a href="/news">Tin tức</a></li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Về chúng tôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/about">Thông tin về chúng tôi</a></li>
+                        <li><a href="#contact-section">Liên hệ với chúng tôi</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="auth-overlay-mount"></div>
+    <script src="/javascripts/authOverlayLoader.js" defer></script>
+
+    <section class="adopt-hero">
+        <div class="container">
+            <h1>🐾 Nhận Nuôi Thú Cưng</h1>
+            <p>Tìm người bạn đồng hành mới từ danh sách thú cưng đang chờ được nhận nuôi</p>
+
+            <div class="adopt-filters">
+                <div class="filter-group">
+                    <select id="speciesFilter">
+                        <option value="">Tất cả loài</option>
+                        <option value="Chó">🐕 Chó</option>
+                        <option value="Mèo">🐱 Mèo</option>
+                        <option value="Khác">🐰 Khác</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm theo tên...">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pets-section">
+        <div class="container">
+            <div id="petsApiLoading"
+                style="display:none; text-align:center; padding:14px; margin-bottom:16px; background:#e7f5ec; color:#1b4332; border-radius:10px;">
+                Đang tải danh sách thú cưng mới nhất...
+            </div>
+            <div id="petsApiError"
+                style="display:none; text-align:center; padding:14px; margin-bottom:16px; background:#fff4e5; color:#9a3412; border-radius:10px;">
+                Có lỗi trong quá trình xử lí danh sách web vui lòng thử lại sau.
+            </div>
+
+            <div id="petsListContainer">
+                <div class="empty-state">
+                    <div class="empty-icon">🐾</div>
+                    <h3>Đang tải danh sách thú cưng</h3>
+                    <p>Vui lòng chờ trong giây lát...</p>
+                </div>
+            </div>
+
+            <div id="petsPaginationControls"
+                style="display:flex; justify-content:center; align-items:center; gap:12px; margin-top:20px;">
+                <button id="petsPrevBtn" type="button"
+                    style="padding:8px 14px; border:1px solid #2d6a4f; border-radius:8px; background:#fff; color:#2d6a4f; cursor:pointer;">
+                    Trước
+                </button>
+                <span id="petsPageInfo" style="color:#1b4332; font-weight:600; min-width:90px; text-align:center;">Trang
+                    1</span>
+                <button id="petsNextBtn" type="button"
+                    style="padding:8px 14px; border:1px solid #2d6a4f; border-radius:8px; background:#2d6a4f; color:#fff; cursor:pointer;">
+                    Sau
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="/" class="logo">
+                    <span style="font-size: 1.5rem;">🐾</span>
+                    <span>Pet Helper</span>
+                </a>
+                <p>Nền tảng hỗ trợ và bảo vệ vật nuôi hàng đầu Việt Nam. Cùng nhau xây dựng cộng đồng yêu thương động
+                    vật - Green Project 2026.</p>
+            </div>
+
+            <div class="footer-links">
+                <h4>Dịch vụ</h4>
+                <ul>
+                    <li><a href="/adopt">Nhận nuôi thú cưng</a></li>
+                    <li><a href="/reports">Báo cáo thất lạc</a></li>
+                    <li><a href="/shop">Cửa hàng</a></li>
+                    <li><a href="/tracking">Theo dõi vật nuôi</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Hỗ trợ</h4>
+                <ul>
+                    <li><a href="#">Hướng dẫn</a></li>
+                    <li><a href="#">Câu hỏi thường gặp</a></li>
+                    <li><a href="#contact-section">Liên hệ</a></li>
+                    <li><a href="#">Chính sách</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Liên hệ</h4>
+                <ul>
+                    <li>📧 support@pethelper.vn</li>
+                    <li>📞 1900-XXXX</li>
+                    <li>📍 BDU UNIS Campus</li>
+                    <li>🕐 8:00 - 18:00</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 Pet Helper Green Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/javascripts/staticHeader.js"></script>
+    <script src="/javascripts/staticFooter.js"></script>
+    <script>
+        const speciesFilter = document.getElementById('speciesFilter');
+        const searchInput = document.getElementById('searchInput');
+        const petsApiLoading = document.getElementById('petsApiLoading');
+        const petsApiError = document.getElementById('petsApiError');
+        const petsListContainer = document.getElementById('petsListContainer');
+        const petsPrevBtn = document.getElementById('petsPrevBtn');
+        const petsNextBtn = document.getElementById('petsNextBtn');
+        const petsPageInfo = document.getElementById('petsPageInfo');
+
+        const PETS_PER_PAGE = 9;
+        let currentPage = 1;
+        let totalPages = 1;
+        let hasNextPage = false;
+        let isLoadingPets = false;
+        let currentAuthUser = null;
+        let favoritePetIds = new Set();
+        const favoriteInFlight = new Set();
+
+        function getPetsGrid() {
+            return document.getElementById('petsGrid');
+        }
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function getTagLabel(petType) {
+            if (petType === 'Chó') return '🐕 Chó';
+            if (petType === 'Mèo') return '🐱 Mèo';
+            return '🐰 ' + (petType || 'Khác');
+        }
+
+        function getGenderLabel(gender) {
+            if (!gender) return '';
+            return (gender === 'Đực' ? '♂️' : '♀️') + ' ' + gender;
+        }
+
+        function getDescriptionText(description) {
+            const text = String(description || '');
+            if (!text) return '';
+            return text.substring(0, 130) + (text.length > 130 ? '...' : '');
+        }
+
+        function renderPetCard(pet) {
+            const imageUrl = pet.avatar_image || pet.image_url || 'https://via.placeholder.com/400x220?text=No+Image';
+            const name = escapeHtml(pet.name || '');
+            const petType = escapeHtml(pet.pet_type || '');
+            const breed = escapeHtml(pet.breed || '');
+            const age = escapeHtml(pet.age || '');
+            const gender = escapeHtml(getGenderLabel(pet.gender));
+            const weight = escapeHtml(pet.weight || '');
+            const color = escapeHtml(pet.color || '');
+            const vaccination = escapeHtml(pet.vaccination || '');
+            const petCode = escapeHtml(pet.pet_code || '');
+            const description = escapeHtml(getDescriptionText(pet.description));
+            const imageId = escapeHtml(pet.id || '');
+            const isLiked = favoritePetIds.has(Number(pet.id));
+            const favoriteClass = isLiked ? 'is-liked' : '';
+            const favoriteIcon = isLiked ? '❤️' : '🤍';
+
+            return `
+                <div class="pet-card" data-species="${petType}" data-name="${name.toLowerCase()}">
+                    <img src="${escapeHtml(imageUrl)}" alt="${name}" class="card-image" loading="lazy" onerror="fallbackPetImage(this, '${imageId}')">
+                    <div class="card-body">
+                        <span class="card-tag">${escapeHtml(getTagLabel(pet.pet_type))}</span>
+                        <h3 class="card-title">${name}</h3>
+                        ${petCode ? `<p style="font-size: 0.8rem; color: #2d6a4f; margin-bottom: 8px;">Mã: ${petCode}</p>` : ''}
+                        <p class="card-text">${description}</p>
+
+                        <div class="pet-info">
+                            ${breed ? `<span>🐾 ${breed}</span>` : ''}
+                            ${age ? `<span>🎂 ${age}</span>` : ''}
+                            ${gender ? `<span>${gender}</span>` : ''}
+                            ${weight ? `<span>⚖️ ${weight}</span>` : ''}
+                            ${color ? `<span>🎨 ${color}</span>` : ''}
+                        </div>
+
+                        <div class="card-meta">
+                            <span>${vaccination ? `💉 ${vaccination}` : ''}</span>
+                            <div class="card-actions">
+                                <button
+                                    type="button"
+                                    class="btn-list-favorite ${favoriteClass}"
+                                    data-pet-id="${imageId}"
+                                    title="Yêu thích"
+                                >${favoriteIcon}</button>
+                                <a href="/adopt/${imageId}" class="btn-green">Xem chi tiết</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        const parseJsonSafe = async (response) => {
+            try {
+                return await response.json();
+            } catch (error) {
+                return null;
+            }
+        };
+
+        const openLoginOverlay = () => {
+            if (typeof window.openLoginOverlaySafely === 'function') {
+                window.openLoginOverlaySafely();
+                return;
+            }
+            if (typeof openOverlay === 'function') {
+                openOverlay('auth-overlay');
+            }
+            if (typeof overlayActivateTab === 'function') {
+                overlayActivateTab('login');
+            }
+        };
+
+        const syncFavoriteButtonUi = (button, isLiked) => {
+            if (!button) return;
+            button.classList.toggle('is-liked', !!isLiked);
+            button.textContent = isLiked ? '❤️' : '🤍';
+        };
+
+        async function hydrateFavoriteContext() {
+            currentAuthUser = null;
+            favoritePetIds = new Set();
+
+            try {
+                const meResponse = await fetch('/api/v1/auth/me', {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' },
+                    credentials: 'same-origin',
+                });
+
+                if (meResponse.status === 401) {
+                    return;
+                }
+
+                const mePayload = await parseJsonSafe(meResponse);
+                if (!meResponse.ok || !mePayload || !mePayload.data || !mePayload.data.user) {
+                    return;
+                }
+
+                currentAuthUser = mePayload.data.user;
+
+                const favoritesResponse = await fetch('/api/v1/favorites/my', {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' },
+                    credentials: 'same-origin',
+                    __skipUnauthorizedHandler: true
+                });
+
+                if (!favoritesResponse.ok) {
+                    return;
+                }
+
+                const favoritesPayload = await parseJsonSafe(favoritesResponse);
+                const favorites = favoritesPayload && favoritesPayload.data
+                    ? favoritesPayload.data.favorites
+                    : [];
+
+                favoritePetIds = new Set((Array.isArray(favorites) ? favorites : []).map((item) => Number(item.id)));
+            } catch (error) {
+                currentAuthUser = null;
+                favoritePetIds = new Set();
+            }
+        }
+
+        petsListContainer.addEventListener('click', async (event) => {
+            const button = event.target.closest('.btn-list-favorite');
+            if (!button) return;
+
+            const petId = Number(button.dataset.petId || 0);
+            if (!petId) return;
+
+            if (!currentAuthUser) {
+                openLoginOverlay();
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'info',
+                    title: 'Vui lòng đăng nhập để yêu thích thú cưng',
+                    showConfirmButton: false,
+                    timer: 2000,
+                });
+                return;
+            }
+
+            if (favoriteInFlight.has(petId)) return;
+            favoriteInFlight.add(petId);
+            button.disabled = true;
+
+            const wasLiked = button.classList.contains('is-liked');
+            const nextLiked = !wasLiked;
+            syncFavoriteButtonUi(button, nextLiked);
+
+            const method = wasLiked ? 'DELETE' : 'POST';
+
+            try {
+                const response = await fetch(`/api/v1/favorites/${petId}`, {
+                    method,
+                    headers: { Accept: 'application/json' },
+                    credentials: 'same-origin',
+                });
+
+                const payload = await parseJsonSafe(response);
+
+                if (response.status === 401) {
+                    openLoginOverlay();
+                    throw new Error('Vui lòng đăng nhập để cập nhật yêu thích.');
+                }
+
+                if (!response.ok) {
+                    throw new Error((payload && payload.message) || 'Không thể cập nhật yêu thích.');
+                }
+
+                const data = payload && payload.data ? payload.data : {};
+                const isLiked = typeof data.isLiked === 'boolean' ? data.isLiked : nextLiked;
+
+                syncFavoriteButtonUi(button, isLiked);
+
+                if (isLiked) {
+                    favoritePetIds.add(petId);
+                } else {
+                    favoritePetIds.delete(petId);
+                }
+            } catch (error) {
+                syncFavoriteButtonUi(button, wasLiked);
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: error.message || 'Không thể cập nhật yêu thích',
+                    showConfirmButton: false,
+                    timer: 2200,
+                });
+            } finally {
+                favoriteInFlight.delete(petId);
+                button.disabled = false;
+            }
+        });
+
+        function renderEmptyState() {
+            return `
+                <div class="empty-state">
+                    <div class="empty-icon">🐾</div>
+                    <h3>Chưa có thú cưng nào</h3>
+                    <p>Hiện tại chưa có thú cưng nào trong danh sách nhận nuôi</p>
+                </div>
+            `;
+        }
+
+        function applyPetsToGrid(pets) {
+            if (!petsListContainer) return;
+
+            if (!Array.isArray(pets) || pets.length === 0) {
+                petsListContainer.innerHTML = renderEmptyState();
+                return;
+            }
+
+            const cardsHtml = pets.map(renderPetCard).join('');
+            petsListContainer.innerHTML = `<div class="card-grid" id="petsGrid">${cardsHtml}</div>`;
+        }
+
+        function setApiLoading(isLoading) {
+            if (!petsApiLoading) return;
+            petsApiLoading.style.display = isLoading ? 'block' : 'none';
+        }
+
+        function showApiError(show) {
+            if (!petsApiError) return;
+            petsApiError.style.display = show ? 'block' : 'none';
+        }
+
+        function setButtonState(button, enabled, activeStyle) {
+            if (!button) return;
+            button.disabled = !enabled;
+            button.style.opacity = enabled ? '1' : '0.5';
+            button.style.cursor = enabled ? 'pointer' : 'not-allowed';
+            if (activeStyle === 'dark') {
+                button.style.background = enabled ? '#2d6a4f' : '#94a3b8';
+                button.style.borderColor = enabled ? '#2d6a4f' : '#94a3b8';
+                button.style.color = '#fff';
+            }
+        }
+
+        function updatePaginationUi() {
+            if (petsPageInfo) {
+                petsPageInfo.textContent = `Trang ${currentPage}`;
+            }
+            setButtonState(petsPrevBtn, currentPage > 1, 'light');
+            setButtonState(petsNextBtn, hasNextPage, 'dark');
+        }
+
+        function parsePagedPets(apiResult, requestedPage) {
+            const rawPets = apiResult && apiResult.data && Array.isArray(apiResult.data.pets)
+                ? apiResult.data.pets
+                : [];
+
+            const paginationMeta = (apiResult && apiResult.data && apiResult.data.pagination)
+                ? apiResult.data.pagination
+                : null;
+
+            if (rawPets.length > PETS_PER_PAGE && !paginationMeta) {
+                const localTotalPages = Math.max(1, Math.ceil(rawPets.length / PETS_PER_PAGE));
+                const safePage = Math.min(Math.max(1, requestedPage), localTotalPages);
+                const start = (safePage - 1) * PETS_PER_PAGE;
+                const pets = rawPets.slice(start, start + PETS_PER_PAGE);
+
+                return {
+                    pets,
+                    page: safePage,
+                    pages: localTotalPages,
+                    hasNext: safePage < localTotalPages,
+                };
+            }
+
+            const apiPageRaw = paginationMeta && (paginationMeta.page || paginationMeta.currentPage);
+            const apiPagesRaw = paginationMeta && (paginationMeta.totalPages || paginationMeta.pages);
+            const apiTotalRaw = paginationMeta && paginationMeta.total;
+
+            const page = Number(apiPageRaw) > 0 ? Number(apiPageRaw) : requestedPage;
+            let pages = Number(apiPagesRaw) > 0 ? Number(apiPagesRaw) : 1;
+
+            if (pages === 1 && Number(apiTotalRaw) > PETS_PER_PAGE) {
+                pages = Math.ceil(Number(apiTotalRaw) / PETS_PER_PAGE);
+            }
+
+            const pets = rawPets.slice(0, PETS_PER_PAGE);
+            const hasNext = page < pages || (pages === 1 && pets.length === PETS_PER_PAGE);
+
+            return {
+                pets,
+                page,
+                pages,
+                hasNext,
+            };
+        }
+
+        async function hydratePetsFromApi(requestedPage = 1) {
+            if (isLoadingPets) return;
+
+            isLoadingPets = true;
+            setApiLoading(true);
+            showApiError(false);
+
+            const search = searchInput ? searchInput.value.trim() : '';
+            const species = speciesFilter ? speciesFilter.value : '';
+
+            const previousPage = currentPage;
+            const previousTotalPages = totalPages;
+            const previousHasNextPage = hasNextPage;
+
+            try {
+                const url = `/api/v1/pets?page=${requestedPage}&limit=${PETS_PER_PAGE}&search=${encodeURIComponent(search)}&species=${encodeURIComponent(species)}`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                    credentials: 'same-origin',
+                });
+
+                if (!response.ok) {
+                    throw new Error('API response is not OK');
+                }
+
+                const result = await response.json();
+                if (!result || result.success !== true || !result.data || !Array.isArray(result.data.pets)) {
+                    throw new Error('Invalid API payload');
+                }
+
+                const parsed = parsePagedPets(result, requestedPage);
+                applyPetsToGrid(parsed.pets);
+
+                currentPage = parsed.page;
+                totalPages = parsed.pages;
+                hasNextPage = parsed.hasNext;
+
+                updatePaginationUi();
+            } catch (error) {
+                console.warn('[Adopt] Failed to load pets from API.', error);
+                currentPage = previousPage;
+                totalPages = previousTotalPages;
+                hasNextPage = previousHasNextPage;
+                applyPetsToGrid([]);
+                showApiError(true);
+                updatePaginationUi();
+            } finally {
+                isLoadingPets = false;
+                setApiLoading(false);
+            }
+        }
+
+        let searchDebounceTimeout;
+        if (speciesFilter) {
+            speciesFilter.addEventListener('change', () => {
+                hydratePetsFromApi(1);
+            });
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchDebounceTimeout);
+                searchDebounceTimeout = setTimeout(() => {
+                    hydratePetsFromApi(1);
+                }, 500);
+            });
+        }
+
+        if (petsPrevBtn) {
+            petsPrevBtn.addEventListener('click', function () {
+                if (currentPage <= 1) return;
+                hydratePetsFromApi(currentPage - 1);
+            });
+        }
+
+        if (petsNextBtn) {
+            petsNextBtn.addEventListener('click', function () {
+                if (!hasNextPage) return;
+                hydratePetsFromApi(currentPage + 1);
+            });
+        }
+
+        (async () => {
+            updatePaginationUi();
+            await hydrateFavoriteContext();
+            await hydratePetsFromApi(currentPage);
+        })();
+    </script>
+    <div id="google_translate_element" style="display:none"></div>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ pageLanguage: 'vi', includedLanguages: 'vi,en,zh-TW,ja', autoDisplay: false }, 'google_translate_element');
+        }
+        function setLang(lang, label) {
+            document.getElementById('langBtnLabel').textContent = label;
+            document.querySelectorAll('.lang-option').forEach(function (el) {
+                el.classList.toggle('active', el.dataset.lang === (lang === 'vi' ? 'vi' : lang.replace('/', '')));
+            });
+            document.getElementById('langDropdown').classList.remove('open');
+            if (lang === 'vi') {
+                document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname;
+                location.reload(); return;
+            }
+            var val = '/vi' + lang;
+            document.cookie = 'googtrans=' + val + '; path=/';
+            document.cookie = 'googtrans=' + val + '; path=/; domain=' + location.hostname;
+            location.reload();
+        }
+        function toggleLangDropdown(e) {
+            e.stopPropagation();
+            document.getElementById('langDropdown').classList.toggle('open');
+        }
+        document.addEventListener('click', function () {
+            var dd = document.getElementById('langDropdown');
+            if (dd) dd.classList.remove('open');
+        });
+        (function () {
+            var m = document.cookie.match(/googtrans=\/vi\/([^;]+)/);
+            if (!m) return;
+            var map = { 'en': 'EN', 'zh-TW': '中文', 'ja': '日本語' };
+            if (map[m[1]]) {
+                document.getElementById('langBtnLabel').textContent = map[m[1]];
+                document.querySelectorAll('.lang-option').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.lang === m[1]);
+                });
+            }
+        })();
+    </script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script>
+        /* ── User Background Apply ── */
+        (function () {
+            function applyBg(val) {
+                var styleId = '__user_bg_style';
+                var el = document.getElementById(styleId);
+                if (!el) {
+                    el = document.createElement('style');
+                    el.id = styleId;
+                    document.head.appendChild(el);
+                }
+                if (!val) { el.textContent = ''; return; }
+                var bgRule = val && !/^(#|rgb\(|rgba\(|hsl\(|hsla\(|transparent$|inherit$|initial$|unset$)/i.test(val)
+                    ? 'background-image:url("' + val + '")!important;background-size:cover!important;background-attachment:fixed!important;background-repeat:no-repeat!important;background-position:center!important;background-color:transparent!important;'
+                    : 'background-color:' + val + '!important;background-image:none!important;';
+                el.textContent = [
+                    'body{' + bgRule + '}',
+                    'main,#main,.main,.profile-page,.page-wrapper,.page-body,.content-wrapper,.container-fluid,.app-content,.site-content,.page-content,.adopt-page,.admin-page,.reports-page,.favorites-page,.pets-section,.adopt-filters,.adopt-main,.page-section{background:transparent!important;}'
+                ].join('');
+            }
+
+            window.applyUserBackground = applyBg;
+
+            var _orig = window.applyHeaderUserState;
+            window.applyHeaderUserState = function (user) {
+                if (_orig) _orig(user);
+                if (user && user.bg_preference) applyBg(user.bg_preference);
+            };
+
+            window.addEventListener('load', function () {
+                fetch('/api/v1/auth/me', { credentials: 'include' })
+                    .then(function (r) { return r.ok ? r.json() : null; })
+                    .then(function (data) {
+                        if (data && data.success && data.data && data.data.user && data.data.user.bg_preference) {
+                            applyBg(data.data.user.bg_preference);
+                        }
+                    }).catch(function () { });
+            });
+        })();
+    </script>
+</body>
+
+</html>

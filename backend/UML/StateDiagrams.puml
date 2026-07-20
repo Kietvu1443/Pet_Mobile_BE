@@ -1,0 +1,36 @@
+@startuml
+left to right direction
+
+' ===== USER =====
+state User {
+    [*] --> Unverified
+    Unverified --> Verified : verify (khi nhận nuôi)
+
+    Verified --> Banned : admin ban
+    Banned --> Verified : unban
+}
+
+' ===== PET =====
+state Pet {
+    [*] --> Available
+    Available --> Pending : có yêu cầu
+    Pending --> Adopted : duyệt
+    Pending --> Available : từ chối
+}
+
+' ===== ADOPTION =====
+state Adoption {
+    [*] --> Pending
+    Pending --> Approved
+    Pending --> Rejected
+}
+
+' ===== REPORT =====
+state Report {
+    [*] --> Pending
+    Pending --> Approved
+    Pending --> Rejected
+    Approved --> Resolved
+}
+
+@enduml

@@ -1,0 +1,39 @@
+@startuml
+actor Staff
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+participant "Cloud Storage" as Cloud
+
+== Thêm pet ==
+
+Staff -> FE : Nhập thông tin pet + ảnh
+FE -> BE : POST /admin/pets
+
+BE -> BE : Kiểm tra quyền staff
+BE -> Cloud : Upload ảnh
+Cloud --> BE : image_url
+
+BE -> DB : Insert pet
+BE -> DB : Insert pet_images
+
+BE --> FE : Thành công
+FE --> Staff : "Thêm pet thành công"
+
+== Sửa pet ==
+
+Staff -> FE : Cập nhật thông tin
+FE -> BE : PUT /admin/pets/{id}
+
+BE -> DB : Update pet
+BE --> FE : Thành công
+
+== Xóa pet ==
+
+Staff -> FE : Xóa pet
+FE -> BE : DELETE /admin/pets/{id}
+
+BE -> DB : Delete pet
+BE --> FE : Thành công
+
+@enduml

@@ -1,0 +1,2529 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thong Tin Tai Khoan - Pet Helper</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/auth.css">
+    <link rel="stylesheet" href="/stylesheets/staticHeader.css">
+    <!-- Tailwind CDN (preflight disabled to protect global Header/Footer styles) -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            corePlugins: {
+                preflight: false
+            },
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'on-primary': '#ffffff',
+                        'on-background': '#191c1a',
+                        'tertiary': '#0d1e31',
+                        'surface-container': '#edeee9',
+                        'primary-fixed-dim': '#9dd3ab',
+                        'status-approved-bg': '#f0fdf4',
+                        'inverse-on-surface': '#f0f1ec',
+                        'sidebar-glass': 'rgba(255,255,255,0.7)',
+                        'on-secondary-container': '#3b6d4c',
+                        'on-error-container': '#93000a',
+                        'error': '#ba1a1a',
+                        'tertiary-container': '#233347',
+                        'surface': '#f8faf5',
+                        'surface-bright': '#f8faf5',
+                        'surface-tint': '#376848',
+                        'on-tertiary': '#ffffff',
+                        'status-pending-bg': '#fffbeb',
+                        'secondary': '#376848',
+                        'primary-container': '#023a1e',
+                        'inverse-primary': '#9dd3ab',
+                        'status-approved-text': '#15803d',
+                        'primary': '#00220f',
+                        'secondary-fixed': '#b9efc6',
+                        'on-primary-container': '#72a580',
+                        'background': '#f8faf5',
+                        'surface-container-low': '#f3f4ef',
+                        'status-error-text': '#b91c1c',
+                        'on-tertiary-fixed-variant': '#38485d',
+                        'on-primary-fixed': '#00210e',
+                        'inverse-surface': '#2e312e',
+                        'on-secondary-fixed-variant': '#1e5032',
+                        'on-surface-variant': '#414942',
+                        'on-secondary-fixed': '#00210f',
+                        'on-secondary': '#ffffff',
+                        'surface-gradient-end': '#f7f9f7',
+                        'on-error': '#ffffff',
+                        'tertiary-fixed-dim': '#b7c8e1',
+                        'status-pending-text': '#b45309',
+                        'secondary-fixed-dim': '#9ed3ac',
+                        'surface-container-highest': '#e1e3de',
+                        'outline-variant': '#c0c9bf',
+                        'tertiary-fixed': '#d3e4fe',
+                        'surface-gradient-start': '#f0f4f1',
+                        'surface-container-high': '#e7e9e4',
+                        'on-surface': '#191c1a',
+                        'surface-dim': '#d9dbd6',
+                        'surface-container-lowest': '#ffffff',
+                        'on-primary-fixed-variant': '#1e5032',
+                        'outline': '#717971',
+                        'on-tertiary-container': '#8b9bb4',
+                        'on-tertiary-fixed': '#0b1c30',
+                        'secondary-container': '#b6ecc4',
+                        'primary-fixed': '#b9efc6',
+                        'status-error-bg': '#fef2f2',
+                        'surface-variant': '#e1e3de',
+                        'error-container': '#ffdad6'
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        '2xl': '1rem',
+                        '3xl': '1.5rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        /* ── Profile Page Body ────────────────────────────────────── */
+        .profile-main {
+            font-family: 'Inter', sans-serif;
+            min-height: calc(100vh - 140px);
+            background: radial-gradient(circle at top left, #f0f4f1, #f7f9f7);
+        }
+
+        .premium-card {
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 28px;
+            box-shadow: 0 12px 40px -10px rgba(0,34,15,0.05), 0 4px 12px -4px rgba(0,34,15,0.02);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
+        }
+        .premium-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.7);
+            box-shadow: 0 20px 50px -12px rgba(0,34,15,0.08);
+        }
+
+        .profile-title { color: #023a1e; font-weight: 800; letter-spacing: -0.03em; }
+
+        /* Status notes */
+        .status-note {
+            display: none;
+            padding: 1.25rem;
+            border-radius: 1.25rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            animation: slideDown 0.4s ease;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .status-note.warning { display: block; background: #fffbeb; color: #b45309; border: 1px solid rgba(180,83,9,0.1); }
+        .status-note.error   { display: block; background: #fef2f2; color: #b91c1c; border: 1px solid rgba(185,28,28,0.1); }
+        .status-note.success { display: block; background: #f0fdf4; color: #15803d; border: 1px solid rgba(21,128,61,0.1); }
+
+        /* Loading box */
+        .loading-box {
+            display: none;
+            background: rgba(231,233,228,0.6);
+            backdrop-filter: blur(8px);
+            color: #191c1a;
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+        }
+        .loading-box.show { display: block; }
+
+        /* Premium inputs */
+        .input-premium {
+            width: 100%;
+            background: rgba(255,255,255,0.8);
+            border: 1.5px solid #e1e3de;
+            border-radius: 16px;
+            padding: 0.875rem 1.125rem;
+            transition: all 0.3s ease;
+            outline: none;
+            color: #191c1a;
+            font-size: 0.9375rem;
+            font-family: 'Inter', sans-serif;
+        }
+        .input-premium:focus {
+            border-color: #376848;
+            box-shadow: 0 0 0 4px rgba(55,104,72,0.08);
+            background: #ffffff;
+        }
+        .input-premium:disabled {
+            background: #f3f4ef;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Primary button */
+        .btn-primary-premium {
+            background: #023a1e;
+            color: #ffffff;
+            font-weight: 700;
+            padding: 0.875rem 1.75rem;
+            border-radius: 18px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+            box-shadow: 0 6px 15px rgba(2,58,30,0.15);
+        }
+        .btn-primary-premium:hover:not(:disabled) {
+            background: #00220f;
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(2,58,30,0.22);
+        }
+        .btn-primary-premium:active:not(:disabled) { transform: scale(0.98); }
+        .btn-primary-premium:disabled {
+            background: #c0c9bf;
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+
+        /* Secondary button */
+        .btn-secondary-premium {
+            background: rgba(237,238,233,0.8);
+            color: #191c1a;
+            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            border-radius: 16px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary-premium:hover { background: #e1e3de; transform: translateY(-1px); }
+        .btn-secondary-premium:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* Summary items */
+        .summary-item {
+            background: rgba(255,255,255,0.4);
+            border: 1px solid rgba(192,201,191,0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: background 0.3s ease;
+        }
+        .summary-item:hover { background: rgba(255,255,255,0.6); }
+
+        /* Verify state badges */
+        .verify-state-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.6875rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .verify-state-badge.verified   { color: #15803d; background: rgba(240,253,244,0.8); }
+        .verify-state-badge.unverified { color: #b91c1c; background: rgba(254,242,242,0.8); }
+
+        /* Avatar frame */
+        .avatar-frame {
+            position: relative;
+            width: 110px;
+            height: 110px;
+            border-radius: 36px;
+            background: linear-gradient(135deg, #b9efc6 0%, #376848 100%);
+            padding: 4px;
+            box-shadow: 0 12px 30px rgba(55,104,72,0.12);
+            flex-shrink: 0;
+        }
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 32px;
+            object-fit: cover;
+        }
+        .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            border-radius: 32px;
+            background: rgba(237,238,233,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #376848;
+        }
+
+        /* Background swatches */
+        .bg-swatch {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            border: 3px solid transparent;
+            flex-shrink: 0;
+        }
+        .bg-swatch:hover { transform: scale(1.15); }
+        .bg-swatch.selected { border-color: #023a1e; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #023a1e; }
+        .bg-swatch.bg-image-swatch {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        /* Connected account items */
+        .connected-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid rgba(192,201,191,0.15);
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .connected-item:last-child { border-bottom: none; }
+        .connected-item-info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+        .connected-item-icon {
+            width: 40px; height: 40px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; flex-shrink: 0; font-weight: 700;
+        }
+        .connected-item-icon--google   { background: #e8f0fe; color: #4285F4; }
+        .connected-item-icon--facebook { background: #e7f0fd; color: #1877F2; }
+        .connected-item-icon--passkey  { background: #f0fdf4; color: #2d6a4f; }
+        .connected-item-name  { font-weight: 700; font-size: 0.9rem; color: #191c1a; }
+        .connected-item-email { font-size: 0.8rem; color: #717971; word-break: break-all; }
+        .connected-item-meta  { font-size: 0.78rem; color: #717971; }
+        .connected-item-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+        .connected-badge-linked {
+            font-size: 0.72rem; font-weight: 700; padding: 3px 10px;
+            border-radius: 9999px; background: #dcfce7; color: #166534; white-space: nowrap;
+        }
+        .connected-badge-unlinked {
+            font-size: 0.72rem; font-weight: 700; padding: 3px 10px;
+            border-radius: 9999px; background: #f3f4ef; color: #717971; white-space: nowrap;
+        }
+
+        .btn-connected-link {
+            padding: 8px 16px; border-radius: 14px; font-size: 0.825rem; font-weight: 700;
+            cursor: pointer; border: 1.5px solid #023a1e; color: #023a1e;
+            background: rgba(2, 58, 30, 0.03); font-family: 'Inter', sans-serif;
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .btn-connected-link:hover { background: #023a1e; color: #fff; transform: translateY(-1px) scale(1.03); box-shadow: 0 4px 12px rgba(2,58,30,0.15); }
+        .btn-connected-link:active { transform: scale(0.97); }
+
+        .btn-connected-unlink {
+            padding: 8px 16px; border-radius: 14px; font-size: 0.825rem; font-weight: 700;
+            cursor: pointer; border: 1.5px solid #ba1a1a; color: #ba1a1a;
+            background: rgba(186, 26, 26, 0.03); font-family: 'Inter', sans-serif;
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .btn-connected-unlink:hover { background: #ba1a1a; color: #fff; transform: translateY(-1px) scale(1.03); box-shadow: 0 4px 12px rgba(186,26,26,0.15); }
+        .btn-connected-unlink:active { transform: scale(0.97); }
+
+        /* Passkey */
+        .passkey-label-input {
+            border: 1.5px solid #c0c9bf; border-radius: 10px; padding: 5px 10px;
+            font-size: 0.82rem; outline: none; width: 130px; font-family: 'Inter', sans-serif;
+        }
+        .passkey-label-input:focus { border-color: #376848; box-shadow: 0 0 0 3px rgba(55,104,72,0.1); }
+        .backed-up-badge { font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px; }
+        .backed-up-badge--yes { background: #dcfce7; color: #166534; }
+        .backed-up-badge--no  { background: #f3f4ef; color: #717971; }
+
+        /* OTP confirm inline box */
+        .otp-confirm-box {
+            display: none;
+            margin-top: 14px;
+            padding: 18px 22px;
+            background: rgba(254, 243, 219, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1.5px solid rgba(251, 146, 60, 0.3);
+            border-radius: 20px;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: 0 8px 30px rgba(234, 88, 12, 0.04);
+            animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .otp-confirm-box.visible { display: flex; }
+        .otp-confirm-box input {
+            border: 1.5px solid rgba(251, 146, 60, 0.4);
+            border-radius: 14px;
+            padding: 8px 14px;
+            font-size: 1rem;
+            width: 135px;
+            letter-spacing: 4px;
+            font-weight: 700;
+            text-align: center;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+            color: #ea580c;
+            transition: all 0.3s ease;
+        }
+        .otp-confirm-box input:focus {
+            border-color: #ea580c;
+            box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.12);
+            background: #ffffff;
+        }
+        .otp-confirm-box p {
+            margin: 0 0 4px 0;
+            font-size: 0.875rem;
+            color: #ea580c;
+            font-weight: 700;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Hint texts */
+        .otp-hint {
+            font-size: 0.8125rem; font-weight: 600; color: #717971;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .otp-hint.error   { color: #b91c1c; }
+        .otp-hint.success { color: #15803d; }
+        .pwd-hint { font-size: 0.8125rem; font-weight: 600; color: #717971; margin-top: 1rem; }
+        .pwd-hint.error   { color: #b91c1c; }
+        .pwd-hint.success { color: #15803d; }
+
+        /* Forgot password link */
+        .pwd-forgot-link {
+            color: #023a1e; font-size: 0.875rem; font-weight: 700;
+            text-decoration: none; cursor: pointer; display: inline-flex;
+            align-items: center; gap: 4px; transition: opacity 0.2s;
+        }
+        .pwd-forgot-link:hover { opacity: 0.75; text-decoration: underline; }
+
+        /* Material Symbols */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .icon-accent { color: #376848; opacity: 0.9; }
+
+        /* Connected loading */
+        .connected-loading {
+            color: #717971; font-size: 0.875rem; padding: 1rem;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* SweetAlert2 Custom Theme */
+        .swal2-popup.premium-swal {
+            font-family: 'Inter', sans-serif !important;
+            background: rgba(255,255,255,0.92) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(255,255,255,0.5) !important;
+            border-radius: 28px !important;
+            box-shadow: 0 20px 60px rgba(0,34,15,0.12) !important;
+            padding: 2rem !important;
+        }
+        .swal2-popup.premium-swal .swal2-title {
+            color: #023a1e !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.02em !important;
+        }
+        .swal2-popup.premium-swal .swal2-html-container,
+        .swal2-popup.premium-swal .swal2-content {
+            color: #414942 !important;
+        }
+        .swal2-popup.premium-swal .swal2-confirm {
+            background: #023a1e !important;
+            border-radius: 14px !important;
+            font-weight: 700 !important;
+            font-family: 'Inter', sans-serif !important;
+            box-shadow: 0 4px 12px rgba(2,58,30,0.2) !important;
+            padding: 0.75rem 1.75rem !important;
+        }
+        .swal2-popup.premium-swal .swal2-cancel {
+            background: rgba(237,238,233,0.9) !important;
+            color: #191c1a !important;
+            border-radius: 14px !important;
+            font-weight: 700 !important;
+            font-family: 'Inter', sans-serif !important;
+            padding: 0.75rem 1.75rem !important;
+        }
+        .swal2-popup.premium-swal .swal2-input {
+            border: 1.5px solid #e1e3de !important;
+            border-radius: 14px !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+        .swal2-popup.premium-swal .swal2-input:focus {
+            border-color: #376848 !important;
+            box-shadow: 0 0 0 4px rgba(55,104,72,0.08) !important;
+        }
+
+        /* Spin animation */
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .animate-spin { animation: spin 1s linear infinite; display: inline-block; }
+    </style>
+
+    <style id="gtranslate-css">
+        /* Custom language switcher */
+        .lang-switcher {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .lang-switcher-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 8px;
+            padding: 5px 10px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.18s;
+            white-space: nowrap;
+        }
+
+        .lang-switcher-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .lang-switcher-btn svg {
+            width: 14px;
+            height: 14px;
+            opacity: .8;
+        }
+
+        .lang-switcher-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            min-width: 140px;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .lang-switcher-dropdown.open {
+            display: block;
+        }
+
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
+            transition: background 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .lang-option:hover {
+            background: #f1f5f9;
+        }
+
+        .lang-option.active {
+            background: #f0fdf4;
+            color: #166534;
+            font-weight: 600;
+        }
+
+        .lang-option .flag {
+            font-size: 16px;
+        }
+
+        /* Ẩn thanh Google Translate */
+        .goog-te-banner-frame,
+        .skiptranslate {
+            display: none !important;
+        }
+
+        body {
+            top: 0 !important;
+        }
+
+        iframe.skiptranslate {
+            display: none !important;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+    <header class="header">
+        <div class="top-bar">
+            <a href="/" class="logo-group">
+                <div class="logo-circle">
+                    <img src="/images/the_logo.webp" alt="logo" id="the_logo">
+                </div>
+                <div class="web-name">PET HELPER</div>
+            </a>
+            <div class="user-actions">
+                <div class="auth-user-actions is-auth-hidden" id="headerAuthUserState">
+                    <div class="user-dropdown" id="headerUserDropdown">
+                        <span id="userDropdownBtn" style="cursor: pointer;">
+                            <span id="headerDisplayNameText">Tài khoản</span> ▼
+                        </span>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-header">
+                                <strong id="headerDropdownDisplayName">Tài khoản</strong>
+                                <span class="user-role" id="headerUserRole">👤 User</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="/profile" class="dropdown-item">👤 Tài khoản</a>
+                            <a href="/my-favorites" class="dropdown-item">❤️ Thú cưng đã yêu thích</a>
+                            <a href="/my-reports" class="dropdown-item">📋 Báo cáo của tôi</a>
+                            <a href="/my-adoption-requests" class="dropdown-item">🏠 Yêu cầu nhận nuôi</a>
+                            <a href="/adopt/admin/add" class="dropdown-item role-staff-only is-auth-hidden">🐾 Thêm thú
+                                cưng</a>
+                            <a href="/admin" class="dropdown-item role-management-link is-auth-hidden"
+                                id="headerManagementLink">🛠️ Quản lý</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item logout" id="logoutBtn" onclick="handleLogout(event)">🚪
+                                Đăng xuất</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-guest-actions is-auth-visible" id="headerAuthGuestState">
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('login'); } return false;"><span>Đăng
+                            nhập</span></a>
+                    <a href="#"
+                        onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('register'); } return false;"><span>Đăng
+                            ký</span></a>
+                </div>
+                <span>Giỏ hàng <span id="cart-count-display">(0)</span></span>
+                <div class="lang-switcher" id="langSwitcher">
+                    <button class="lang-switcher-btn" onclick="toggleLangDropdown(event)" id="langBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" />
+                        </svg>
+                        <span id="langBtnLabel">VI</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </button>
+                    <div class="lang-switcher-dropdown" id="langDropdown">
+                        <button class="lang-option active" onclick="setLang('vi','VI')" data-lang="vi"><span
+                                class="flag">🇻🇳</span> Tiếng Việt</button>
+                        <button class="lang-option" onclick="setLang('/en','EN')" data-lang="en"><span
+                                class="flag">🇺🇸</span> English</button>
+                        <button class="lang-option" onclick="setLang('/zh-TW','中文')" data-lang="zh-TW"><span
+                                class="flag">🇹🇼</span> 中文</button>
+                        <button class="lang-option" onclick="setLang('/ja','日本語')" data-lang="ja"><span
+                                class="flag">🇯🇵</span> 日本語</button>
+                    </div>
+                </div>
+            </div>
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Mở menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+
+        <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+
+        <nav class="main-nav" id="mainNav">
+            <button class="mobile-nav-close" id="mobileNavClose" aria-label="Đóng menu">✕</button>
+            <ul>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Nhận nuôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/adopt">Xem vật nuôi có thể nhận nuôi</a></li>
+                        <li><a href="/snap" style="color: #ea580c; font-weight: bold;">PetSnap (Tìm kiếm ngẫu hứng!)</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Thất lạc <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/lost">Báo mất thú cưng</a></li>
+                        <li><a href="/found">Báo tin nhặt được</a></li>
+                        <li><a href="/reports/list">Xem báo cáo thất lạc</a></li>
+                        <li><a href="/tips">Mẹo tìm kiếm hiệu quả</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Dịch vụ <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="/booking">Đặt lịch tiêm phòng</a></li>
+                        <li><a href="/shop">Danh mục đồ ăn/ đồ dùng</a></li>
+                    </ul>
+                </li>
+                <li><a href="/news">Tin tức</a></li>
+                <li>
+                    <a href="#" class="has-dropdown nav-item">Về chúng tôi <span class="nav-arrow arrow">▼</span></a>
+                    <ul class="nav-dropdown">
+                        <li><a href="#contact-section">Liên hệ với chúng tôi</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="auth-overlay-mount"></div>
+    <script src="/javascripts/authOverlayLoader.js" defer></script>
+
+    <main class="profile-main py-16 px-4">
+        <div class="max-w-4xl mx-auto" style="font-family:'Inter',sans-serif;">
+            <!-- Header Section -->
+            <div class="premium-card text-center mb-12" style="padding: 2.25rem 2rem;">
+                <h1 class="profile-title" style="font-size:2.5rem;margin:0 0 0.75rem;">Thông Tin Tài Khoản</h1>
+                <p style="color:#191c1a;font-weight:600;font-size:1.0625rem;margin:0;opacity:0.9;">Quản lý không gian cá nhân và bảo mật của bạn tại Pet Helper</p>
+            </div>
+
+            <div id="statusNote" class="status-note" aria-live="polite"></div>
+            <div id="loadingBox" class="loading-box show">
+                <span class="material-symbols-outlined animate-spin" style="margin-right:8px;">sync</span>
+                Đang kết nối dữ liệu...
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:2.5rem;">
+                <!-- Quick Overview Card -->
+                <article class="premium-card" style="padding:2.5rem;">
+                    <div style="display:flex;flex-direction:column;gap:2.5rem;align-items:center;" class="md:flex-row">
+                        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:2.5rem;width:100%;">
+                            <!-- Avatar -->
+                            <div class="avatar-frame" id="avatarPreviewWrap">
+                                <div class="avatar-placeholder" id="avatarPlaceholder">
+                                    <span class="material-symbols-outlined" style="font-size:2.5rem;">pets</span>
+                                </div>
+                            </div>
+                            <!-- Name + role -->
+                            <div style="flex:1;min-width:0;">
+                                <h2 style="font-size:1.75rem;font-weight:800;color:#023a1e;margin:0 0 0.25rem;letter-spacing:-0.02em;" id="summaryDisplayName">-</h2>
+                                <p style="color:#717971;font-weight:500;margin:0 0 1.25rem;font-size:0.9375rem;" id="summaryEmail">-</p>
+                                <div style="display:flex;flex-wrap:wrap;gap:0.75rem;">
+                                    <span class="verify-state-badge" style="background:rgba(182,236,196,0.4);color:#1e5032;font-size:0.6875rem;" id="summaryRole">USER</span>
+                                    <span class="verify-state-badge unverified" id="summaryVerify">CHƯA XÁC THỰC</span>
+                                </div>
+                            </div>
+                            <!-- Avatar actions -->
+                            <div style="display:flex;flex-direction:column;gap:0.75rem;align-items:flex-start;">
+                                <label class="btn-primary-premium" for="avatarFileInput" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;padding:0.75rem 1.25rem;font-size:0.875rem;">
+                                    <span class="material-symbols-outlined" style="font-size:1.25rem;">upload</span>
+                                    Tải ảnh
+                                </label>
+                                <input type="file" accept="image/*" id="avatarFileInput" style="display:none;">
+                                <button class="btn-secondary-premium" id="removeAvatarBtn" style="display:none;font-size:0.8125rem;padding:0.625rem 1rem;align-items:center;gap:6px;">
+                                    <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
+                                    Xóa
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="avatarStatus" style="text-align:center;font-size:0.8125rem;font-weight:600;color:#717971;min-height:1.25rem;margin-top:0.75rem;"></div>
+                    <!-- Summary grid -->
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.25rem;margin-top:1.75rem;">
+                        <div class="summary-item">
+                            <p style="font-size:0.625rem;text-transform:uppercase;font-weight:800;color:#717971;letter-spacing:0.12em;margin:0 0 0.5rem;">Họ và tên</p>
+                            <p style="font-weight:700;color:#191c1a;font-size:1.0625rem;margin:0;" id="summaryName">-</p>
+                        </div>
+                        <div class="summary-item">
+                            <p style="font-size:0.625rem;text-transform:uppercase;font-weight:800;color:#717971;letter-spacing:0.12em;margin:0 0 0.5rem;">Tên đăng nhập</p>
+                            <p style="font-weight:700;color:#191c1a;font-size:1.0625rem;margin:0;" id="summaryDisplayNameSub">-</p>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Basic Info Form Card -->
+                <article class="premium-card" style="padding:2.5rem;">
+                    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:2rem;">
+                        <span class="material-symbols-outlined icon-accent" style="font-size:1.75rem;">edit_note</span>
+                        <h3 style="font-size:1.375rem;font-weight:700;color:#023a1e;margin:0;">Hồ sơ cá nhân</h3>
+                    </div>
+                    <form id="profileForm" style="display:flex;flex-direction:column;gap:1.75rem;">
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.75rem;">
+                            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+                                <label style="font-size:0.6875rem;font-weight:800;color:#414942;text-transform:uppercase;letter-spacing:0.08em;" for="inputDisplayName">Tên đăng nhập</label>
+                                <input class="input-premium" id="inputDisplayName" maxlength="100" name="display_name" required type="text">
+                            </div>
+                            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+                                <label style="font-size:0.6875rem;font-weight:800;color:#414942;text-transform:uppercase;letter-spacing:0.08em;" for="inputName">Họ và tên</label>
+                                <input class="input-premium" id="inputName" maxlength="100" name="name" required type="text">
+                            </div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:0.625rem;">
+                            <label style="font-size:0.6875rem;font-weight:800;color:#414942;text-transform:uppercase;letter-spacing:0.08em;" for="inputEmail">Email liên hệ</label>
+                            <input class="input-premium" id="inputEmail" maxlength="255" name="email" required type="email">
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;padding-top:0.5rem;">
+                            <button class="btn-primary-premium" id="saveBtn" type="submit" style="display:inline-flex;align-items:center;gap:8px;min-width:160px;justify-content:center;">
+                                <span class="material-symbols-outlined" style="font-size:1.25rem;">save</span>
+                                Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </article>
+
+                <!-- Email Verification Card -->
+                <article class="premium-card" style="padding:2.5rem;">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2rem;gap:1rem;flex-wrap:wrap;">
+                        <div style="display:flex;align-items:flex-start;gap:1rem;">
+                            <span class="material-symbols-outlined icon-accent" style="font-size:1.75rem;margin-top:2px;">verified_user</span>
+                            <div>
+                                <h3 style="font-size:1.375rem;font-weight:700;color:#023a1e;margin:0 0 0.375rem;">Xác thực tài khoản</h3>
+                                <p style="font-size:0.875rem;color:#717971;margin:0;font-weight:500;" id="verifyDescription">Tăng độ tin cậy và mở khóa toàn bộ tính năng bảo mật.</p>
+                            </div>
+                        </div>
+                        <span class="verify-state-badge unverified" id="verifyBadge">CHƯA XÁC THỰC</span>
+                    </div>
+                    <div id="verifyActions" style="background:rgba(243,244,239,0.5);backdrop-filter:blur(8px);padding:2rem;border-radius:24px;border:1px solid rgba(255,255,255,0.4);">
+                        <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:1rem;">
+                            <button class="btn-primary-premium" id="sendOtpBtn" type="button" style="white-space:nowrap;">Gửi mã OTP</button>
+                            <div style="display:flex;align-items:center;gap:0.75rem;flex:1;min-width:240px;">
+                                <input class="input-premium" id="otpInput" inputmode="numeric" maxlength="6" placeholder="••••••" type="text" style="text-align:center;letter-spacing:0.4em;font-weight:700;font-size:1.25rem;">
+                                <button class="btn-secondary-premium" id="verifyOtpBtn" type="button" style="white-space:nowrap;padding:0.875rem 1.5rem;">Xác thực</button>
+                            </div>
+                        </div>
+                        <p class="otp-hint" id="otpHint">
+                            <span class="material-symbols-outlined" style="font-size:1rem;">info</span>
+                            Mã OTP gồm 6 chữ số gửi qua email của bạn, có hiệu lực trong 5 phút.
+                        </p>
+                    </div>
+                </article>
+
+                <!-- Password Change Card -->
+                <article class="premium-card" style="padding:2.5rem;">
+                    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:2rem;">
+                        <span class="material-symbols-outlined icon-accent" style="font-size:1.75rem;">lock</span>
+                        <h3 style="font-size:1.375rem;font-weight:700;color:#023a1e;margin:0;">Bảo mật mật khẩu</h3>
+                    </div>
+                    <!-- Mode: Old password -->
+                    <div id="pwdModeOld" style="display:flex;flex-direction:column;gap:1.5rem;">
+                        <div style="display:flex;flex-direction:column;gap:0.625rem;">
+                            <label style="font-size:0.6875rem;font-weight:800;color:#414942;text-transform:uppercase;letter-spacing:0.08em;" for="inputOldPassword">Mật khẩu hiện tại</label>
+                            <input class="input-premium" id="inputOldPassword" type="password" maxlength="255">
+                        </div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;">
+                            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+                                <label style="font-size:0.6875rem;font-weight:800;color:#414942;text-transform:uppercase;letter-spacing:0.08em;" for="inputNewPassword">Mật khẩu mới</label>
+                                <input class="input-premium" id="inputNewPassword" placeholder="Ít nhất 8 ký tự" type="password" maxlength="255">
+                            </div>
+                            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+                                <label style="font-size:0.6875rem;font-weight:800;color:#414942;text-transform:uppercase;letter-spacing:0.08em;" for="inputConfirmNewPassword">Xác nhận mật khẩu</label>
+                                <input class="input-premium" id="inputConfirmNewPassword" placeholder="Nhập lại mật khẩu mới" type="password" maxlength="255">
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:1.5rem;padding-top:0.5rem;flex-wrap:wrap;">
+                            <a href="#" class="pwd-forgot-link" id="pwdForgotLink">
+                                <span class="material-symbols-outlined" style="font-size:1rem;">help</span>
+                                Quên mật khẩu? Gửi mã OTP
+                            </a>
+                            <button class="btn-primary-premium" id="pwdChangeBtn" type="button" style="display:inline-flex;align-items:center;gap:8px;">
+                                <span class="material-symbols-outlined" style="font-size:1.25rem;">key</span>
+                                Cập nhật mật khẩu
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Mode: OTP Password Reset -->
+                    <div id="pwdModeOtp" style="display:none;flex-direction:column;gap:1.5rem;">
+                        <div style="background:rgba(231,233,228,0.6);backdrop-filter:blur(8px);padding:1.25rem;border-radius:18px;font-size:0.875rem;font-weight:600;color:#414942;border:1px solid rgba(255,255,255,0.3);">
+                            Xác minh OTP để đặt mật khẩu mới mà không cần mật khẩu cũ.
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:0.625rem;">
+                            <label style="font-size:0.6875rem;font-weight:800;color:#414942;text-transform:uppercase;letter-spacing:0.08em;">Xác thực mã</label>
+                            <div style="display:flex;gap:0.75rem;">
+                                <input class="input-premium" id="pwdOtpInput" maxlength="6" placeholder="Mã OTP" type="text" style="text-align:center;font-weight:700;letter-spacing:0.25em;font-size:1.125rem;">
+                                <button class="btn-secondary-premium" id="pwdSendOtpBtn" type="button" style="white-space:nowrap;">Gửi mã</button>
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;">
+                            <input class="input-premium" id="inputNewPasswordOtp" placeholder="Mật khẩu mới" type="password" maxlength="255">
+                            <input class="input-premium" id="inputConfirmNewPasswordOtp" placeholder="Xác nhận lại" type="password" maxlength="255">
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.5rem;">
+                            <a href="#" class="pwd-forgot-link" id="pwdBackToOldLink" style="color:#717971;">
+                                <span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>
+                                Quay lại
+                            </a>
+                            <button class="btn-primary-premium" id="pwdChangeOtpBtn" type="button">Xác nhận đổi</button>
+                        </div>
+                    </div>
+                    <p class="pwd-hint" id="pwdHint"></p>
+                </article>
+
+                <!-- Personalization Card -->
+                <article class="premium-card" style="padding:2.5rem;">
+                    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:2.5rem;">
+                        <span class="material-symbols-outlined icon-accent" style="font-size:1.75rem;">palette</span>
+                        <h3 style="font-size:1.375rem;font-weight:700;color:#023a1e;margin:0;">Cá nhân hóa giao diện</h3>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:2.5rem;">
+                        <!-- Background colors -->
+                        <div>
+                            <p style="font-size:0.6875rem;font-weight:800;color:#414942;text-transform:uppercase;letter-spacing:0.12em;margin:0 0 1.25rem;display:flex;align-items:center;gap:6px;">
+                                <span class="material-symbols-outlined" style="font-size:0.875rem;">colors</span>
+                                Màu nền trang web
+                            </p>
+                            <div id="bgPalette" style="display:flex;flex-wrap:wrap;gap:1rem;">
+                                <div class="bg-swatch reset-swatch" data-bg="" title="Mặc định" style="border:2px dashed #c0c9bf;display:flex;align-items:center;justify-content:center;">
+                                    <span class="material-symbols-outlined" style="font-size:1.25rem;color:#717971;">refresh</span>
+                                </div>
+                                <div class="bg-swatch" data-bg="#f0fdf4" style="background:#f0fdf4;" title="Xanh lá nhạt"></div>
+                                <div class="bg-swatch" data-bg="#fef3c7" style="background:#fef3c7;" title="Vàng kem"></div>
+                                <div class="bg-swatch" data-bg="#ffe4e6" style="background:#ffe4e6;" title="Hồng nhạt"></div>
+                                <div class="bg-swatch" data-bg="#e0f2fe" style="background:#e0f2fe;" title="Xanh dương nhạt"></div>
+                                <div class="bg-swatch" data-bg="#f5f3ff" style="background:#f5f3ff;" title="Tím nhạt"></div>
+                                <div class="bg-swatch" data-bg="#1a1a2e" style="background:#1a1a2e;" title="Tối"></div>
+                            </div>
+                        </div>
+                        <!-- Background image upload -->
+                        <div>
+                            <p style="font-size:0.6875rem;font-weight:800;color:#414942;text-transform:uppercase;letter-spacing:0.12em;margin:0 0 1.25rem;display:flex;align-items:center;gap:6px;">
+                                <span class="material-symbols-outlined" style="font-size:0.875rem;">image</span>
+                                Hoặc sử dụng ảnh nền
+                            </p>
+                            <label for="bgFileInput" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:10rem;border:2px dashed rgba(192,201,191,0.6);border-radius:24px;cursor:pointer;transition:all 0.3s ease;">
+                                <span class="material-symbols-outlined" style="font-size:2.5rem;color:#717971;margin-bottom:0.75rem;">add_photo_alternate</span>
+                                <p style="font-size:0.875rem;font-weight:700;color:#414942;margin:0;">Nhấn để tải ảnh lên</p>
+                                <p style="font-size:0.75rem;color:#717971;margin:0.375rem 0 0;font-weight:500;">Định dạng PNG, JPG • Tối đa 5MB</p>
+                            </label>
+                            <input type="file" accept="image/*" id="bgFileInput" style="display:none;">
+                            <div id="bgPreviewBar" style="margin-top:1.5rem;padding:1rem;background:rgba(237,238,233,0.6);backdrop-filter:blur(8px);border-radius:18px;display:flex;align-items:center;justify-content:center;min-height:3.5rem;overflow:hidden;border:1px solid rgba(255,255,255,0.4);">
+                                <span style="font-size:0.625rem;font-weight:800;color:#717971;text-transform:uppercase;letter-spacing:0.2em;">Xem trước nền</span>
+                            </div>
+                            <div style="display:flex;justify-content:flex-end;margin-top:2rem;">
+                                <button class="btn-primary-premium" id="saveBgBtn" type="button" style="display:inline-flex;align-items:center;gap:8px;padding:0.875rem 2.5rem;">
+                                    <span class="material-symbols-outlined" style="font-size:1.25rem;">save_as</span>
+                                    Lưu tùy chỉnh
+                                </button>
+                            </div>
+                            <div id="bgStatus" style="margin-top:0.75rem;font-size:0.75rem;text-align:center;font-weight:700;color:rgba(2,58,30,0.6);min-height:1.25rem;"></div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Security & Connections -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2.5rem;">
+                    <!-- Connected Accounts -->
+                    <article class="premium-card" id="connectedAccountsSection" style="padding:2rem;">
+                        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;">
+                            <span class="material-symbols-outlined icon-accent" style="font-size:1.5rem;">link</span>
+                            <h3 style="font-size:1.25rem;font-weight:700;color:#023a1e;margin:0;">Tài khoản liên kết</h3>
+                        </div>
+                        <div id="connectedList">
+                            <div class="connected-loading">
+                                <span class="material-symbols-outlined animate-spin" style="font-size:1rem;">sync</span>
+                                Đang tải...
+                            </div>
+                        </div>
+                    </article>
+                    <!-- Passkeys -->
+                    <article class="premium-card" id="passkeysSection" style="padding:2rem;">
+                        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+                            <span class="material-symbols-outlined icon-accent" style="font-size:1.5rem;">passkey</span>
+                            <h3 style="font-size:1.25rem;font-weight:700;color:#023a1e;margin:0;">Passkeys</h3>
+                        </div>
+                        <p style="font-size:0.75rem;color:#717971;margin:0 0 1.5rem;font-weight:500;">Đăng nhập nhanh bảo mật bằng vân tay hoặc FaceID.</p>
+                        <div id="passkeysList">
+                            <div class="connected-loading">
+                                <span class="material-symbols-outlined animate-spin" style="font-size:1rem;">sync</span>
+                                Đang tải...
+                            </div>
+                        </div>
+                        <button class="btn-primary-premium" id="addPasskeyBtn" onclick="addNewPasskey()" type="button" style="margin-top:2rem;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:transparent;color:#023a1e;border:2px dashed rgba(2,58,30,0.3);box-shadow:none;transition:all 0.3s;">
+                            <span class="material-symbols-outlined" style="font-size:1.25rem;">add_circle</span>
+                            Thêm thiết bị mới
+                        </button>
+                        <p class="pwd-hint" id="passkeyHint" style="text-align:center;text-transform:uppercase;letter-spacing:0.08em;margin-top:0.75rem;"></p>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="/" class="logo">
+                    <span style="font-size: 1.5rem;">🐾</span>
+                    <span>Pet Helper</span>
+                </a>
+                <p>Nền tảng hỗ trợ và bảo vệ vật nuôi hàng đầu Việt Nam. Cùng nhau xây dựng cộng đồng yêu thương động
+                    vật - Green Project 2026.</p>
+            </div>
+
+            <div class="footer-links">
+                <h4>Dịch vụ</h4>
+                <ul>
+                    <li><a href="/adopt">Nhận nuôi thú cưng</a></li>
+                    <li><a href="/reports">Báo cáo thất lạc</a></li>
+                    <li><a href="/shop">Cửa hàng</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Liên hệ</h4>
+                <ul>
+                    <li>📧 support@pethelper.vn</li>
+                    <li>📞 1900-XXXX</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 Pet Helper Green Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/javascripts/staticHeader.js"></script>
+    <script src="/javascripts/staticFooter.js"></script>
+
+    <script>
+        const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const MAX_DISPLAY_NAME_LENGTH = 100;
+        const MAX_NAME_LENGTH = 100;
+        const MAX_EMAIL_LENGTH = 255;
+
+        const statusNote = document.getElementById('statusNote');
+        const loadingBox = document.getElementById('loadingBox');
+        const profileForm = document.getElementById('profileForm');
+        const saveBtn = document.getElementById('saveBtn');
+        const sendOtpBtn = document.getElementById('sendOtpBtn');
+        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+        const otpInput = document.getElementById('otpInput');
+        const otpHint = document.getElementById('otpHint');
+        const verifyBadge = document.getElementById('verifyBadge');
+        const verifyDescription = document.getElementById('verifyDescription');
+        const verifyActions = document.getElementById('verifyActions');
+
+        const summaryDisplayName = document.getElementById('summaryDisplayName');
+        const summaryName = document.getElementById('summaryName');
+        const summaryEmail = document.getElementById('summaryEmail');
+        const summaryRole = document.getElementById('summaryRole');
+        const summaryVerify = document.getElementById('summaryVerify');
+
+        const inputDisplayName = document.getElementById('inputDisplayName');
+        const inputName = document.getElementById('inputName');
+        const inputEmail = document.getElementById('inputEmail');
+
+        let otpCooldownTimer = null;
+        let otpCooldownSeconds = 0;
+
+        const roleLabel = (role) => {
+            if (role === 0) return 'Admin';
+            if (role === 1) return 'Staff';
+            return 'User';
+        };
+
+        const setNote = (type, message) => {
+            statusNote.className = 'status-note';
+            statusNote.textContent = '';
+            if (!message) return;
+            statusNote.classList.add(type);
+            statusNote.textContent = message;
+        };
+
+        const setLoading = (isLoading) => {
+            loadingBox.classList.toggle('show', Boolean(isLoading));
+        };
+
+        const setFormBusy = (isBusy) => {
+            const busy = Boolean(isBusy);
+            saveBtn.disabled = busy;
+            saveBtn.textContent = busy ? 'Đang lưu...' : 'Lưu thay đổi';
+            inputDisplayName.disabled = busy;
+            inputName.disabled = busy;
+            inputEmail.disabled = busy;
+        };
+
+        const setOtpHint = (type, message) => {
+            otpHint.className = 'otp-hint';
+            if (type === 'error' || type === 'success') {
+                otpHint.classList.add(type);
+            }
+            otpHint.textContent = message || 'Mã OTP gồm 6 chữ số và có hiệu lực trong 5 phút.';
+        };
+
+        const clearOtpCooldown = () => {
+            if (otpCooldownTimer) {
+                window.clearInterval(otpCooldownTimer);
+                otpCooldownTimer = null;
+            }
+            otpCooldownSeconds = 0;
+        };
+
+        const updateSendOtpButtonText = () => {
+            if (otpCooldownSeconds > 0) {
+                sendOtpBtn.textContent = `Gửi lại sau ${otpCooldownSeconds}s`;
+                return;
+            }
+            sendOtpBtn.textContent = 'Gửi mã OTP';
+        };
+
+        const startOtpCooldown = (seconds) => {
+            const duration = Number(seconds) || 60;
+            clearOtpCooldown();
+            otpCooldownSeconds = duration;
+            sendOtpBtn.disabled = true;
+            updateSendOtpButtonText();
+
+            otpCooldownTimer = window.setInterval(() => {
+                otpCooldownSeconds -= 1;
+                if (otpCooldownSeconds <= 0) {
+                    clearOtpCooldown();
+                    sendOtpBtn.disabled = false;
+                }
+                updateSendOtpButtonText();
+            }, 1000);
+        };
+
+        const setVerifiedUi = (isVerified) => {
+            const verified = Number(isVerified) === 1;
+
+            // Update summaryVerify badge
+            summaryVerify.classList.remove('verified', 'unverified');
+            summaryVerify.classList.add(verified ? 'verified' : 'unverified');
+            summaryVerify.textContent = verified ? 'ĐÃ XÁC THỰC' : 'CHƯA XÁC THỰC';
+
+            // Update verifyBadge
+            verifyBadge.classList.remove('verified', 'unverified');
+            verifyBadge.classList.add(verified ? 'verified' : 'unverified');
+            verifyBadge.textContent = verified ? 'ĐÃ XÁC THỰC' : 'CHƯA XÁC THỰC';
+
+            verifyDescription.textContent = verified
+                ? 'Email của bạn đã được xác thực. Tài khoản đã đủ điều kiện thực hiện đầy đủ tính năng.'
+                : 'Xác thực email để mở đầy đủ tính năng nhận nuôi và tăng độ tin cậy tài khoản.';
+
+            if (verified) {
+                verifyActions.style.display = 'none';
+                clearOtpCooldown();
+                otpInput.value = '';
+            } else {
+                verifyActions.style.display = 'block';
+                if (!otpCooldownTimer) {
+                    sendOtpBtn.disabled = false;
+                    updateSendOtpButtonText();
+                }
+            }
+        };
+
+        const openLoginOverlay = () => {
+            if (typeof window.openLoginOverlaySafely === 'function') {
+                window.openLoginOverlaySafely();
+                return;
+            }
+            if (typeof openOverlay === 'function') {
+                openOverlay('auth-overlay');
+            }
+            if (typeof overlayActivateTab === 'function') {
+                overlayActivateTab('login');
+            }
+        };
+
+        const parseJsonSafe = async (response) => {
+            try {
+                return await response.json();
+            } catch (error) {
+                return null;
+            }
+        };
+
+        const normalizeFormValues = () => {
+            return {
+                display_name: String(inputDisplayName.value || '').trim(),
+                name: String(inputName.value || '').trim(),
+                email: String(inputEmail.value || '').trim().toLowerCase(),
+            };
+        };
+
+        const validateProfileValues = (values) => {
+            if (!values.display_name || !values.name || !values.email) {
+                return 'Vui lòng điền đầy đủ thông tin';
+            }
+
+            if (!EMAIL_REGEX.test(values.email)) {
+                return 'Email không đúng định dạng';
+            }
+
+            if (values.display_name.length > MAX_DISPLAY_NAME_LENGTH) {
+                return `Tên đăng nhập không được vượt quá ${MAX_DISPLAY_NAME_LENGTH} ký tự`;
+            }
+
+            if (values.name.length > MAX_NAME_LENGTH) {
+                return `Tên hiển thị không được vượt quá ${MAX_NAME_LENGTH} ký tự`;
+            }
+
+            if (values.email.length > MAX_EMAIL_LENGTH) {
+                return `Email không được vượt quá ${MAX_EMAIL_LENGTH} ký tự`;
+            }
+
+            return '';
+        };
+
+        const renderUser = (user) => {
+            const displayName = user && user.display_name ? user.display_name : '-';
+            const name = user && user.name ? user.name : '-';
+            const email = user && user.email ? user.email : '-';
+            const role = user && typeof user.role === 'number' ? roleLabel(user.role) : '-';
+
+            summaryDisplayName.textContent = displayName;
+            summaryName.textContent = name;
+            summaryEmail.textContent = email;
+            summaryRole.textContent = role;
+
+            inputDisplayName.value = user && user.display_name ? user.display_name : '';
+            inputName.value = user && user.name ? user.name : '';
+            inputEmail.value = user && user.email ? user.email : '';
+
+            setVerifiedUi(user && Number(user.verify) === 1 ? 1 : 0);
+        };
+
+        async function sendOtp() {
+            if (sendOtpBtn.disabled) {
+                return;
+            }
+
+            sendOtpBtn.disabled = true;
+            sendOtpBtn.textContent = 'Đang gửi...';
+            setOtpHint('', 'Đang gửi mã OTP...');
+
+            try {
+                const response = await fetch('/auth/send-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    },
+                    credentials: 'include',
+                });
+
+                const payload = await parseJsonSafe(response);
+
+                if (response.status === 401) {
+                    setOtpHint('error', 'Vui lòng đăng nhập để xác thực tài khoản');
+                    sendOtpBtn.disabled = false;
+                    updateSendOtpButtonText();
+                    openLoginOverlay();
+                    return;
+                }
+
+                if (!response.ok) {
+                    if (payload && payload.waitSeconds) {
+                        startOtpCooldown(payload.waitSeconds);
+                    } else {
+                        sendOtpBtn.disabled = false;
+                        updateSendOtpButtonText();
+                    }
+                    setOtpHint('error', (payload && payload.error) || 'Không thể gửi mã OTP');
+                    return;
+                }
+
+                startOtpCooldown(60);
+                setOtpHint('success', (payload && payload.message) || 'Mã OTP đã được gửi, vui lòng kiểm tra email');
+                otpInput.focus();
+            } catch (error) {
+                sendOtpBtn.disabled = false;
+                updateSendOtpButtonText();
+                setOtpHint('error', 'Đã xảy ra lỗi khi gửi OTP');
+            }
+        }
+
+        async function verifyOtp() {
+            const otp = String(otpInput.value || '').trim();
+            if (!/^\d{6}$/.test(otp)) {
+                setOtpHint('error', 'Vui lòng nhập đúng mã OTP gồm 6 chữ số');
+                return;
+            }
+
+            verifyOtpBtn.disabled = true;
+            verifyOtpBtn.textContent = 'Đang xác thực...';
+
+            try {
+                const response = await fetch('/auth/verify-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ otp }),
+                });
+
+                const payload = await parseJsonSafe(response);
+
+                if (response.status === 401) {
+                    setOtpHint('error', 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại');
+                    openLoginOverlay();
+                    return;
+                }
+
+                if (!response.ok) {
+                    setOtpHint('error', (payload && payload.error) || 'Xác thực OTP thất bại');
+                    return;
+                }
+
+                setOtpHint('success', (payload && payload.message) || 'Xác thực email thành công');
+                setNote('success', 'Tài khoản đã được xác thực email thành công');
+                otpInput.value = '';
+                await loadProfile();
+            } catch (error) {
+                setOtpHint('error', 'Đã xảy ra lỗi khi xác thực OTP');
+            } finally {
+                verifyOtpBtn.disabled = false;
+                verifyOtpBtn.textContent = 'Xác thực OTP';
+            }
+        }
+
+        async function loadProfile() {
+            setLoading(true);
+
+            try {
+                const response = await fetch('/api/v1/auth/me', {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' },
+                    credentials: 'include',
+                });
+
+                const payload = await parseJsonSafe(response);
+
+                if (response.status === 401) {
+                    setNote('warning', 'Vui lòng đăng nhập để xem thông tin tài khoản');
+                    openLoginOverlay();
+                    return;
+                }
+
+                if (!response.ok || !payload || !payload.success || !payload.data || !payload.data.user) {
+                    throw new Error((payload && payload.message) || 'Không thể tải thông tin tài khoản');
+                }
+
+                renderUser(payload.data.user);
+            } catch (error) {
+                setNote('error', error.message || 'Đã xảy ra lỗi, vui lòng thử lại');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function submitProfile(event) {
+            event.preventDefault();
+            setNote('', '');
+
+            const values = normalizeFormValues();
+            const validationMessage = validateProfileValues(values);
+            if (validationMessage) {
+                setNote('error', validationMessage);
+                return;
+            }
+
+            setFormBusy(true);
+
+            try {
+                const response = await fetch('/api/v1/auth/profile', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(values),
+                });
+
+                const payload = await parseJsonSafe(response);
+
+                if (response.status === 401) {
+                    setNote('warning', 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại');
+                    openLoginOverlay();
+                    return;
+                }
+
+                if (!response.ok || !payload || !payload.success) {
+                    throw new Error((payload && payload.message) || 'Không thể cập nhật thông tin tài khoản');
+                }
+
+                setNote('success', payload.message || 'Cập nhật thông tin tài khoản thành công');
+                await loadProfile();
+            } catch (error) {
+                setNote('error', error.message || 'Đã xảy ra lỗi, vui lòng thử lại');
+            } finally {
+                setFormBusy(false);
+            }
+        }
+
+        profileForm.addEventListener('submit', submitProfile);
+        sendOtpBtn.addEventListener('click', sendOtp);
+        verifyOtpBtn.addEventListener('click', verifyOtp);
+        otpInput.addEventListener('input', () => {
+            otpInput.value = otpInput.value.replace(/\D/g, '').slice(0, 6);
+        });
+        otpInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                verifyOtp();
+            }
+        });
+
+        loadProfile();
+
+        // ===== Change Password Logic =====
+        const pwdModeOld = document.getElementById('pwdModeOld');
+        const pwdModeOtp = document.getElementById('pwdModeOtp');
+        const pwdForgotLink = document.getElementById('pwdForgotLink');
+        const pwdBackToOldLink = document.getElementById('pwdBackToOldLink');
+        const pwdChangeBtn = document.getElementById('pwdChangeBtn');
+        const pwdChangeOtpBtn = document.getElementById('pwdChangeOtpBtn');
+        const pwdSendOtpBtn = document.getElementById('pwdSendOtpBtn');
+        const pwdOtpInput = document.getElementById('pwdOtpInput');
+        const pwdHint = document.getElementById('pwdHint');
+
+        let pwdOtpCooldownTimer = null;
+        let pwdOtpCooldownSeconds = 0;
+
+        const setPwdHint = (type, message) => {
+            pwdHint.className = 'pwd-hint';
+            if (type === 'error' || type === 'success') pwdHint.classList.add(type);
+            pwdHint.textContent = message || '';
+        };
+
+        const updatePwdSendOtpButtonText = () => {
+            if (pwdOtpCooldownSeconds > 0) {
+                pwdSendOtpBtn.textContent = `Gửi lại sau ${pwdOtpCooldownSeconds}s`;
+                return;
+            }
+            pwdSendOtpBtn.textContent = 'Gửi mã OTP';
+        };
+
+        const startPwdOtpCooldown = (seconds) => {
+            const duration = Number(seconds) || 60;
+            if (pwdOtpCooldownTimer) window.clearInterval(pwdOtpCooldownTimer);
+            pwdOtpCooldownSeconds = duration;
+            pwdSendOtpBtn.disabled = true;
+            updatePwdSendOtpButtonText();
+            pwdOtpCooldownTimer = window.setInterval(() => {
+                pwdOtpCooldownSeconds -= 1;
+                if (pwdOtpCooldownSeconds <= 0) {
+                    window.clearInterval(pwdOtpCooldownTimer);
+                    pwdOtpCooldownTimer = null;
+                    pwdOtpCooldownSeconds = 0;
+                    pwdSendOtpBtn.disabled = false;
+                }
+                updatePwdSendOtpButtonText();
+            }, 1000);
+        };
+
+        // Switch to OTP mode
+        pwdForgotLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            pwdModeOld.style.display = 'none';
+            pwdModeOtp.style.display = 'flex';
+            setPwdHint('', '');
+        });
+
+        // Switch back to old password mode
+        pwdBackToOldLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            pwdModeOtp.style.display = 'none';
+            pwdModeOld.style.display = 'flex';
+            setPwdHint('', '');
+        });
+
+        // Send OTP for password change
+        pwdSendOtpBtn.addEventListener('click', async () => {
+            if (pwdSendOtpBtn.disabled) return;
+            pwdSendOtpBtn.disabled = true;
+            pwdSendOtpBtn.textContent = 'Đang gửi...';
+            setPwdHint('', 'Đang gửi mã OTP...');
+            try {
+                const response = await fetch('/auth/change-password/send-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    credentials: 'include',
+                });
+                const payload = await parseJsonSafe(response);
+                if (response.status === 401) {
+                    setPwdHint('error', 'Vui lòng đăng nhập lại');
+                    openLoginOverlay();
+                    pwdSendOtpBtn.disabled = false;
+                    updatePwdSendOtpButtonText();
+                    return;
+                }
+                if (!response.ok) {
+                    if (payload && payload.waitSeconds) {
+                        startPwdOtpCooldown(payload.waitSeconds);
+                    } else {
+                        pwdSendOtpBtn.disabled = false;
+                        updatePwdSendOtpButtonText();
+                    }
+                    setPwdHint('error', (payload && payload.error) || 'Không thể gửi mã OTP');
+                    return;
+                }
+                startPwdOtpCooldown(60);
+                setPwdHint('success', (payload && payload.message) || 'Mã OTP đã được gửi, kiểm tra email');
+                pwdOtpInput.focus();
+            } catch (err) {
+                pwdSendOtpBtn.disabled = false;
+                updatePwdSendOtpButtonText();
+                setPwdHint('error', 'Đã xảy ra lỗi khi gửi OTP');
+            }
+        });
+
+        // Change password with old password
+        pwdChangeBtn.addEventListener('click', async () => {
+            const oldPassword = document.getElementById('inputOldPassword').value;
+            const newPassword = document.getElementById('inputNewPassword').value;
+            const confirmNewPassword = document.getElementById('inputConfirmNewPassword').value;
+            if (!oldPassword) { setPwdHint('error', 'Vui lòng nhập mật khẩu hiện tại'); return; }
+            if (!newPassword || newPassword.length < 8) { setPwdHint('error', 'Mật khẩu mới phải có ít nhất 8 ký tự'); return; }
+            if (newPassword !== confirmNewPassword) { setPwdHint('error', 'Mật khẩu xác nhận không khớp'); return; }
+
+            pwdChangeBtn.disabled = true;
+            pwdChangeBtn.textContent = 'Đang xử lý...';
+            setPwdHint('', '');
+            try {
+                const response = await fetch('/auth/change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ oldPassword, newPassword }),
+                });
+                const payload = await parseJsonSafe(response);
+                if (response.status === 401 && payload && payload.error === 'Mật khẩu hiện tại không đúng.') {
+                    setPwdHint('error', payload.error);
+                } else if (response.status === 401) {
+                    setPwdHint('error', 'Vui lòng đăng nhập lại');
+                    openLoginOverlay();
+                } else if (!response.ok) {
+                    setPwdHint('error', (payload && payload.error) || 'Không thể đổi mật khẩu');
+                } else {
+                    setPwdHint('success', (payload && payload.message) || 'Đổi mật khẩu thành công!');
+                    document.getElementById('inputOldPassword').value = '';
+                    document.getElementById('inputNewPassword').value = '';
+                    document.getElementById('inputConfirmNewPassword').value = '';
+                }
+            } catch (err) {
+                setPwdHint('error', 'Đã xảy ra lỗi');
+            } finally {
+                pwdChangeBtn.disabled = false;
+                pwdChangeBtn.textContent = 'Đổi mật khẩu';
+            }
+        });
+
+        // Change password with OTP
+        pwdChangeOtpBtn.addEventListener('click', async () => {
+            const otp = String(pwdOtpInput.value || '').trim();
+            const newPassword = document.getElementById('inputNewPasswordOtp').value;
+            const confirmNewPassword = document.getElementById('inputConfirmNewPasswordOtp').value;
+            if (!/^\d{6}$/.test(otp)) { setPwdHint('error', 'Vui lòng nhập đúng mã OTP 6 chữ số'); return; }
+            if (!newPassword || newPassword.length < 8) { setPwdHint('error', 'Mật khẩu mới phải có ít nhất 8 ký tự'); return; }
+            if (newPassword !== confirmNewPassword) { setPwdHint('error', 'Mật khẩu xác nhận không khớp'); return; }
+
+            pwdChangeOtpBtn.disabled = true;
+            pwdChangeOtpBtn.textContent = 'Đang xử lý...';
+            setPwdHint('', '');
+            try {
+                const response = await fetch('/auth/change-password/with-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ otp, newPassword }),
+                });
+                const payload = await parseJsonSafe(response);
+                if (response.status === 401) {
+                    setPwdHint('error', 'Vui lòng đăng nhập lại');
+                    openLoginOverlay();
+                } else if (!response.ok) {
+                    setPwdHint('error', (payload && payload.error) || 'Không thể đổi mật khẩu');
+                } else {
+                    setPwdHint('success', (payload && payload.message) || 'Đổi mật khẩu thành công!');
+                    pwdOtpInput.value = '';
+                    document.getElementById('inputNewPasswordOtp').value = '';
+                    document.getElementById('inputConfirmNewPasswordOtp').value = '';
+                }
+            } catch (err) {
+                setPwdHint('error', 'Đã xảy ra lỗi');
+            } finally {
+                pwdChangeOtpBtn.disabled = false;
+                pwdChangeOtpBtn.textContent = 'Đổi mật khẩu';
+            }
+        });
+
+        // OTP input: only digits
+        pwdOtpInput.addEventListener('input', () => {
+            pwdOtpInput.value = pwdOtpInput.value.replace(/\D/g, '').slice(0, 6);
+        });
+    </script>
+    <!-- Google Translate engine -->
+    <div id="google_translate_element" style="display:none"></div>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ pageLanguage: 'vi', includedLanguages: 'vi,en,zh-TW,ja', autoDisplay: false }, 'google_translate_element');
+        }
+        function setLang(lang, label) {
+            document.getElementById('langBtnLabel').textContent = label;
+            document.querySelectorAll('.lang-option').forEach(function (el) {
+                el.classList.toggle('active', el.dataset.lang === (lang === 'vi' ? 'vi' : lang.replace('/', '')));
+            });
+            document.getElementById('langDropdown').classList.remove('open');
+            if (lang === 'vi') {
+                document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname;
+                location.reload(); return;
+            }
+            var val = '/vi' + lang;
+            document.cookie = 'googtrans=' + val + '; path=/';
+            document.cookie = 'googtrans=' + val + '; path=/; domain=' + location.hostname;
+            location.reload();
+        }
+        function toggleLangDropdown(e) {
+            e.stopPropagation();
+            document.getElementById('langDropdown').classList.toggle('open');
+        }
+        document.addEventListener('click', function () {
+            var dd = document.getElementById('langDropdown');
+            if (dd) dd.classList.remove('open');
+        });
+        (function () {
+            var m = document.cookie.match(/googtrans=\/vi\/([^;]+)/);
+            if (!m) return;
+            var map = { 'en': 'EN', 'zh-TW': '中文', 'ja': '日本語' };
+            if (map[m[1]]) {
+                document.getElementById('langBtnLabel').textContent = map[m[1]];
+                document.querySelectorAll('.lang-option').forEach(function (el) {
+                    el.classList.toggle('active', el.dataset.lang === m[1]);
+                });
+            }
+        })();
+    </script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script>
+        // ── Avatar & Background Logic ──────────────────────────
+        (function () {
+            var avatarFileInput = document.getElementById('avatarFileInput');
+            var avatarPlaceholder = document.getElementById('avatarPlaceholder');
+            var avatarPreviewWrap = document.getElementById('avatarPreviewWrap');
+            var removeAvatarBtn = document.getElementById('removeAvatarBtn');
+            var avatarStatus = document.getElementById('avatarStatus');
+
+            var bgPalette = document.getElementById('bgPalette');
+            var bgFileInput = document.getElementById('bgFileInput');
+            var bgPreviewBar = document.getElementById('bgPreviewBar');
+            var saveBgBtn = document.getElementById('saveBgBtn');
+            var bgStatus = document.getElementById('bgStatus');
+
+            var selectedBgColor = null;
+            var selectedBgFile = null;
+            var resetBg = false;
+            var LAST_UPLOADED_BG_KEY = 'ph_last_uploaded_bg';
+
+            function isImageBackground(val) {
+                return !!val && !/^(#|rgb\(|rgba\(|hsl\(|hsla\(|transparent$|inherit$|initial$|unset$)/i.test(val);
+            }
+
+            function renderUploadedBgSwatch(val, shouldSelect) {
+                if (!isImageBackground(val)) {
+                    return;
+                }
+
+                var swatch = bgPalette.querySelector('.bg-uploaded-swatch');
+                if (!swatch) {
+                    swatch = document.createElement('div');
+                    swatch.className = 'bg-swatch bg-image-swatch bg-uploaded-swatch';
+                    swatch.title = 'Nền đã tải lên';
+                    swatch.textContent = '🖼️';
+                    bgPalette.appendChild(swatch);
+                }
+
+                swatch.dataset.bg = val;
+                swatch.style.backgroundImage = 'url("' + val + '")';
+
+                if (shouldSelect) {
+                    document.querySelectorAll('.bg-swatch').forEach(function (s) {
+                        s.classList.remove('selected');
+                    });
+                    swatch.classList.add('selected');
+                    selectedBgColor = val;
+                    selectedBgFile = null;
+                    resetBg = false;
+                } else {
+                    swatch.classList.remove('selected');
+                }
+            }
+
+            function storeUploadedBg(val) {
+                if (!isImageBackground(val)) return;
+                try {
+                    localStorage.setItem(LAST_UPLOADED_BG_KEY, val);
+                } catch (e) { }
+            }
+
+            function getStoredUploadedBg() {
+                try {
+                    return localStorage.getItem(LAST_UPLOADED_BG_KEY) || '';
+                } catch (e) {
+                    return '';
+                }
+            }
+
+            // Load avatar hiện tại từ /api/v1/auth/me
+            fetch('/api/v1/auth/me', { credentials: 'include' })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (!data.success) return;
+                    var user = data.data.user;
+                    if (user.avatar) {
+                        setAvatarPreview(user.avatar);
+                    }
+                    if (user.bg_preference) {
+                        if (isImageBackground(user.bg_preference)) {
+                            storeUploadedBg(user.bg_preference);
+                            renderUploadedBgSwatch(user.bg_preference, true);
+                        } else {
+                            var storedBg = getStoredUploadedBg();
+                            if (storedBg) {
+                                renderUploadedBgSwatch(storedBg, false);
+                            }
+                        }
+                        applyBgPreview(user.bg_preference);
+                        // Đánh dấu swatch đang active
+                        document.querySelectorAll('.bg-swatch').forEach(function (s) {
+                            s.classList.toggle('selected', s.dataset.bg === user.bg_preference);
+                        });
+                    } else {
+                        var storedBgFallback = getStoredUploadedBg();
+                        if (storedBgFallback) {
+                            renderUploadedBgSwatch(storedBgFallback, false);
+                        }
+                        document.querySelector('.bg-swatch.reset-swatch').classList.add('selected');
+                    }
+                }).catch(function () { });
+
+            function setAvatarPreview(src) {
+                avatarPreviewWrap.innerHTML = '<img class="avatar-img" src="' + src + '" alt="Avatar">';
+                if (removeAvatarBtn) removeAvatarBtn.style.display = 'flex';
+            }
+
+            // Chọn file avatar
+            avatarFileInput.addEventListener('change', function () {
+                var file = this.files[0];
+                if (!file) return;
+                var reader = new FileReader();
+                reader.onload = function (e) { setAvatarPreview(e.target.result); };
+                reader.readAsDataURL(file);
+                uploadAvatar(file);
+            });
+
+            // Upload avatar ngay khi chọn
+            async function uploadAvatar(file) {
+                avatarStatus.textContent = 'Đang tải lên...';
+                avatarStatus.style.color = '#64748b';
+                var formData = new FormData();
+                formData.append('avatar', file);
+                try {
+                    var res = await fetch('/api/v1/auth/avatar', {
+                        method: 'POST',
+                        credentials: 'include',
+                        body: formData
+                    });
+                    var data = await res.json();
+                    if (data.success) {
+                        avatarStatus.textContent = '✅ Cập nhật avatar thành công!';
+                        avatarStatus.style.color = '#16a34a';
+                        if (removeAvatarBtn) removeAvatarBtn.style.display = 'flex';
+                        // Cập nhật avatar trên header nếu có
+                        if (window.applyHeaderAvatar) window.applyHeaderAvatar(data.data.avatar);
+                    } else {
+                        avatarStatus.textContent = '❌ ' + (data.message || 'Lỗi upload');
+                        avatarStatus.style.color = '#dc2626';
+                    }
+                } catch (e) {
+                    avatarStatus.textContent = '❌ Lỗi kết nối';
+                    avatarStatus.style.color = '#dc2626';
+                }
+            }
+
+            // Xóa avatar
+            if (removeAvatarBtn) {
+                removeAvatarBtn.addEventListener('click', async function () {
+                    try {
+                        var res = await fetch('/api/v1/auth/avatar', {
+                            method: 'POST',
+                            credentials: 'include',
+                            body: new FormData() // empty = reset
+                        });
+                        avatarPreviewWrap.innerHTML = '<div class="avatar-placeholder" id="avatarPlaceholder"><span class="material-symbols-outlined" style="font-size:2.5rem;">pets</span></div>';
+                        removeAvatarBtn.style.display = 'none';
+                        avatarStatus.textContent = 'Đã xóa avatar';
+                        avatarStatus.style.color = '#717971';
+                    } catch (e) { }
+                });
+            }
+
+            // Chọn màu background
+            bgPalette.addEventListener('click', function (e) {
+                var swatch = e.target.closest('.bg-swatch');
+                if (!swatch) return;
+                document.querySelectorAll('.bg-swatch').forEach(function (s) { s.classList.remove('selected'); });
+                swatch.classList.add('selected');
+                selectedBgColor = swatch.dataset.bg;
+                selectedBgFile = null;
+                bgFileInput.value = '';
+                resetBg = (selectedBgColor === '');
+                applyBgPreview(selectedBgColor);
+            });
+
+            // Upload ảnh background
+            bgFileInput.addEventListener('change', function () {
+                var file = this.files[0];
+                if (!file) return;
+                selectedBgFile = file;
+                selectedBgColor = null;
+                resetBg = false;
+                document.querySelectorAll('.bg-swatch').forEach(function (s) { s.classList.remove('selected'); });
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    bgPreviewBar.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+                };
+                reader.readAsDataURL(file);
+            });
+
+            function applyBgPreview(val) {
+                if (!val) {
+                    bgPreviewBar.innerHTML = 'Mặc định (không có nền)';
+                    bgPreviewBar.style.background = '#fff';
+                } else if (isImageBackground(val)) {
+                    bgPreviewBar.innerHTML = '<img src="' + val + '" alt="Preview">';
+                    bgPreviewBar.style.background = '';
+                } else {
+                    bgPreviewBar.innerHTML = '';
+                    bgPreviewBar.style.background = val;
+                }
+            }
+
+            // Lưu background
+            saveBgBtn.addEventListener('click', async function () {
+                saveBgBtn.disabled = true;
+                bgStatus.textContent = 'Đang lưu...';
+                bgStatus.style.color = '#64748b';
+
+                try {
+                    var formData = new FormData();
+                    if (selectedBgFile) {
+                        formData.append('background', selectedBgFile);
+                    } else if (resetBg || selectedBgColor === '') {
+                        formData.append('reset', '1');
+                    } else if (selectedBgColor) {
+                        formData.append('bg_color', selectedBgColor);
+                    } else {
+                        bgStatus.textContent = 'Vui lòng chọn màu hoặc ảnh nền';
+                        bgStatus.style.color = '#dc2626';
+                        saveBgBtn.disabled = false;
+                        return;
+                    }
+
+                    var res = await fetch('/api/v1/auth/background', {
+                        method: 'POST',
+                        credentials: 'include',
+                        body: formData
+                    });
+                    var data = await res.json();
+                    if (data.success) {
+                        bgStatus.textContent = '✅ Lưu nền thành công! Reload để xem hiệu ứng.';
+                        bgStatus.style.color = '#16a34a';
+                        storeUploadedBg(data.data.bg_preference);
+                        renderUploadedBgSwatch(data.data.bg_preference, true);
+                        applyBgPreview(data.data.bg_preference);
+                        // Apply ngay
+                        if (window.applyUserBackground) window.applyUserBackground(data.data.bg_preference);
+                    } else {
+                        bgStatus.textContent = '❌ ' + (data.message || 'Lỗi lưu');
+                        bgStatus.style.color = '#dc2626';
+                    }
+                } catch (e) {
+                    bgStatus.textContent = '❌ Lỗi kết nối';
+                    bgStatus.style.color = '#dc2626';
+                }
+                saveBgBtn.disabled = false;
+            });
+        })();
+    </script>
+    <script>
+        /* ── User Background Apply ── */
+        (function () {
+            function isImageBackground(val) {
+                return !!val && !/^(#|rgb\(|rgba\(|hsl\(|hsla\(|transparent$|inherit$|initial$|unset$)/i.test(val);
+            }
+
+            function applyBg(val) {
+                var styleId = '__user_bg_style';
+                var el = document.getElementById(styleId);
+                if (!el) {
+                    el = document.createElement('style');
+                    el.id = styleId;
+                    document.head.appendChild(el);
+                }
+                if (!val) { el.textContent = ''; return; }
+                var bgRule = isImageBackground(val)
+                    ? 'background-image:url("' + val + '")!important;background-size:cover!important;background-attachment:fixed!important;background-repeat:no-repeat!important;background-position:center!important;background-color:transparent!important;'
+                    : 'background-color:' + val + '!important;background-image:none!important;';
+                el.textContent = [
+                    'body{' + bgRule + '}',
+                    'main,#main,.main,.profile-page,.page-wrapper,.page-body,.content-wrapper,.container-fluid,.app-content,.site-content,.page-content,.adopt-page,.admin-page,.reports-page,.favorites-page{background:transparent!important;}'
+                ].join('');
+            }
+
+            window.applyUserBackground = applyBg;
+
+            var _orig = window.applyHeaderUserState;
+            window.applyHeaderUserState = function (user) {
+                if (_orig) _orig(user);
+                if (user && user.bg_preference) applyBg(user.bg_preference);
+            };
+
+            window.addEventListener('load', function () {
+                fetch('/api/v1/auth/me', { credentials: 'include' })
+                    .then(function (r) { return r.ok ? r.json() : null; })
+                    .then(function (data) {
+                        if (data && data.success && data.data && data.data.user && data.data.user.bg_preference) {
+                            applyBg(data.data.user.bg_preference);
+                        }
+                    }).catch(function () { });
+            });
+        })();
+    </script>
+
+<!-- SimpleWebAuthn Browser SDK (cho Passkey) -->
+<script src="https://cdn.jsdelivr.net/npm/@simplewebauthn/browser/dist/bundle/index.umd.min.js"></script>
+
+<style>
+    /* ── Connected Accounts & Passkeys ──────────────────────────────────────── */
+    .connected-loading {
+        color: #94a3b8;
+        font-size: 0.875rem;
+        padding: 8px 0;
+    }
+
+    .connected-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        border: 1px solid #e1efe7;
+        border-radius: 12px;
+        background: #f7fbf8;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+    }
+
+    .connected-item-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .connected-item-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+        font-weight: 700;
+    }
+
+    .connected-item-icon--google { background: #e8f0fe; color: #4285F4; }
+    .connected-item-icon--facebook { background: #e7f0fd; color: #1877F2; }
+    .connected-item-icon--passkey { background: #f0fdf4; color: #2d6a4f; }
+
+    .connected-item-name {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #1f2937;
+    }
+
+    .connected-item-email {
+        font-size: 0.8rem;
+        color: #64748b;
+        word-break: break-all;
+    }
+
+    .connected-item-meta {
+        font-size: 0.78rem;
+        color: #94a3b8;
+    }
+
+    .connected-badge-linked {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: #dcfce7;
+        color: #166534;
+        white-space: nowrap;
+    }
+
+    .connected-badge-unlinked {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        color: #64748b;
+        white-space: nowrap;
+    }
+
+    .connected-item-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .btn-connected-link {
+        padding: 8px 16px;
+        border-radius: 14px;
+        font-size: 0.825rem;
+        font-weight: 700;
+        cursor: pointer;
+        border: 1.5px solid #023a1e;
+        color: #023a1e;
+        background: rgba(2, 58, 30, 0.03);
+        font-family: inherit;
+        transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .btn-connected-link:hover {
+        background: #023a1e;
+        color: #fff;
+        transform: translateY(-1px) scale(1.03);
+        box-shadow: 0 4px 12px rgba(2,58,30,0.15);
+    }
+    
+    .btn-connected-link:active {
+        transform: scale(0.97);
+    }
+
+    .btn-connected-unlink {
+        padding: 8px 16px;
+        border-radius: 14px;
+        font-size: 0.825rem;
+        font-weight: 700;
+        cursor: pointer;
+        border: 1.5px solid #ba1a1a;
+        color: #ba1a1a;
+        background: rgba(186, 26, 26, 0.03);
+        font-family: inherit;
+        transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .btn-connected-unlink:hover {
+        background: #ba1a1a;
+        color: #fff;
+        transform: translateY(-1px) scale(1.03);
+        box-shadow: 0 4px 12px rgba(186,26,26,0.15);
+    }
+    
+    .btn-connected-unlink:active {
+        transform: scale(0.97);
+    }
+
+    /* Passkey item uses same connected-item style but with rename */
+    .passkey-label-input {
+        border: 1.5px solid #cfe2d7;
+        border-radius: 12px;
+        padding: 6px 12px;
+        font-size: 0.82rem;
+        outline: none;
+        width: 125px;
+        font-family: inherit;
+        background: rgba(255,255,255,0.7);
+        transition: all 0.25s ease;
+    }
+
+    .passkey-label-input:focus {
+        border-color: #2d6a4f;
+        box-shadow: 0 0 0 3px rgba(45,106,79,0.08);
+        background: #ffffff;
+    }
+
+    .backed-up-badge {
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 999px;
+    }
+
+    .backed-up-badge--yes { background: #dcfce7; color: #166534; }
+    .backed-up-badge--no  { background: #f1f5f9; color: #64748b; }
+
+    /* OTP confirm inline box */
+    .otp-confirm-box {
+        display: none;
+        margin-top: 14px;
+        padding: 18px 22px;
+        background: rgba(254, 243, 219, 0.45);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1.5px solid rgba(251, 146, 60, 0.3);
+        border-radius: 20px;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        box-shadow: 0 8px 30px rgba(234, 88, 12, 0.04);
+        animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .otp-confirm-box.visible { display: flex; }
+    .otp-confirm-box input {
+        border: 1.5px solid rgba(251, 146, 60, 0.4);
+        border-radius: 14px;
+        padding: 8px 14px;
+        font-size: 1rem;
+        width: 135px;
+        letter-spacing: 4px;
+        font-weight: 700;
+        text-align: center;
+        outline: none;
+        font-family: inherit;
+        background: #ffffff;
+        color: #ea580c;
+        transition: all 0.3s ease;
+    }
+    .otp-confirm-box input:focus {
+        border-color: #ea580c;
+        box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.12);
+        background: #ffffff;
+    }
+    .otp-confirm-box p {
+        margin: 0 0 4px 0;
+        font-size: 0.875rem;
+        color: #ea580c;
+        font-weight: 700;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .verify-btn {
+        padding: 8px 18px;
+        border-radius: 14px;
+        font-size: 0.825rem;
+        font-weight: 700;
+        cursor: pointer;
+        border: none;
+        color: #ffffff;
+        background: #ea580c;
+        font-family: inherit;
+        transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+        box-shadow: 0 4px 12px rgba(234, 88, 12, 0.15);
+    }
+    .verify-btn:hover {
+        background: #d94e06;
+        transform: translateY(-1px) scale(1.03);
+        box-shadow: 0 6px 18px rgba(234, 88, 12, 0.22);
+    }
+    .verify-btn:active {
+        transform: scale(0.97);
+    }
+    .verify-btn.secondary {
+        background: rgba(0, 0, 0, 0.05);
+        color: #414942;
+        box-shadow: none;
+    }
+    .verify-btn.secondary:hover {
+        background: rgba(0, 0, 0, 0.1);
+        color: #191c1a;
+        box-shadow: none;
+        transform: translateY(-1px) scale(1.03);
+    }
+
+    #addPasskeyBtn:hover {
+        background: rgba(2, 58, 30, 0.05) !important;
+        border-color: #023a1e !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(2, 58, 30, 0.08) !important;
+    }
+</style>
+
+<script>
+// ===== Connected Accounts Logic =====
+(function() {
+    const PROVIDERS = [
+        { key: 'google',   label: 'Google',   icon: 'G', iconClass: 'google' },
+        { key: 'facebook', label: 'Facebook', icon: 'F', iconClass: 'facebook' },
+    ];
+
+    let connections = [];
+    let unlinkOtpTarget = null; // { type: 'connection'|'passkey', key, id }
+
+    async function loadConnectedAccounts() {
+        const list = document.getElementById('connectedList');
+        if (!list) return;
+        try {
+            const res = await fetch('/api/v1/auth/connections', { credentials: 'include' });
+            if (res.status === 401) { list.innerHTML = '<div class="connected-loading">Vui lòng đăng nhập</div>'; return; }
+            const data = await res.json();
+            connections = (data.success && data.data && data.data.connections) ? data.data.connections : [];
+            renderConnections();
+        } catch (e) {
+            list.innerHTML = '<div class="connected-loading">Không thể tải dữ liệu</div>';
+        }
+    }
+
+    function renderConnections() {
+        const list = document.getElementById('connectedList');
+        if (!list) return;
+        list.innerHTML = PROVIDERS.map(p => {
+            const conn = connections.find(c => c.provider === p.key);
+            return `
+            <div class="connected-item" id="conn-item-${p.key}">
+                <div class="connected-item-info">
+                    <div class="connected-item-icon connected-item-icon--${p.iconClass}">${p.icon}</div>
+                    <div>
+                        <div class="connected-item-name">${p.label}</div>
+                        ${conn ? `<div class="connected-item-email">${conn.linked_email || '(không có email)'}</div>` : '<div class="connected-item-email">Chưa liên kết</div>'}
+                    </div>
+                </div>
+                <div class="connected-item-actions">
+                    ${conn
+                        ? `<span class="connected-badge-linked">✓ Đã liên kết</span>
+                           <button class="btn-connected-unlink" onclick="startUnlinkProvider('${p.key}')">Hủy liên kết</button>`
+                        : `<span class="connected-badge-unlinked">Chưa kết nối</span>
+                           <button class="btn-connected-link" onclick="startLinkProvider('${p.key}')">Liên kết</button>`
+                    }
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    window.startLinkProvider = async function(provider) {
+        if (provider === 'google') {
+            if (!window.GOOGLE_CLIENT_ID || window.GOOGLE_CLIENT_ID.includes('YOUR_')) {
+                setNote('error', 'Google Login chưa được cấu hình (thiếu GOOGLE_CLIENT_ID)'); return;
+            }
+            if (window.google && window.google.accounts && window.google.accounts.id) {
+                if (!window.__googleLinkingInitialized) {
+                    const linkingCallback = (response) => {
+                        (async () => {
+                            const res = await fetch('/api/v1/auth/link/google', {
+                                method: 'POST', headers: {'Content-Type': 'application/json'},
+                                credentials: 'include', body: JSON.stringify({ token: response.credential }),
+                            });
+                            const data = await res.json();
+                            if (res.ok && data.success) {
+                                setNote('success', 'Liên kết Google thành công');
+                                await loadConnectedAccounts();
+                            } else {
+                                setNote('error', data.message || 'Liên kết Google thất bại');
+                            }
+                        })();
+                    };
+
+                    google.accounts.id.initialize({
+                        client_id: window.GOOGLE_CLIENT_ID,
+                        callback: linkingCallback,
+                        use_fedcm_for_prompt: false
+                    });
+                    window.__googleLinkingInitialized = true;
+                }
+                google.accounts.id.prompt();
+            } else {
+                setNote('error', 'Google SDK chưa sẵn sàng');
+            }
+        } else if (provider === 'facebook') {
+            if (!window.FACEBOOK_APP_ID || window.FACEBOOK_APP_ID.includes('YOUR_')) {
+                setNote('error', 'Facebook Login chưa được cấu hình (thiếu FACEBOOK_APP_ID)'); return;
+            }
+            if (window.location.protocol === 'http:') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Yêu cầu HTTPS!',
+                    text: 'Facebook SDK yêu cầu kết nối bảo mật HTTPS để thực hiện liên kết tài khoản. Giao thức HTTP thường (http://localhost:3000) không được hỗ trợ bởi Meta.',
+                    footer: 'Lời khuyên: Chuyển máy chủ local sang HTTPS hoặc sử dụng công cụ ngrok/localtunnel.',
+                    confirmButtonColor: '#023a1e',
+                    customClass: { popup: 'premium-swal' }
+                });
+                setNote('error', 'Facebook Login yêu cầu kết nối HTTPS.');
+                return;
+            }
+            if (typeof FB === 'undefined') { setNote('error', 'Facebook SDK chưa sẵn sàng'); return; }
+            FB.login(function(response) {
+                (async () => {
+                    if (!response.authResponse) return;
+                    const res = await fetch('/api/v1/auth/link/facebook', {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        credentials: 'include', body: JSON.stringify({ accessToken: response.authResponse.accessToken }),
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        setNote('success', 'Liên kết Facebook thành công');
+                        await loadConnectedAccounts();
+                    } else {
+                        setNote('error', data.message || 'Liên kết Facebook thất bại');
+                    }
+                })();
+            }, { scope: 'email,public_profile' });
+        }
+    };
+
+    window.startUnlinkProvider = function(provider) {
+        unlinkOtpTarget = { type: 'connection', key: provider };
+        showUnlinkOtpBox(provider + '-unlink-otp', `Nhập mã OTP để xác nhận hủy liên kết ${provider === 'google' ? 'Google' : 'Facebook'}`);
+    };
+
+    function showUnlinkOtpBox(boxId, hint) {
+        // Remove old box if any
+        document.querySelectorAll('.otp-confirm-box').forEach(b => b.remove());
+        const box = document.createElement('div');
+        box.className = 'otp-confirm-box visible';
+        box.id = boxId;
+        box.innerHTML = `
+            <p>${hint}</p>
+            <button type="button" class="verify-btn" onclick="sendUnlinkOtp()">Gửi mã OTP</button>
+            <input type="text" id="unlinkOtpInput" maxlength="6" inputmode="numeric" placeholder="Nhập OTP">
+            <button type="button" class="verify-btn" onclick="confirmUnlink()">Xác nhận</button>
+            <button type="button" class="verify-btn secondary" onclick="cancelUnlink()">Hủy</button>
+        `;
+        const targetItem = unlinkOtpTarget && unlinkOtpTarget.type === 'connection'
+            ? document.getElementById(`conn-item-${unlinkOtpTarget.key}`)
+            : (unlinkOtpTarget ? document.getElementById(`passkey-item-${unlinkOtpTarget.id}`) : null);
+        if (targetItem) targetItem.after(box);
+        else document.getElementById('connectedList').appendChild(box);
+    }
+
+    window.sendUnlinkOtp = async function() {
+        const url = unlinkOtpTarget && unlinkOtpTarget.type === 'passkey'
+            ? '/api/v1/auth/passkeys/delete/send-otp'
+            : '/api/v1/auth/unlink/send-otp';
+        const res = await fetch(url, { method: 'POST', credentials: 'include' });
+        const data = await res.json();
+        setNote(res.ok ? 'success' : 'error', data.message || (res.ok ? 'OTP đã gửi' : 'Không gửi được OTP'));
+    };
+
+    window.confirmUnlink = async function() {
+        const otp = (document.getElementById('unlinkOtpInput') || {}).value;
+        if (!otp || !/^\d{6}$/.test(otp)) { setNote('error', 'Nhập đúng mã OTP 6 chữ số'); return; }
+        let res, data;
+        if (unlinkOtpTarget.type === 'connection') {
+            res = await fetch(`/api/v1/auth/unlink/${unlinkOtpTarget.key}`, {
+                method: 'DELETE', headers: {'Content-Type': 'application/json'},
+                credentials: 'include', body: JSON.stringify({ otp }),
+            });
+        } else {
+            res = await fetch(`/api/v1/auth/passkeys/${unlinkOtpTarget.id}`, {
+                method: 'DELETE', headers: {'Content-Type': 'application/json'},
+                credentials: 'include', body: JSON.stringify({ otp }),
+            });
+        }
+        data = await res.json();
+        if (res.ok && data.success) {
+            setNote('success', data.message);
+            const targetType = unlinkOtpTarget.type;
+            cancelUnlink();
+            if (targetType === 'connection') loadConnectedAccounts();
+            else loadPasskeys();
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            setNote('error', data.message || 'Thao tác thất bại');
+        }
+    };
+
+    window.cancelUnlink = function() {
+        document.querySelectorAll('.otp-confirm-box').forEach(b => b.remove());
+        unlinkOtpTarget = null;
+    };
+
+    // ===== Passkeys Logic =====
+    async function loadPasskeys() {
+        const list = document.getElementById('passkeysList');
+        if (!list) return;
+        try {
+            const res = await fetch('/api/v1/auth/passkeys', { credentials: 'include' });
+            if (res.status === 401) { list.innerHTML = '<div class="connected-loading">Vui lòng đăng nhập</div>'; return; }
+            const data = await res.json();
+            const passkeys = (data.success && data.data) ? data.data.passkeys : [];
+            if (passkeys.length === 0) {
+                list.innerHTML = '<div class="connected-loading">Chưa có thiết bị Passkey nào được đăng ký.</div>';
+                return;
+            }
+            list.innerHTML = passkeys.map(pk => {
+                const created = new Date(pk.created_at).toLocaleDateString('vi-VN');
+                const deviceLabel = pk.label || pk.device_type || 'Thiết bị không tên';
+                const backedUp = pk.backed_up ? '<span class="backed-up-badge backed-up-badge--yes">☁️ Đồng bộ</span>' : '<span class="backed-up-badge backed-up-badge--no">📱 Cục bộ</span>';
+                return `
+                <div class="connected-item" id="passkey-item-${pk.id}">
+                    <div class="connected-item-info">
+                        <div class="connected-item-icon connected-item-icon--passkey">🔑</div>
+                        <div>
+                            <div class="connected-item-name">
+                                <input type="text" class="passkey-label-input" id="passkey-label-${pk.id}" value="${deviceLabel}" maxlength="100">
+                                <button class="btn-connected-link" style="margin-left:6px;padding:4px 8px;font-size:0.75rem;" onclick="savePasskeyLabel(${pk.id})">Lưu</button>
+                            </div>
+                            <div class="connected-item-meta">Ngày đăng ký: ${created} &nbsp;${backedUp}</div>
+                        </div>
+                    </div>
+                    <div class="connected-item-actions">
+                        <button class="btn-connected-unlink" onclick="startDeletePasskey(${pk.id})">Xóa</button>
+                    </div>
+                </div>`;
+            }).join('');
+        } catch(e) {
+            list.innerHTML = '<div class="connected-loading">Không thể tải danh sách Passkeys</div>';
+        }
+    }
+
+    window.savePasskeyLabel = async function(id) {
+        const input = document.getElementById(`passkey-label-${id}`);
+        const label = input ? input.value.trim() : '';
+        if (!label) { setNote('error', 'Tên nhãn không được để trống'); return; }
+        const res = await fetch(`/api/v1/auth/passkeys/${id}`, {
+            method: 'PATCH', headers: {'Content-Type': 'application/json'},
+            credentials: 'include', body: JSON.stringify({ label }),
+        });
+        const data = await res.json();
+        setNote(res.ok ? 'success' : 'error', data.message || (res.ok ? 'Đã cập nhật' : 'Thất bại'));
+    };
+
+    window.startDeletePasskey = function(id) {
+        unlinkOtpTarget = { type: 'passkey', id };
+        const list = document.getElementById('passkeysList');
+        showUnlinkOtpBox(`passkey-otp-${id}`, 'Nhập mã OTP gửi về email để xác nhận xóa thiết bị Passkey này');
+    };
+
+    window.addNewPasskey = async function() {
+        const hint = document.getElementById('passkeyHint');
+        const btn = document.getElementById('addPasskeyBtn');
+        if (!window.PublicKeyCredential) {
+            hint.className = 'pwd-hint error'; hint.textContent = 'Trình duyệt không hỗ trợ Passkey.'; return;
+        }
+        if (!window.SimpleWebAuthnBrowser || !window.SimpleWebAuthnBrowser.startRegistration) {
+            hint.className = 'pwd-hint error'; hint.textContent = 'Thư viện SimpleWebAuthn chưa tải. Tải lại trang thử.'; return;
+        }
+        if (btn) { btn.disabled = true; btn.textContent = '⏳ Đang chuẩn bị...'; }
+        try {
+            const optRes = await fetch('/api/v1/auth/passkey/register/options', { credentials: 'include' });
+            const optData = await optRes.json();
+            if (!optRes.ok || !optData.success) {
+                hint.className = 'pwd-hint error'; hint.textContent = optData.message || 'Không thể tạo cấu hình đăng ký'; return;
+            }
+            let credential;
+            try {
+                credential = await window.SimpleWebAuthnBrowser.startRegistration(optData.data.options);
+            } catch(e) {
+                hint.className = 'pwd-hint error';
+                hint.textContent = e.name === 'NotAllowedError' ? 'Bạn đã hủy thao tác.' : 'Thiết bị không hỗ trợ hoặc đã tồn tại Passkey này.';
+                return;
+            }
+            let label = navigator.platform || 'Thiết bị mới';
+            const { value: inputLabel, isDismissed } = await Swal.fire({
+                title: 'Thiết bị đã xác thực!',
+                text: 'Hãy đặt tên gợi nhớ cho thiết bị này để quản lý:',
+                input: 'text',
+                inputValue: label,
+                showCancelButton: true,
+                confirmButtonColor: '#023a1e',
+                cancelButtonColor: '#717971',
+                confirmButtonText: 'Lưu tên',
+                cancelButtonText: 'Dùng mặc định',
+                allowOutsideClick: false,
+                customClass: { popup: 'premium-swal' }
+            });
+
+            if (!isDismissed && inputLabel !== undefined) {
+                label = inputLabel.trim() || label;
+            }
+
+            const verRes = await fetch('/api/v1/auth/passkey/register/verify', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                credentials: 'include', body: JSON.stringify({ credential, label }),
+            });
+            const verData = await verRes.json();
+            if (verRes.ok && verData.success) {
+                hint.classList.remove('error'); hint.classList.add('success'); hint.textContent = 'Đăng ký Passkey thành công!';
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: 'Thiết bị Passkey mới đã được liên kết thành công.',
+                    confirmButtonColor: '#023a1e',
+                    customClass: { popup: 'premium-swal' }
+                });
+                await loadPasskeys();
+            } else {
+                hint.classList.remove('success'); hint.classList.add('error'); hint.textContent = verData.message || 'Đăng ký Passkey thất bại';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi đăng ký!',
+                    text: verData.message || 'Đăng ký Passkey thất bại, vui lòng thử lại.',
+                    confirmButtonColor: '#ba1a1a',
+                    customClass: { popup: 'premium-swal' }
+                });
+            }
+        } catch(e) {
+            hint.classList.remove('success'); hint.classList.add('error'); hint.textContent = 'Đã xảy ra lỗi khi đăng ký Passkey.';
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = 'Thêm thiết bị mới'; }
+        }
+    };
+
+    // Auto-load khi profile đã load xong
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load sau một chút để token/cookie đã sẵn sàng
+        setTimeout(function() {
+            loadConnectedAccounts();
+            loadPasskeys();
+        }, 600);
+    });
+
+    // Expose for use by profile loadProfile()
+    window.reloadSecuritySections = function() {
+        loadConnectedAccounts();
+        loadPasskeys();
+    };
+})();
+</script>
+</body>
+
+</html>

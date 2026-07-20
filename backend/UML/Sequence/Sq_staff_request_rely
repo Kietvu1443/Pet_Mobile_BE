@@ -1,0 +1,25 @@
+@startuml
+actor Staff
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+
+Staff -> FE : Chọn request (Approve/Reject)
+FE -> BE : PUT /adoption-requests/{id}
+
+BE -> BE : Kiểm tra quyền staff
+BE -> DB : Lấy thông tin request
+
+alt Approve
+    BE -> DB : Update request = approved
+    BE -> DB : Update pet = adopted
+    BE --> FE : Thành công
+    FE --> Staff : "Đã duyệt"
+
+else Reject
+    BE -> DB : Update request = rejected
+    BE --> FE : Thành công
+    FE --> Staff : "Đã từ chối"
+end
+
+@enduml

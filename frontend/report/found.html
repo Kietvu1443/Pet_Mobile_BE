@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Báo Tin Đã Tìm Thấy Bé</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f3f4f6
+    }
+  </style>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <link rel="stylesheet" href="/stylesheets/staticHeader.css">
+  <style>
+    /* Fix header layout khi có avatar */
+    #headerDisplayNameText {
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
+    }
+
+    #headerDisplayNameText img {
+      width: 28px !important;
+      height: 28px !important;
+      border-radius: 50% !important;
+      object-fit: cover !important;
+      vertical-align: middle !important;
+      flex-shrink: 0;
+    }
+
+    .top-bar {
+      align-items: center;
+    }
+
+    .user-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .auth-user-actions {
+      display: flex;
+      align-items: center;
+    }
+
+    .user-dropdown {
+      display: flex;
+      align-items: center;
+    }
+
+    #userDropdownBtn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+  </style>
+  <style id="gtranslate-css">
+    .lang-switcher {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .lang-switcher-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 8px;
+      padding: 5px 10px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.18s;
+      white-space: nowrap;
+    }
+
+    .lang-switcher-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .lang-switcher-btn svg {
+      width: 14px;
+      height: 14px;
+      opacity: .8;
+    }
+
+    .lang-switcher-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      min-width: 140px;
+      z-index: 9999;
+      overflow: hidden;
+    }
+
+    .lang-switcher-dropdown.open {
+      display: block;
+    }
+
+    .lang-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #374151;
+      cursor: pointer;
+      transition: background 0.15s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+    }
+
+    .lang-option:hover {
+      background: #f1f5f9;
+    }
+
+    .lang-option.active {
+      background: #f0fdf4;
+      color: #166534;
+      font-weight: 600;
+    }
+
+    .lang-option .flag {
+      font-size: 16px;
+    }
+
+    .goog-te-banner-frame,
+    .skiptranslate {
+      display: none !important;
+    }
+
+    body {
+      top: 0 !important;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="top-bar">
+      <a href="/" class="logo-group">
+        <div class="logo-circle">
+          <img src="/images/the_logo.webp" alt="logo" id="the_logo">
+        </div>
+        <div class="web-name">PET HELPER</div>
+      </a>
+      <div class="user-actions">
+        <div class="auth-user-actions is-auth-hidden" id="headerAuthUserState">
+          <div class="user-dropdown" id="headerUserDropdown">
+            <span id="userDropdownBtn" style="cursor: pointer;">
+              <span id="headerDisplayNameText">Tài khoản</span> ▼
+            </span>
+            <div class="user-dropdown-menu" id="userDropdownMenu"></div>
+          </div>
+        </div>
+        <div class="auth-guest-actions is-auth-visible" id="headerAuthGuestState">
+          <a href="#"
+            onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('login'); } return false;"><span>Đăng
+              nhập</span></a>
+          <a href="#"
+            onclick="openOverlay('auth-overlay'); if (typeof overlayActivateTab === 'function') { overlayActivateTab('register'); } return false;"><span>Đăng
+              ký</span></a>
+        </div>
+        <span onclick="toggleCart()" style="cursor:pointer;">Giỏ hàng <span id="cart-count-display">(0)</span></span>
+        <div class="lang-switcher" id="langSwitcher">
+          <button class="lang-switcher-btn" onclick="toggleLangDropdown(event)" id="langBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" />
+            </svg>
+            <span id="langBtnLabel">VI</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+          <div class="lang-switcher-dropdown" id="langDropdown">
+            <button class="lang-option active" onclick="setLang('vi','VI')" data-lang="vi"><span
+                class="flag">🇻🇳</span> Tiếng Việt</button>
+            <button class="lang-option" onclick="setLang('/en','EN')" data-lang="en"><span class="flag">🇺🇸</span>
+              English</button>
+            <button class="lang-option" onclick="setLang('/zh-TW','中文')" data-lang="zh-TW"><span
+                class="flag">🇹🇼</span> 中文</button>
+            <button class="lang-option" onclick="setLang('/ja','日本語')" data-lang="ja"><span class="flag">🇯🇵</span>
+              日本語</button>
+          </div>
+        </div>
+      </div>
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Mở menu">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+    <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+    <nav class="main-nav" id="mainNav">
+      <button class="mobile-nav-close" id="mobileNavClose" aria-label="Đóng menu">✕</button>
+      <ul>
+        <li>
+          <a href="#" class="has-dropdown nav-item">Nhận nuôi <span class="nav-arrow arrow">▼</span></a>
+          <ul class="nav-dropdown">
+            <li><a href="/adopt">Xem vật nuôi có thể nhận nuôi</a></li>
+            <li><a href="/snap" style="color: #ea580c; font-weight: bold;">PetSnap (Tìm kiếm ngẫu hứng!)</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#" class="has-dropdown nav-item">Thất lạc <span class="nav-arrow arrow">▼</span></a>
+          <ul class="nav-dropdown">
+            <li><a href="/lost">Báo mất thú cưng</a></li>
+            <li><a href="/found">Báo tin nhặt được</a></li>
+            <li><a href="/reports/list">Xem báo cáo thất lạc</a></li>
+            <li><a href="/tips">Mẹo tìm kiếm hiệu quả</a></li>
+
+          </ul>
+        </li>
+        <li>
+          <a href="#" class="has-dropdown nav-item">Dịch vụ <span class="nav-arrow arrow">▼</span></a>
+          <ul class="nav-dropdown">
+            <li><a href="/booking">Đặt lịch tiêm phòng</a></li>
+            <li><a href="/shop">Danh mục đồ ăn/ đồ dùng</a></li>
+          </ul>
+        </li>
+        <li><a href="/news">Tin tức</a></li>
+        <li>
+          <a href="#" class="has-dropdown nav-item">Về chúng tôi <span class="nav-arrow arrow">▼</span></a>
+          <ul class="nav-dropdown">
+            <li><a href="#contact-section">Liên hệ với chúng tôi</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <div style="min-height:calc(100vh - 80px); display:flex; align-items:center; justify-content:center; padding:24px;">
+    <div class="w-full max-w-2xl bg-white rounded-2xl overflow-hidden shadow-xl my-8">
+      <div class="bg-emerald-800 px-6 py-4 flex items-center justify-between text-white">
+        <h1 class="text-lg font-bold uppercase tracking-wide">Báo tin đã tìm thấy bé</h1>
+        <a href="/"><button type="button" class="hover:bg-emerald-700 p-1 rounded-full">✕</button></a>
+      </div>
+      <form id="foundForm" class="p-8 space-y-6" enctype="multipart/form-data">
+        <input type="hidden" name="type" value="found">
+        <div id="foundAlert" class="hidden rounded-lg px-4 py-3 text-sm font-medium"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="text-sm font-semibold text-gray-700 block mb-2">Loài thú cưng</label>
+            <select name="species" class="w-full px-4 py-2 rounded-lg border border-gray-200">
+              <option value="dog">Chó</option>
+              <option value="cat">Mèo</option>
+              <option value="other">Khác</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-sm font-semibold text-gray-700 block mb-2">Giới tính</label>
+            <select name="gender" class="w-full px-4 py-2 rounded-lg border border-gray-200">
+              <option value="unknown">Không rõ</option>
+              <option value="male">Đực</option>
+              <option value="female">Cái</option>
+            </select>
+          </div>
+        </div>
+        <div><label class="text-sm font-semibold text-gray-700 block mb-2">Màu lông</label><input type="text"
+            name="furColor" class="w-full px-4 py-2 rounded-lg border border-gray-200"></div>
+        <div><label class="text-sm font-semibold text-gray-700 block mb-2">📍 Vị trí phát hiện <span
+              class="text-red-500">*</span></label><input type="text" name="location" required
+            class="w-full px-4 py-3 rounded-xl border border-gray-200"></div>
+        <div><label class="text-sm font-semibold text-gray-700 block mb-2">Mô tả tình trạng</label><textarea
+            name="description" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200"></textarea></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div><label class="text-sm font-semibold text-gray-700 block mb-2">Tên người tìm thấy <span
+                class="text-red-500">*</span></label><input type="text" name="finderName" required
+              class="w-full px-4 py-3 rounded-xl border border-gray-200"></div>
+          <div><label class="text-sm font-semibold text-gray-700 block mb-2">SĐT <span
+                class="text-red-500">*</span></label><input type="tel" name="phone" required
+              class="w-full px-4 py-3 rounded-xl border border-gray-200"></div>
+        </div>
+        <div><label class="text-sm font-semibold text-gray-700 block mb-2">Email</label><input type="email" name="email"
+            class="w-full px-4 py-3 rounded-xl border border-gray-200"></div>
+        <div><label class="text-sm font-semibold text-gray-700 block mb-2">Hình ảnh <span
+              class="text-red-500">*</span></label><input id="foundImages" type="file" name="images" accept="image/*"
+            multiple required class="w-full px-4 py-3 rounded-xl border border-gray-200"></div>
+        <button type="submit"
+          class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl">Gửi thông báo tới chủ
+          nhân</button>
+      </form>
+    </div>
+    <script>
+      (function () {
+        var form = document.getElementById('foundForm');
+        var alertBox = document.getElementById('foundAlert');
+        var phoneRegex = /^[0-9\-\+]{9,15}$/;
+        function showMessage(message, isError) {
+          alertBox.textContent = message;
+          alertBox.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-emerald-100', 'text-emerald-700');
+          alertBox.classList.add(isError ? 'bg-red-100' : 'bg-emerald-100', isError ? 'text-red-700' : 'text-emerald-700');
+        }
+        form.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var fileInput = document.getElementById('foundImages');
+          var phoneInput = form.querySelector('input[name="phone"]');
+          var submitBtn = form.querySelector('button[type="submit"]');
+          var originalText = submitBtn.textContent;
+          var phoneValue = phoneInput ? phoneInput.value.trim() : '';
+          if (!fileInput.files || fileInput.files.length === 0) { showMessage('Vui lòng tải lên ít nhất một ảnh.', true); return; }
+          if (phoneValue && !phoneRegex.test(phoneValue)) { showMessage('Số điện thoại không hợp lệ (9-15 ký tự số).', true); return; }
+          submitBtn.disabled = true; submitBtn.textContent = 'Đang gửi...';
+          try {
+            var response = await fetch('/api/v1/reports', { method: 'POST', body: new FormData(form) });
+            var data = await response.json();
+            if (!response.ok || !data.success) { showMessage((data && data.message) || 'Gửi báo cáo thất bại.', true); return; }
+            showMessage('Đăng tin thành công. Đang chuyển trang...', false);
+            setTimeout(function () { window.location.href = '/reports/list?submitted=1'; }, 350);
+          } catch (error) { showMessage('Gửi báo cáo thất bại. Vui lòng thử lại.', true); } finally { submitBtn.disabled = false; submitBtn.textContent = originalText; }
+        });
+      })();
+    </script>
+  </div>
+  <div id="auth-overlay-mount"></div>
+  <script src="/javascripts/authOverlayLoader.js" defer></script>
+  <script src="/javascripts/staticHeader.js"></script>
+  <script src="/javascripts/staticFooter.js"></script>
+  <div id="google_translate_element" style="display:none"></div>
+  <script>
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({ pageLanguage: 'vi', includedLanguages: 'vi,en,zh-TW,ja', autoDisplay: false }, 'google_translate_element');
+    }
+    function setLang(lang, label) {
+      document.getElementById('langBtnLabel').textContent = label;
+      document.querySelectorAll('.lang-option').forEach(function (el) {
+        el.classList.toggle('active', el.dataset.lang === (lang === 'vi' ? 'vi' : lang.replace('/', '')));
+      });
+      document.getElementById('langDropdown').classList.remove('open');
+      if (lang === 'vi') {
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname;
+        location.reload(); return;
+      }
+      var val = '/vi' + lang;
+      document.cookie = 'googtrans=' + val + '; path=/';
+      document.cookie = 'googtrans=' + val + '; path=/; domain=' + location.hostname;
+      location.reload();
+    }
+    function toggleLangDropdown(e) {
+      e.stopPropagation();
+      document.getElementById('langDropdown').classList.toggle('open');
+    }
+    document.addEventListener('click', function () {
+      var dd = document.getElementById('langDropdown');
+      if (dd) dd.classList.remove('open');
+    });
+    (function () {
+      var m = document.cookie.match(/googtrans=\/vi\/([^;]+)/);
+      if (!m) return;
+      var map = { 'en': 'EN', 'zh-TW': '中文', 'ja': '日本語' };
+      if (map[m[1]]) {
+        document.getElementById('langBtnLabel').textContent = map[m[1]];
+        document.querySelectorAll('.lang-option').forEach(function (el) {
+          el.classList.toggle('active', el.dataset.lang === m[1]);
+        });
+      }
+    })();
+  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+
+</html>

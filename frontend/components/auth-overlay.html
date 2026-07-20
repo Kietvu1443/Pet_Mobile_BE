@@ -1,0 +1,1290 @@
+<!-- ========== AUTH OVERLAY MODAL ========== -->
+<div class="auth-overlay" id="auth-overlay" role="dialog" aria-modal="true" aria-label="Đăng nhập / Đăng ký">
+    <div class="auth-overlay__backdrop" onclick="closeOverlay('auth-overlay')"></div>
+    <div class="auth-overlay__modal">
+        <!-- Close Button -->
+        <button class="auth-overlay__close" onclick="closeOverlay('auth-overlay')" aria-label="Đóng">&times;</button>
+
+        <!-- Logo -->
+        <div class="auth-overlay__logo">
+            <img src="/images/the_logo.webp" alt="Logo" class="auth-overlay__logo-circle">
+            <h2>Pet Helper</h2>
+            <p>Cộng đồng yêu thú cưng</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="auth-overlay__tabs">
+            <button class="auth-overlay__tab active" id="overlay-tab-login" data-tab="login">Đăng nhập</button>
+            <button class="auth-overlay__tab" id="overlay-tab-register" data-tab="register">Đăng ký</button>
+        </div>
+
+        <!-- Alert Messages -->
+        <div class="auth-overlay__alert auth-overlay__alert--error" id="overlayErrorAlert" style="display: none;">
+            <span>⚠️</span>
+            <span id="overlayErrorMessage"></span>
+        </div>
+        <div class="auth-overlay__alert auth-overlay__alert--success" id="overlaySuccessAlert" style="display: none;">
+            <span>✅</span>
+            <span id="overlaySuccessMessage"></span>
+        </div>
+
+        <!-- ===== LOGIN FORM ===== -->
+        <form id="overlayLoginForm" class="auth-overlay__form auth-overlay__fade-in">
+            <div class="auth-overlay__field">
+                <label for="overlayLoginDisplayName">Tên đăng nhập</label>
+                <input type="text" id="overlayLoginDisplayName" name="display_name" placeholder="Nhập tên đăng nhập"
+                    required autocomplete="username">
+            </div>
+            <div class="auth-overlay__field">
+                <label for="overlayLoginPassword">Mật khẩu</label>
+                <div class="auth-overlay__password-wrap">
+                    <input type="password" id="overlayLoginPassword" name="password" placeholder="••••••••" required
+                        autocomplete="current-password">
+                    <span class="auth-overlay__toggle-pass"
+                        onclick="overlayTogglePassword('overlayLoginPassword', this)">👁️</span>
+                </div>
+            </div>
+            <div class="auth-overlay__options">
+                <label class="auth-overlay__checkbox">
+                    <input type="checkbox" name="remember"> Ghi nhớ đăng nhập
+                </label>
+                <a href="#" class="auth-overlay__forgot" id="overlayForgotLink"
+                    onclick="overlayShowForgotPassword(); return false;">Quên mật khẩu?</a>
+            </div>
+            <button type="submit" class="auth-overlay__btn">ĐĂNG NHẬP</button>
+        </form>
+
+        <!-- ===== REGISTER FORM ===== -->
+        <form id="overlayRegisterForm" class="auth-overlay__form auth-overlay__hidden">
+            <div class="auth-overlay__row">
+                <div class="auth-overlay__field">
+                    <label for="overlayDisplayName">Tên hiển thị</label>
+                    <input type="text" id="overlayDisplayName" name="display_name" placeholder="Ví dụ: Nguyễn Văn A"
+                        required>
+                </div>
+                <div class="auth-overlay__field">
+                    <label for="overlayFullName">Họ và tên</label>
+                    <input type="text" id="overlayFullName" name="name" placeholder="Họ và tên đầy đủ" required>
+                </div>
+            </div>
+            <div class="auth-overlay__field">
+                <label for="overlayRegisterEmail">Email</label>
+                <input type="email" id="overlayRegisterEmail" name="email" placeholder="email@example.com" required>
+            </div>
+            <div class="auth-overlay__row">
+                <div class="auth-overlay__field">
+                    <label for="overlayRegisterPassword">Mật khẩu</label>
+                    <div class="auth-overlay__password-wrap">
+                        <input type="password" id="overlayRegisterPassword" name="password"
+                            placeholder="Ít nhất 8 ký tự" required minlength="8">
+                        <span class="auth-overlay__toggle-pass"
+                            onclick="overlayTogglePassword('overlayRegisterPassword', this)">👁️</span>
+                    </div>
+                </div>
+                <div class="auth-overlay__field">
+                    <label for="overlayConfirmPassword">Xác nhận MK</label>
+                    <div class="auth-overlay__password-wrap">
+                        <input type="password" id="overlayConfirmPassword" name="confirmPassword"
+                            placeholder="Nhập lại mật khẩu" required>
+                        <span class="auth-overlay__toggle-pass"
+                            onclick="overlayTogglePassword('overlayConfirmPassword', this)">👁️</span>
+                    </div>
+                </div>
+            </div>
+            <div class="auth-overlay__field">
+                <label for="overlayBirthday">Ngày sinh (không bắt buộc)</label>
+                <input type="date" id="overlayBirthday" name="birthday">
+            </div>
+            <div class="auth-overlay__field">
+                <label for="overlayAddress">Địa chỉ (không bắt buộc)</label>
+                <input type="text" id="overlayAddress" name="address" placeholder="Địa chỉ của bạn">
+            </div>
+            <div class="auth-overlay__options">
+                <label class="auth-overlay__checkbox">
+                    <input type="checkbox" name="terms" required> Tôi đồng ý với <a href="#"
+                        class="auth-overlay__terms-link">điều khoản</a>
+                </label>
+            </div>
+            <button type="submit" class="auth-overlay__btn">TẠO TÀI KHOẢN</button>
+        </form>
+
+        <!-- ===== FORGOT PASSWORD FORM ===== -->
+        <div id="overlayForgotPasswordForm" class="auth-overlay__form auth-overlay__hidden">
+            <!-- Step 1: Enter email -->
+            <div id="forgotStep1">
+                <p style="font-size: 0.92rem; color: #555; margin-bottom: 16px;">Nhập email tài khoản của bạn để nhận mã
+                    OTP đặt lại mật khẩu.</p>
+                <div class="auth-overlay__field">
+                    <label for="overlayForgotEmail">Email</label>
+                    <input type="email" id="overlayForgotEmail" placeholder="email@example.com" required>
+                </div>
+                <button type="button" class="auth-overlay__btn" id="forgotSendOtpBtn" onclick="forgotSendOtp()">GỬI MÃ
+                    OTP</button>
+            </div>
+            <!-- Step 2: Enter OTP + new password -->
+            <div id="forgotStep2" style="display: none;">
+                <p style="font-size: 0.92rem; color: #555; margin-bottom: 16px;">Nhập mã OTP đã gửi về email và mật khẩu
+                    mới.</p>
+                <div class="auth-overlay__field">
+                    <label for="overlayForgotOtp">Mã OTP</label>
+                    <input type="text" id="overlayForgotOtp" maxlength="6" inputmode="numeric"
+                        placeholder="Nhập mã 6 chữ số" required>
+                </div>
+                <div class="auth-overlay__field">
+                    <label for="overlayForgotNewPassword">Mật khẩu mới</label>
+                    <div class="auth-overlay__password-wrap">
+                        <input type="password" id="overlayForgotNewPassword" placeholder="Ít nhất 8 ký tự" required
+                            minlength="8">
+                        <span class="auth-overlay__toggle-pass"
+                            onclick="overlayTogglePassword('overlayForgotNewPassword', this)">👁️</span>
+                    </div>
+                </div>
+                <div class="auth-overlay__field">
+                    <label for="overlayForgotConfirmPassword">Xác nhận mật khẩu</label>
+                    <div class="auth-overlay__password-wrap">
+                        <input type="password" id="overlayForgotConfirmPassword" placeholder="Nhập lại mật khẩu"
+                            required>
+                        <span class="auth-overlay__toggle-pass"
+                            onclick="overlayTogglePassword('overlayForgotConfirmPassword', this)">👁️</span>
+                    </div>
+                </div>
+                <button type="button" class="auth-overlay__btn" id="forgotResetBtn" onclick="forgotResetPassword()">ĐẶT
+                    LẠI MẬT KHẨU</button>
+            </div>
+            <p style="text-align: center; margin-top: 14px; font-size: 0.85rem;">
+                <a href="#" style="color: #2d6a4f; font-weight: 600; text-decoration: none;"
+                    onclick="overlayBackToLogin(); return false;">← Quay lại đăng nhập</a>
+            </p>
+        </div>
+
+        <!-- Social Login -->
+        <div class="auth-overlay__social">
+            <p>Hoặc tiếp tục với</p>
+            <div class="auth-overlay__social-btns">
+
+                <button type="button" class="auth-overlay__social-btn auth-overlay__social-btn--google" id="googleLoginBtn" onclick="triggerGoogleLogin()">
+                    <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
+                    Tiếp tục với Google
+                </button>
+                <button type="button" class="auth-overlay__social-btn auth-overlay__social-btn--facebook" id="facebookLoginBtn" onclick="triggerFacebookLogin()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    Tiếp tục với Facebook
+                </button>
+                <button type="button" class="auth-overlay__social-btn auth-overlay__social-btn--passkey" id="passkeyLoginBtn" onclick="triggerPasskeyLogin()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                    Đăng nhập bằng Passkey
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== AUTH OVERLAY STYLES ========== -->
+<style>
+    /* ---------- Overlay Backdrop ---------- */
+    .auth-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+
+    .auth-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .auth-overlay__backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+
+    /* ---------- Modal Card ---------- */
+    .auth-overlay__modal {
+        position: relative;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        width: 95%;
+        max-width: 440px;
+        max-height: 90vh;
+        overflow-y: auto;
+        border-radius: 24px;
+        padding: 36px 32px 28px;
+        box-shadow:
+            0 25px 60px rgba(0, 0, 0, 0.18),
+            0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+        transform: scale(0.88) translateY(30px);
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .auth-overlay.active .auth-overlay__modal {
+        transform: scale(1) translateY(0);
+    }
+
+    /* Custom Scrollbar */
+    .auth-overlay__modal::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .auth-overlay__modal::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .auth-overlay__modal::-webkit-scrollbar-thumb {
+        background: rgba(45, 106, 79, 0.25);
+        border-radius: 10px;
+    }
+
+    /* ---------- Close Button ---------- */
+    .auth-overlay__close {
+        position: absolute;
+        top: 14px;
+        right: 18px;
+        background: rgba(0, 0, 0, 0.06);
+        border: none;
+        font-size: 1.5rem;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        color: #555;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.25s ease;
+        line-height: 1;
+    }
+
+    .auth-overlay__close:hover {
+        background: rgba(217, 4, 41, 0.1);
+        color: #d90429;
+        transform: rotate(90deg);
+    }
+
+    /* ---------- Logo ---------- */
+    .auth-overlay__logo {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+
+    .auth-overlay__logo-circle {
+        width: 64px;
+        height: 64px;
+        background: #fff;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 8px;
+        box-shadow: 0 4px 15px rgba(45, 106, 79, 0.2);
+        object-fit: cover;
+        border: 2px solid #2d6a4f;
+    }
+
+    .auth-overlay__logo h2 {
+        color: #2d6a4f;
+        margin: 0;
+        font-size: 1.3rem;
+    }
+
+    .auth-overlay__logo p {
+        color: #888;
+        font-size: 0.85rem;
+        margin-top: 2px;
+    }
+
+    /* ---------- Tabs ---------- */
+    .auth-overlay__tabs {
+        display: flex;
+        margin-bottom: 24px;
+        background: #f1f5f2;
+        border-radius: 12px;
+        padding: 4px;
+        gap: 4px;
+    }
+
+    .auth-overlay__tab {
+        flex: 1;
+        text-align: center;
+        padding: 10px 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #888;
+        background: transparent;
+        border: none;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .auth-overlay__tab:hover {
+        color: #555;
+    }
+
+    .auth-overlay__tab.active {
+        color: #fff;
+        background: linear-gradient(135deg, #2d6a4f, #40916c);
+        box-shadow: 0 3px 12px rgba(45, 106, 79, 0.3);
+    }
+
+    /* ---------- Alerts ---------- */
+    .auth-overlay__alert {
+        padding: 11px 14px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.88rem;
+        animation: overlayShake 0.4s ease;
+    }
+
+    .auth-overlay__alert--error {
+        background: #fff1f0;
+        color: #d90429;
+        border: 1px solid #ffa39e;
+    }
+
+    .auth-overlay__alert--success {
+        background: #f0fff4;
+        color: #2d6a4f;
+        border: 1px solid #b7e4c7;
+    }
+
+    @keyframes overlayShake {
+
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+
+        20% {
+            transform: translateX(-6px);
+        }
+
+        40% {
+            transform: translateX(6px);
+        }
+
+        60% {
+            transform: translateX(-4px);
+        }
+
+        80% {
+            transform: translateX(4px);
+        }
+    }
+
+    /* ---------- Forms ---------- */
+    .auth-overlay__form {
+        display: block;
+    }
+
+    .auth-overlay__hidden {
+        display: none !important;
+    }
+
+    .auth-overlay__fade-in {
+        animation: overlayFadeIn 0.35s ease;
+    }
+
+    @keyframes overlayFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ---------- Fields ---------- */
+    .auth-overlay__field {
+        margin-bottom: 16px;
+    }
+
+    .auth-overlay__field label {
+        display: block;
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+        color: #1b4332;
+        font-weight: 600;
+    }
+
+    .auth-overlay__field input {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1.5px solid #e0e0e0;
+        border-radius: 12px;
+        outline: none;
+        font-size: 0.95rem;
+        background: rgba(255, 255, 255, 0.8);
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .auth-overlay__field input:focus {
+        border-color: #2d6a4f;
+        box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.12);
+        background: #fff;
+    }
+
+    .auth-overlay__field input::placeholder {
+        color: #bbb;
+    }
+
+    /* ---------- Password Wrapper ---------- */
+    .auth-overlay__password-wrap {
+        position: relative;
+    }
+
+    .auth-overlay__password-wrap input {
+        padding-right: 42px;
+    }
+
+    .auth-overlay__toggle-pass {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        user-select: none;
+        font-size: 1rem;
+    }
+
+    /* ---------- Row (2 columns) ---------- */
+    .auth-overlay__row {
+        display: flex;
+        gap: 12px;
+    }
+
+    .auth-overlay__row .auth-overlay__field {
+        flex: 1;
+    }
+
+    /* ---------- Options (remember / forgot) ---------- */
+    .auth-overlay__options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+        font-size: 0.83rem;
+    }
+
+    .auth-overlay__checkbox {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #555;
+        cursor: pointer;
+    }
+
+    .auth-overlay__checkbox input[type="checkbox"] {
+        accent-color: #2d6a4f;
+    }
+
+    .auth-overlay__forgot,
+    .auth-overlay__terms-link {
+        color: #2d6a4f;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .auth-overlay__forgot:hover,
+    .auth-overlay__terms-link:hover {
+        text-decoration: underline;
+    }
+
+    /* ---------- Submit Button ---------- */
+    .auth-overlay__btn {
+        width: 100%;
+        padding: 13px;
+        background: linear-gradient(135deg, #2d6a4f, #40916c);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 6px;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-overlay__btn:hover {
+        background: linear-gradient(135deg, #1b4332, #2d6a4f);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(45, 106, 79, 0.35);
+    }
+
+    .auth-overlay__btn:active {
+        transform: translateY(0);
+    }
+
+    .auth-overlay__btn.loading {
+        pointer-events: none;
+        opacity: 0.75;
+    }
+
+    /* ---------- Social Login ---------- */
+    .auth-overlay__social {
+        margin-top: 20px;
+        text-align: center;
+        padding-top: 16px;
+        border-top: 1px solid #eee;
+    }
+
+    .auth-overlay__social p {
+        font-size: 0.8rem;
+        color: #999;
+        margin-bottom: 12px;
+    }
+
+    .auth-overlay__social-icons {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .auth-overlay__social-icon {
+        width: 40px;
+        height: 40px;
+        border: 1.5px solid #e0e0e0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-weight: 700;
+        color: #666;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.6);
+    }
+
+    .auth-overlay__social-icon:hover {
+        background: #f0fdf4;
+        border-color: #2d6a4f;
+        color: #2d6a4f;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(45, 106, 79, 0.15);
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 480px) {
+        .auth-overlay__modal {
+            padding: 28px 20px 22px;
+            border-radius: 20px;
+            max-height: 95vh;
+        }
+
+        .auth-overlay__row {
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .auth-overlay__logo-circle {
+            width: 48px;
+            height: 48px;
+            font-size: 0.9rem;
+        }
+
+        .auth-overlay__logo h2 {
+            font-size: 1.15rem;
+        }
+
+        .auth-overlay__tab {
+            font-size: 0.88rem;
+            padding: 9px 6px;
+        }
+    }
+</style>
+
+<!-- ========== AUTH OVERLAY JAVASCRIPT ========== -->
+<script>
+    // ===== Overlay Open / Close =====
+    function openOverlay(id) {
+        const overlay = document.getElementById(id);
+        if (!overlay) return;
+
+        if (id === 'auth-overlay' && overlay.classList.contains('active')) {
+            return;
+        }
+
+        if (overlay.classList.contains('full-overlay')) {
+            overlay.style.display = 'block';
+        } else {
+            overlay.classList.add('active');
+        }
+
+        if (id === 'auth-overlay') {
+            window.__authOverlayOpenRequested = true;
+            window.__pendingAuthOverlayOpen = false;
+        }
+
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeOverlay(id) {
+        const overlay = document.getElementById(id);
+        if (!overlay) return;
+
+        if (overlay.classList.contains('full-overlay')) {
+            overlay.style.display = 'none';
+        } else {
+            overlay.classList.remove('active');
+        }
+
+        document.body.style.overflow = '';
+        // Reset alerts when closing
+        overlayHideAlerts();
+
+        if (id === 'auth-overlay' && typeof window.resetLoginOverlayGuard === 'function') {
+            window.resetLoginOverlayGuard();
+        }
+    }
+
+    // Close on ESC key
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+
+        // Close all active report overlays
+        document.querySelectorAll('.report-overlay.active').forEach(function (overlay) {
+            closeOverlay(overlay.id);
+        });
+
+        // Close auth overlay
+        const authOverlay = document.getElementById('auth-overlay');
+        if (authOverlay && authOverlay.classList.contains('active')) {
+            closeOverlay('auth-overlay');
+        }
+
+        // Close legacy display-based overlays if any
+        document.querySelectorAll('.full-overlay').forEach(function (overlay) {
+            if (overlay.style.display === 'block') {
+                closeOverlay(overlay.id);
+            }
+        });
+    });
+
+    // ===== Toggle Password Visibility =====
+    function overlayTogglePassword(inputId, iconEl) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        if (input.type === 'password') {
+            input.type = 'text';
+            iconEl.textContent = '👁️‍🗨️';
+        } else {
+            input.type = 'password';
+            iconEl.textContent = '👁️';
+        }
+    }
+
+    // ===== Alert Helpers =====
+    function overlayShowError(message) {
+        const errAlert = document.getElementById('overlayErrorAlert');
+        const errMsg = document.getElementById('overlayErrorMessage');
+        const sucAlert = document.getElementById('overlaySuccessAlert');
+        if (sucAlert) sucAlert.style.display = 'none';
+        if (errMsg) errMsg.textContent = message;
+        if (errAlert) {
+            errAlert.style.display = 'flex';
+            errAlert.style.animation = 'none';
+            // Trigger reflow to restart animation
+            void errAlert.offsetWidth;
+            errAlert.style.animation = 'overlayShake 0.4s ease';
+        }
+    }
+
+    function overlayShowSuccess(message) {
+        const errAlert = document.getElementById('overlayErrorAlert');
+        const sucAlert = document.getElementById('overlaySuccessAlert');
+        const sucMsg = document.getElementById('overlaySuccessMessage');
+        if (errAlert) errAlert.style.display = 'none';
+        if (sucMsg) sucMsg.textContent = message;
+        if (sucAlert) sucAlert.style.display = 'flex';
+    }
+
+    function overlayHideAlerts() {
+        const errAlert = document.getElementById('overlayErrorAlert');
+        const sucAlert = document.getElementById('overlaySuccessAlert');
+        if (errAlert) errAlert.style.display = 'none';
+        if (sucAlert) sucAlert.style.display = 'none';
+    }
+
+    // ===== Tab Switching =====
+    (function () {
+        const tabs = document.querySelectorAll('.auth-overlay__tab');
+        const loginForm = document.getElementById('overlayLoginForm');
+        const registerForm = document.getElementById('overlayRegisterForm');
+        const forgotForm = document.getElementById('overlayForgotPasswordForm');
+
+        tabs.forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                const target = this.dataset.tab;
+                overlayHideAlerts();
+
+                tabs.forEach(function (t) { t.classList.remove('active'); });
+                tab.classList.add('active');
+
+                // Always hide forgot password form when switching tabs
+                if (forgotForm) forgotForm.classList.add('auth-overlay__hidden');
+
+                if (target === 'login') {
+                    loginForm.classList.remove('auth-overlay__hidden');
+                    loginForm.classList.add('auth-overlay__fade-in');
+                    registerForm.classList.add('auth-overlay__hidden');
+                } else {
+                    loginForm.classList.add('auth-overlay__hidden');
+                    registerForm.classList.remove('auth-overlay__hidden');
+                    registerForm.classList.add('auth-overlay__fade-in');
+                }
+            });
+        });
+    })();
+
+    // ===== Helper: Switch to specific tab programmatically =====
+    function overlayActivateTab(tabName) {
+        const tabBtn = document.getElementById(tabName === 'register' ? 'overlay-tab-register' : 'overlay-tab-login');
+        if (tabBtn) tabBtn.click();
+    }
+
+    // ===== Login Form Submit (API-first) =====
+    (function () {
+        const form = document.getElementById('overlayLoginForm');
+        if (!form) return;
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            overlayHideAlerts();
+
+            const btn = form.querySelector('.auth-overlay__btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Đang xử lý...';
+            btn.classList.add('loading');
+
+            const display_name = document.getElementById('overlayLoginDisplayName').value;
+            const password = document.getElementById('overlayLoginPassword').value;
+
+            try {
+                const response = await fetch('/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ display_name, password }),
+                });
+
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (parseError) {
+                    overlayShowError('Đăng nhập thất bại. Vui lòng thử lại.');
+                    btn.textContent = originalText;
+                    btn.classList.remove('loading');
+                    return;
+                }
+
+                if (response.ok && data && data.success) {
+                    const token = data.data && data.data.token ? data.data.token : null;
+                    const user = data.data && data.data.user ? data.data.user : null;
+                    if (token) {
+                        localStorage.setItem('token', token);
+                    }
+                    if (user) {
+                        localStorage.setItem('user', JSON.stringify(user));
+                    }
+                    overlayShowSuccess(data.message || 'Đăng nhập thành công');
+                    setTimeout(function () { window.location.href = '/'; }, 600);
+                } else {
+                    const message = (data && (data.message || data.error)) || 'Đăng nhập thất bại';
+                    overlayShowError(message);
+                    btn.textContent = originalText;
+                    btn.classList.remove('loading');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                overlayShowError('Sai tài khoản hoặc mật khẩu');
+                btn.textContent = originalText;
+                btn.classList.remove('loading');
+            }
+        });
+    })();
+
+    // ===== Register Form Submit (API-first) =====
+    (function () {
+        const form = document.getElementById('overlayRegisterForm');
+        if (!form) return;
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            overlayHideAlerts();
+
+            const btn = form.querySelector('.auth-overlay__btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Đang xử lý...';
+            btn.classList.add('loading');
+
+            const formData = {
+                display_name: document.getElementById('overlayDisplayName').value,
+                name: document.getElementById('overlayFullName').value,
+                email: document.getElementById('overlayRegisterEmail').value,
+                password: document.getElementById('overlayRegisterPassword').value,
+                confirmPassword: document.getElementById('overlayConfirmPassword').value,
+                birthday: document.getElementById('overlayBirthday').value || null,
+                address: document.getElementById('overlayAddress').value || null,
+            };
+
+            if (formData.password !== formData.confirmPassword) {
+                overlayShowError('Mật khẩu xác nhận không khớp');
+                btn.textContent = originalText;
+                btn.classList.remove('loading');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData),
+                });
+
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (parseError) {
+                    overlayShowError('Đăng ký thất bại. Vui lòng thử lại.');
+                    btn.textContent = originalText;
+                    btn.classList.remove('loading');
+                    return;
+                }
+
+                if (response.ok && data && data.success) {
+                    const token = data.data && data.data.token ? data.data.token : null;
+                    const user = data.data && data.data.user ? data.data.user : null;
+                    if (token) {
+                        localStorage.setItem('token', token);
+                    }
+                    if (user) {
+                        localStorage.setItem('user', JSON.stringify(user));
+                    }
+                    overlayShowSuccess(data.message || 'Đăng ký thành công');
+                    setTimeout(function () { window.location.href = '/'; }, 600);
+                } else {
+                    const message = (data && (data.message || data.error)) || 'Đăng ký thất bại';
+                    overlayShowError(message);
+                    btn.textContent = originalText;
+                    btn.classList.remove('loading');
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                overlayShowError('Đã xảy ra lỗi kết nối, vui lòng thử lại');
+                btn.textContent = originalText;
+                btn.classList.remove('loading');
+            }
+        });
+
+        // Password confirmation validation
+        const regPass = document.getElementById('overlayRegisterPassword');
+        const confirmPass = document.getElementById('overlayConfirmPassword');
+        if (confirmPass && regPass) {
+            confirmPass.addEventListener('input', function () {
+                if (regPass.value !== confirmPass.value) {
+                    confirmPass.setCustomValidity('Mật khẩu xác nhận không khớp');
+                } else {
+                    confirmPass.setCustomValidity('');
+                }
+            });
+        }
+    })();
+
+    // ===== Auto-open from URL query params =====
+    (function () {
+        const params = new URLSearchParams(window.location.search);
+        const authParam = params.get('auth');
+        if (authParam === 'login' || authParam === 'register') {
+            // Small delay to ensure DOM is ready
+            setTimeout(function () {
+                openOverlay('auth-overlay');
+                if (authParam === 'register') {
+                    overlayActivateTab('register');
+                }
+            }, 300);
+        }
+    })();
+
+    // ===== Forgot Password Flow =====
+    function overlayShowForgotPassword() {
+        overlayHideAlerts();
+        var loginForm = document.getElementById('overlayLoginForm');
+        var registerForm = document.getElementById('overlayRegisterForm');
+        var forgotForm = document.getElementById('overlayForgotPasswordForm');
+        var tabs = document.querySelector('.auth-overlay__tabs');
+        if (loginForm) loginForm.classList.add('auth-overlay__hidden');
+        if (registerForm) registerForm.classList.add('auth-overlay__hidden');
+        if (forgotForm) {
+            forgotForm.classList.remove('auth-overlay__hidden');
+            forgotForm.classList.add('auth-overlay__fade-in');
+        }
+        if (tabs) tabs.style.display = 'none';
+        // Reset to step 1
+        var step1 = document.getElementById('forgotStep1');
+        var step2 = document.getElementById('forgotStep2');
+        if (step1) step1.style.display = 'block';
+        if (step2) step2.style.display = 'none';
+    }
+
+    function overlayBackToLogin() {
+        overlayHideAlerts();
+        var loginForm = document.getElementById('overlayLoginForm');
+        var forgotForm = document.getElementById('overlayForgotPasswordForm');
+        var tabs = document.querySelector('.auth-overlay__tabs');
+        if (forgotForm) forgotForm.classList.add('auth-overlay__hidden');
+        if (loginForm) {
+            loginForm.classList.remove('auth-overlay__hidden');
+            loginForm.classList.add('auth-overlay__fade-in');
+        }
+        if (tabs) tabs.style.display = '';
+        // Re-activate login tab
+        var loginTab = document.getElementById('overlay-tab-login');
+        var regTab = document.getElementById('overlay-tab-register');
+        if (loginTab) loginTab.classList.add('active');
+        if (regTab) regTab.classList.remove('active');
+    }
+
+    var __forgotEmail = '';
+
+    async function forgotSendOtp() {
+        var btn = document.getElementById('forgotSendOtpBtn');
+        var emailInput = document.getElementById('overlayForgotEmail');
+        var email = (emailInput.value || '').trim().toLowerCase();
+        if (!email) {
+            overlayShowError('Vui lòng nhập email.');
+            return;
+        }
+        overlayHideAlerts();
+        var originalText = btn.textContent;
+        btn.textContent = 'Đang gửi...';
+        btn.classList.add('loading');
+        try {
+            var response = await fetch('/auth/forgot-password/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email }),
+            });
+            var data = null;
+            try { data = await response.json(); } catch (e) { }
+            if (!response.ok) {
+                overlayShowError((data && data.error) || 'Không thể gửi mã OTP.');
+                btn.textContent = originalText;
+                btn.classList.remove('loading');
+                return;
+            }
+            __forgotEmail = email;
+            overlayShowSuccess((data && data.message) || 'Mã OTP đã được gửi!');
+            // Move to step 2
+            var step1 = document.getElementById('forgotStep1');
+            var step2 = document.getElementById('forgotStep2');
+            if (step1) step1.style.display = 'none';
+            if (step2) step2.style.display = 'block';
+            btn.textContent = originalText;
+            btn.classList.remove('loading');
+        } catch (err) {
+            console.error('Forgot send OTP error:', err);
+            overlayShowError('Đã xảy ra lỗi kết nối.');
+            btn.textContent = originalText;
+            btn.classList.remove('loading');
+        }
+    }
+
+    async function forgotResetPassword() {
+        var btn = document.getElementById('forgotResetBtn');
+        var otp = (document.getElementById('overlayForgotOtp').value || '').trim();
+        var newPassword = document.getElementById('overlayForgotNewPassword').value;
+        var confirmPassword = document.getElementById('overlayForgotConfirmPassword').value;
+        if (!otp || otp.length !== 6) {
+            overlayShowError('Vui lòng nhập đúng mã OTP 6 chữ số.');
+            return;
+        }
+        if (!newPassword || newPassword.length < 8) {
+            overlayShowError('Mật khẩu mới phải có ít nhất 8 ký tự.');
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            overlayShowError('Mật khẩu xác nhận không khớp.');
+            return;
+        }
+        overlayHideAlerts();
+        var originalText = btn.textContent;
+        btn.textContent = 'Đang xử lý...';
+        btn.classList.add('loading');
+        try {
+            var response = await fetch('/auth/forgot-password/reset', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: __forgotEmail, otp: otp, newPassword: newPassword }),
+            });
+            var data = null;
+            try { data = await response.json(); } catch (e) { }
+            if (!response.ok) {
+                overlayShowError((data && data.error) || 'Không thể đặt lại mật khẩu.');
+                btn.textContent = originalText;
+                btn.classList.remove('loading');
+                return;
+            }
+            overlayShowSuccess((data && data.message) || 'Đặt lại mật khẩu thành công!');
+            // After 2s, go back to login
+            setTimeout(function () {
+                overlayBackToLogin();
+                overlayHideAlerts();
+            }, 2000);
+        } catch (err) {
+            console.error('Forgot reset error:', err);
+            overlayShowError('Đã xảy ra lỗi kết nối.');
+            btn.textContent = originalText;
+            btn.classList.remove('loading');
+        }
+    }
+
+    // ===== Social Auth Shared Helper =====
+    async function _handleOAuthSuccess(data) {
+        if (data && data.data && data.data.token) {
+            localStorage.setItem('token', data.data.token);
+        }
+        if (data && data.data && data.data.user) {
+            localStorage.setItem('user', JSON.stringify(data.data.user));
+        }
+        overlayShowSuccess(data.message || 'Đăng nhập thành công!');
+        setTimeout(function () { window.location.reload(); }, 700);
+    }
+
+    // ===== Google Login =====
+    // Được gọi khi user click nút Google
+    async function triggerGoogleLogin() {
+        const googleClientId = window.GOOGLE_CLIENT_ID || '';
+        if (!googleClientId || googleClientId.includes('YOUR_')) {
+            overlayShowError('Google Login chưa được cấu hình. Vui lòng điền GOOGLE_CLIENT_ID vào .env');
+            return;
+        }
+        // Sử dụng Google Identity Services prompt nếu SDK đã load
+        if (window.google && window.google.accounts && window.google.accounts.id) {
+            if (!window.__googleLoginInitialized) {
+                google.accounts.id.initialize({
+                    client_id: googleClientId,
+                    callback: window.handleGoogleCredentialResponse,
+                    use_fedcm_for_prompt: false
+                });
+                window.__googleLoginInitialized = true;
+            }
+            google.accounts.id.prompt();
+        } else {
+            overlayShowError('Google SDK chưa sẵn sàng. Vui lòng tải lại trang.');
+        }
+    }
+
+    // Callback nhận idToken từ Google SDK
+    function handleGoogleCredentialResponse(response) {
+        (async () => {
+            const btn = document.getElementById('googleLoginBtn');
+            const originalText = btn ? btn.innerHTML : '';
+            if (btn) { btn.disabled = true; btn.textContent = 'Đang xác thực...'; }
+            try {
+                const res = await fetch('/api/v1/auth/google', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ token: response.credential }),
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    await _handleOAuthSuccess(data);
+                } else {
+                    overlayShowError(data.message || 'Đăng nhập Google thất bại');
+                }
+            } catch (err) {
+                overlayShowError('Lỗi kết nối khi đăng nhập Google');
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
+            }
+        })();
+    }
+    // Expose globally for Google SDK callback
+    window.handleGoogleCredentialResponse = handleGoogleCredentialResponse;
+
+    // ===== Facebook Login =====
+    async function triggerFacebookLogin() {
+        const fbAppId = window.FACEBOOK_APP_ID || '';
+        if (!fbAppId || fbAppId.includes('YOUR_')) {
+            overlayShowError('Facebook Login chưa được cấu hình. Vui lòng điền FACEBOOK_APP_ID vào .env');
+            return;
+        }
+        if (window.location.protocol === 'http:') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Yêu cầu HTTPS!',
+                text: 'Facebook SDK yêu cầu kết nối bảo mật HTTPS để đăng nhập. Giao thức HTTP thường (http://localhost:3000) không được hỗ trợ bởi Meta.',
+                footer: 'Lời khuyên: Chuyển máy chủ local sang HTTPS hoặc sử dụng công cụ ngrok/localtunnel.',
+                confirmButtonColor: '#2d6a4f'
+            });
+            overlayShowError('Facebook Login yêu cầu kết nối HTTPS.');
+            return;
+        }
+        if (typeof FB === 'undefined') {
+            overlayShowError('Facebook SDK chưa sẵn sàng. Vui lòng tải lại trang.');
+            return;
+        }
+        FB.login(function(response) {
+            (async () => {
+                if (!response.authResponse) return;
+                const btn = document.getElementById('facebookLoginBtn');
+                const originalText = btn ? btn.innerHTML : '';
+                if (btn) { btn.disabled = true; btn.textContent = 'Đang xác thực...'; }
+                try {
+                    const res = await fetch('/api/v1/auth/facebook', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ accessToken: response.authResponse.accessToken }),
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        await _handleOAuthSuccess(data);
+                    } else {
+                        overlayShowError(data.message || 'Đăng nhập Facebook thất bại');
+                    }
+                } catch (err) {
+                    overlayShowError('Lỗi kết nối khi đăng nhập Facebook');
+                } finally {
+                    if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
+                }
+            })();
+        }, { scope: 'email,public_profile' });
+    }
+
+    // ===== Passkey Login =====
+    async function triggerPasskeyLogin() {
+        if (!window.PublicKeyCredential) {
+            overlayShowError('Trình duyệt của bạn không hỗ trợ Passkey. Vui lòng dùng trình duyệt hiện đại hơn.');
+            return;
+        }
+        const btn = document.getElementById('passkeyLoginBtn');
+        const originalText = btn ? btn.innerHTML : '';
+        if (btn) { btn.disabled = true; btn.textContent = 'Đang xác thực...'; }
+        try {
+            // 1. Lấy challenge từ backend
+            const optRes = await fetch('/api/v1/auth/passkey/login/options', { credentials: 'include' });
+            const optData = await optRes.json();
+            if (!optRes.ok || !optData.success) {
+                overlayShowError(optData.message || 'Không thể khởi tạo Passkey');
+                return;
+            }
+            // 2. Gọi trình duyệt yêu cầu vân tay / PIN
+            const { startAuthentication } = window.SimpleWebAuthnBrowser || {};
+            if (!startAuthentication) {
+                overlayShowError('Thư viện SimpleWebAuthn chưa được tải. Hãy thêm script vào trang.');
+                return;
+            }
+            let credential;
+            try {
+                credential = await startAuthentication(optData.data.options);
+            } catch (err) {
+                if (err.name === 'NotAllowedError') {
+                    overlayShowError('Bạn đã hủy xác thực Passkey.');
+                } else {
+                    overlayShowError('Không tìm thấy Passkey phù hợp trên thiết bị này.');
+                }
+                return;
+            }
+            // 3. Gửi kết quả về backend
+            const verRes = await fetch('/api/v1/auth/passkey/login/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ credential }),
+            });
+            const verData = await verRes.json();
+            if (verRes.ok && verData.success) {
+                await _handleOAuthSuccess(verData);
+            } else {
+                overlayShowError(verData.message || 'Xác thực Passkey thất bại');
+            }
+        } catch (err) {
+            console.error('Passkey login error:', err);
+            overlayShowError('Đã xảy ra lỗi khi đăng nhập bằng Passkey');
+        } finally {
+            if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
+        }
+    }
+</script>
+
+<!-- ========== SOCIAL AUTH STYLES ========== -->
+<style>
+    .auth-overlay__social-btns {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 4px;
+    }
+
+    .auth-overlay__social-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 11px 16px;
+        border-radius: 12px;
+        border: 1.5px solid #e0e0e0;
+        background: #fff;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.22s ease;
+        color: #374151;
+    }
+
+    .auth-overlay__social-btn:hover {
+        background: #f9fafb;
+        border-color: #b0b0b0;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
+
+    .auth-overlay__social-btn:active {
+        transform: translateY(0);
+    }
+
+    .auth-overlay__social-btn:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .auth-overlay__social-btn--google:hover {
+        border-color: #4285F4;
+        color: #4285F4;
+    }
+
+    .auth-overlay__social-btn--facebook:hover {
+        border-color: #1877F2;
+        color: #1877F2;
+    }
+
+    .auth-overlay__social-btn--passkey:hover {
+        border-color: #2d6a4f;
+        color: #2d6a4f;
+    }
+</style>

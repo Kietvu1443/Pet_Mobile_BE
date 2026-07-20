@@ -1,0 +1,37 @@
+@startuml
+actor User
+
+rectangle "Chức năng tài khoản" {
+  (Đăng nhập)
+  (Đăng xuất)
+}
+
+rectangle "Tương tác thú cưng" {
+  (Xem thú cưng)
+  (Yêu thích thú cưng)
+  (Quẹt PetSnap)
+}
+
+rectangle "Hành động" {
+  (Nhận nuôi thú cưng)
+  (Mua đồ chơi)
+}
+
+rectangle "Báo cáo" {
+  (Báo cáo mất thú cưng)
+  (Báo cáo tìm thấy thú cưng)
+}
+
+User --> (Đăng nhập)
+User --> (Đăng xuất)
+User --> (Xem thú cưng)
+User --> (Yêu thích thú cưng)
+User --> (Quẹt PetSnap)
+User --> (Nhận nuôi thú cưng)
+User --> (Mua đồ chơi)
+User --> (Báo cáo mất thú cưng)
+User --> (Báo cáo tìm thấy thú cưng)
+
+(Nhận nuôi thú cưng) --> (Xác thực) : <<include>>
+
+@enduml

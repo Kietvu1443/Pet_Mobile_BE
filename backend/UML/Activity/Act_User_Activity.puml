@@ -1,0 +1,32 @@
+@startuml Act_User_Activity
+
+title User Main Activities
+
+|User|
+start
+:Access Website;
+if (Authenticated?) then (yes)
+    :View Profile;
+else (no)
+    :Register / Login;
+    :Verify Email (OTP);
+endif
+
+partition "Adoption Process" {
+    :Browse Pets;
+    :View Pet Details;
+    if (Interested?) then (yes)
+        :Submit Adoption Request;
+        :Wait for Staff Review;
+    endif
+}
+
+partition "Reporting Process" {
+    :Submit Lost/Found Report;
+    :Upload Pet Photos;
+    :Submit Contact Info;
+}
+
+stop
+
+@enduml

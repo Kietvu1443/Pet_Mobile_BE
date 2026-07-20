@@ -1,0 +1,27 @@
+@startuml
+actor User
+participant "Frontend" as FE
+participant "Backend API" as BE
+database DB
+participant "Cloud Storage" as Cloud
+
+User -> FE : Nhập thông tin báo cáo + chọn ảnh
+FE -> BE : POST /reports (data + image)
+
+BE -> BE : Validate dữ liệu
+
+alt Dữ liệu hợp lệ
+    BE -> Cloud : Upload ảnh
+    Cloud --> BE : Trả image_url
+
+    BE -> DB : Lưu report
+    BE -> DB : Lưu pet_images (report_id)
+
+    BE --> FE : Thành công
+    FE --> User : "Gửi báo cáo thành công"
+else Dữ liệu lỗi
+    BE --> FE : Lỗi validate
+    FE --> User : Hiển thị lỗi
+end
+
+@enduml
