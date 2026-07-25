@@ -19,3 +19,6 @@ Thumbs.db
 # agent
 AGENTS.md
 Update
+
+__pycache__/
+*.pyc

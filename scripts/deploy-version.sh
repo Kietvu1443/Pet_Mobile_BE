@@ -56,8 +56,8 @@ perform_deploy() {
   install_deps
   restart_services
   reload_nginx
-  health_check
   write_version_file "deploy"
+  health_check
   log_deployment "SUCCESS"
   write_last_summary "SUCCESS"
 }
@@ -103,8 +103,8 @@ perform_rollback() {
   install_deps
   restart_services
   reload_nginx
-  health_check
   write_version_file "rollback"
+  health_check
   log_deployment "SUCCESS"
   write_last_summary "SUCCESS"
 }
