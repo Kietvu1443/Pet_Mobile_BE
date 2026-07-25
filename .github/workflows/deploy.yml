@@ -1,0 +1,42 @@
+# .github/workflows/deploy.yml
+
+name: Deploy to Oracle VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          port: ${{ secrets.VPS_PORT }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+
+          script: |
+            set -e
+
+            cd /opt/pet-helper/backend
+
+            echo "== Pull latest code =="
+            git fetch origin
+            git reset --hard origin/main
+
+            echo "== Install dependencies =="
+            npm ci
+
+            echo "== Restart PM2 =="
+            sudo -u ubuntu pm2 restart pet-helper
+            sudo -u ubuntu pm2 save
+
+            echo "== Reload nginx =="
+            systemctl reload nginx
+
+            echo "== Done =="
