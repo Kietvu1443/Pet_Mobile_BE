@@ -2,6 +2,7 @@ require("dotenv").config();
 var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
+var fs = require("fs");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var cors = require("cors");
@@ -104,6 +105,27 @@ app.use("/adopt", petRouter);
 app.use("/", adoptionRequestRouter);
 app.use("/", reportRouter);
 app.use("/api/v1", newsApiV1Router);
+
+// Health Check Endpoint - used by deployment workflow for post-deploy verification
+app.get("/api/v1/health", (req, res) => {
+  let versionInfo = null;
+  try {
+    const runtimeDir = process.env.RUNTIME_DIR || "/opt/pet-helper/runtime";
+    const versionFile = path.join(runtimeDir, "current_version.json");
+    if (fs.existsSync(versionFile)) {
+      versionInfo = JSON.parse(fs.readFileSync(versionFile, "utf8"));
+    }
+  } catch (_err) {
+    // Non-fatal: version info is optional
+  }
+
+  res.status(200).json({
+    status: "ok",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    version: versionInfo,
+  });
+});
 
 // Swagger UI Route
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

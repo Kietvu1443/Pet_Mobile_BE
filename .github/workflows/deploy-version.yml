@@ -1,0 +1,486 @@
+﻿name: Deploy Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_ref:
+        description: "Git ref to deploy (branch, tag, or commit SHA)"
+        required: true
+        default: "main"
+        type: string
+      action:
+        description: "Action to perform"
+        required: true
+        default: "deploy"
+        type: choice
+        options:
+          - deploy
+          - rollback
+
+# Prevent concurrent deployments from racing each other
+concurrency:
+  group: deployment
+  cancel-in-progress: false
+
+# ── Deployment target parameters ───────────────────────────────────────────────
+# Override any of these by setting GitHub repository variables with the same
+# names: Settings → Secrets and variables → Variables
+env:
+  DEPLOY_USER: ubuntu
+  PM2_APP: pet-helper
+  BACKEND_DIR: /opt/pet-helper/backend
+  RUNTIME_DIR: /opt/pet-helper/runtime
+
+jobs:
+  deploy:
+    name: "Deploy/Rollback — ${{ inputs.git_ref }}"
+    runs-on: ubuntu-latest
+
+    steps:
+      # ────────────────────────────────────────────────────────────────────────
+      # Main step: all deployment logic runs on the VPS via SSH.
+      # Deployment order: git → npm ci → pm2 restart → nginx reload → health check
+      # ────────────────────────────────────────────────────────────────────────
+      - name: Execute on VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          port: ${{ secrets.VPS_PORT }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script_stop: true
+          script: |
+            sudo -u "${{ env.DEPLOY_USER }}" \
+              INPUT_GIT_REF="${{ inputs.git_ref }}" \
+              INPUT_ACTION="${{ inputs.action }}" \
+              INPUT_TRIGGERED_BY="${{ github.actor }}" \
+              INPUT_REPOSITORY="${{ github.repository }}" \
+              INPUT_RUN_NUMBER="${{ github.run_number }}" \
+              INPUT_RUN_ID="${{ github.run_id }}" \
+              PM2_APP="${{ env.PM2_APP }}" \
+              BACKEND_DIR="${{ env.BACKEND_DIR }}" \
+              RUNTIME_DIR="${{ env.RUNTIME_DIR }}" \
+              bash << 'OUTER_EOF'
+            set -euo pipefail
+
+            DEPLOY_START_MS=$(date +%s%3N)
+
+            # ── Config (injected via sudo env-passing above) ──────────────────
+            REPO_DIR="$BACKEND_DIR"
+            HEALTH_URL="http://127.0.0.1:3000/api/v1/health"
+            HEALTH_RETRIES=10
+            HEALTH_DELAY=3
+            HEALTH_RESULT="unknown"
+
+            # ── Helpers ───────────────────────────────────────────────────────
+
+            log_section() {
+              echo ""
+              echo "=============================================="
+              echo "  $1"
+              echo "=============================================="
+            }
+
+            setup_runtime_dir() {
+              mkdir -p "$RUNTIME_DIR"
+            }
+
+            # Resolves INPUT_GIT_REF and exports globals:
+            #   RESOLVED_SHA, SHORT_SHA, REF_TYPE, COMMIT_MSG
+            resolve_ref() {
+              local ref="$1"
+              log_section "Validating git ref: '${ref}'"
+              cd "$REPO_DIR"
+              git fetch --all --tags --prune --quiet
+
+              if git show-ref --verify --quiet "refs/remotes/origin/${ref}" 2>/dev/null; then
+                REF_TYPE="branch"
+                RESOLVED_SHA=$(git rev-parse "origin/${ref}")
+              elif git show-ref --verify --quiet "refs/heads/${ref}" 2>/dev/null; then
+                REF_TYPE="branch"
+                RESOLVED_SHA=$(git rev-parse "refs/heads/${ref}")
+              elif git show-ref --verify --quiet "refs/tags/${ref}" 2>/dev/null; then
+                REF_TYPE="tag"
+                RESOLVED_SHA=$(git rev-parse --verify "refs/tags/${ref}^{}")
+              elif git rev-parse --verify "${ref}^{commit}" > /dev/null 2>&1; then
+                REF_TYPE="commit"
+                RESOLVED_SHA=$(git rev-parse "${ref}^{commit}")
+              else
+                echo "ERROR: git ref '${ref}' does not exist (not a branch, tag, or commit SHA)."
+                exit 1
+              fi
+
+              SHORT_SHA="${RESOLVED_SHA:0:7}"
+              COMMIT_MSG=$(git log -1 --pretty=format:"%s" "$RESOLVED_SHA")
+              # Export so child processes (python3) can read these
+              export RESOLVED_SHA SHORT_SHA REF_TYPE COMMIT_MSG
+
+              echo "  Type    : ${REF_TYPE}"
+              echo "  SHA     : ${SHORT_SHA} (${RESOLVED_SHA})"
+              echo "  Message : ${COMMIT_MSG}"
+            }
+
+            # git switch for branches; git checkout --detach for tags/commits
+            checkout_ref() {
+              log_section "Checkout ${REF_TYPE}: '${INPUT_GIT_REF}'"
+              cd "$REPO_DIR"
+
+              case "$REF_TYPE" in
+                branch)
+                  # -C: create or reset branch to remote state; --discard-changes: clean workspace
+                  git switch -C "$INPUT_GIT_REF" "origin/$INPUT_GIT_REF" --discard-changes
+                  ;;
+                tag|commit)
+                  # Intentional detached HEAD for exact commit/tag pinning
+                  git checkout --detach "$RESOLVED_SHA"
+                  ;;
+              esac
+
+              echo "  Working tree: $(git rev-parse --short HEAD)"
+            }
+
+            install_deps() {
+              log_section "Installing dependencies (npm ci)"
+              cd "$REPO_DIR"
+              npm ci
+            }
+
+            restart_services() {
+              log_section "Restarting PM2 — ${PM2_APP}"
+              pm2 restart "$PM2_APP" --update-env
+              pm2 save
+              pm2 status
+            }
+
+            # nginx reload runs AFTER pm2 restart but BEFORE health check.
+            # This ensures the health check validates the full stack (app + proxy).
+            # Requires: ubuntu ALL=(ALL) NOPASSWD: /bin/systemctl reload nginx
+            reload_nginx() {
+              log_section "Reloading Nginx"
+              sudo systemctl reload nginx
+              echo "  Nginx reloaded"
+            }
+
+            health_check() {
+              log_section "Health check: ${HEALTH_URL}"
+              local attempt=1
+              while [ "$attempt" -le "$HEALTH_RETRIES" ]; do
+                echo "  Attempt ${attempt}/${HEALTH_RETRIES}..."
+                HTTP_STATUS=$(curl -s -o /tmp/health_body.json -w "%{http_code}" "$HEALTH_URL" || true)
+                APP_STATUS=$(python3 -c "import json; d=json.load(open('/tmp/health_body.json')); print(d.get('status',''))" 2>/dev/null || true)
+
+                if [ "$HTTP_STATUS" = "200" ] && [ "$APP_STATUS" = "ok" ]; then
+                  echo "  Health check passed (HTTP ${HTTP_STATUS}, status=ok)"
+                  HEALTH_RESULT="passed (HTTP 200, status=ok)"
+                  export HEALTH_RESULT
+                  cat /tmp/health_body.json
+                  return 0
+                fi
+
+                echo "  Not ready (HTTP ${HTTP_STATUS}, status='${APP_STATUS}'). Waiting ${HEALTH_DELAY}s..."
+                sleep "$HEALTH_DELAY"
+                attempt=$((attempt + 1))
+              done
+
+              HEALTH_RESULT="failed after ${HEALTH_RETRIES} attempts"
+              export HEALTH_RESULT
+              echo "ERROR: Health check failed after ${HEALTH_RETRIES} attempts."
+              pm2 status || true
+              pm2 logs "$PM2_APP" --lines 30 --nostream || true
+              exit 1
+            }
+
+            # Rotate current -> previous, then write current_version.json.
+            # Uses python3 to generate valid JSON — handles special chars in commit messages.
+            write_version_file() {
+              local action="$1"
+              local deploy_time duration_ms
+              deploy_time=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+              duration_ms=$(( $(date +%s%3N) - DEPLOY_START_MS ))
+
+              if [ -f "${RUNTIME_DIR}/current_version.json" ]; then
+                cp "${RUNTIME_DIR}/current_version.json" "${RUNTIME_DIR}/previous_version.json"
+              fi
+
+              ACTION_ARG="$action" DEPLOY_TIME="$deploy_time" DURATION_MS="$duration_ms" \
+              python3 -c "
+            import json, os
+            data = {
+                'commit_sha':     os.environ['RESOLVED_SHA'],
+                'short_sha':      os.environ['SHORT_SHA'],
+                'git_ref':        os.environ['INPUT_GIT_REF'],
+                'ref_type':       os.environ['REF_TYPE'],
+                'commit_message': os.environ['COMMIT_MSG'],
+                'deployed_at':    os.environ['DEPLOY_TIME'],
+                'deployed_by':    os.environ['INPUT_TRIGGERED_BY'],
+                'action':         os.environ['ACTION_ARG'],
+                'repository':     os.environ['INPUT_REPOSITORY'],
+                'build_number':   os.environ['INPUT_RUN_NUMBER'],
+                'workflow_run':   os.environ['INPUT_RUN_ID'],
+                'duration_ms':    int(os.environ['DURATION_MS']),
+            }
+            with open(os.environ['RUNTIME_DIR'] + '/current_version.json', 'w') as f:
+                json.dump(data, f, indent=2)
+            print('  Wrote current_version.json')
+            "
+            }
+
+            # Append one JSON Lines record to deployments.jsonl
+            log_deployment() {
+              local status="$1"
+              local ts duration_ms
+              ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+              duration_ms=$(( $(date +%s%3N) - DEPLOY_START_MS ))
+
+              STATUS_ARG="$status" TS="$ts" DURATION_MS="$duration_ms" \
+              python3 -c "
+            import json, os
+            record = {
+                'timestamp':      os.environ['TS'],
+                'action':         os.environ['INPUT_ACTION'],
+                'git_ref':        os.environ['INPUT_GIT_REF'],
+                'ref_type':       os.environ.get('REF_TYPE', 'unknown'),
+                'commit_sha':     os.environ.get('RESOLVED_SHA', 'unknown'),
+                'short_sha':      os.environ.get('SHORT_SHA', 'unknown'),
+                'commit_message': os.environ.get('COMMIT_MSG', ''),
+                'health_result':  os.environ.get('HEALTH_RESULT', 'unknown'),
+                'status':         os.environ['STATUS_ARG'],
+                'triggered_by':   os.environ['INPUT_TRIGGERED_BY'],
+                'build_number':   os.environ['INPUT_RUN_NUMBER'],
+                'workflow_run':   os.environ['INPUT_RUN_ID'],
+                'duration_ms':    int(os.environ['DURATION_MS']),
+            }
+            with open(os.environ['RUNTIME_DIR'] + '/deployments.jsonl', 'a') as f:
+                f.write(json.dumps(record) + '\n')
+            print('  Logged to deployments.jsonl')
+            "
+            }
+
+            # Write last_deploy_summary.json — read by the GitHub Step Summary step
+            write_last_summary() {
+              local status="$1"
+              local deploy_time duration_ms
+              deploy_time=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+              duration_ms=$(( $(date +%s%3N) - DEPLOY_START_MS ))
+
+              STATUS_ARG="$status" DEPLOY_TIME="$deploy_time" DURATION_MS="$duration_ms" \
+              python3 -c "
+            import json, os
+            data = {
+                'status':         os.environ['STATUS_ARG'],
+                'action':         os.environ['INPUT_ACTION'],
+                'git_ref':        os.environ['INPUT_GIT_REF'],
+                'ref_type':       os.environ.get('REF_TYPE', 'unknown'),
+                'commit_sha':     os.environ.get('RESOLVED_SHA', 'unknown'),
+                'short_sha':      os.environ.get('SHORT_SHA', 'unknown'),
+                'commit_message': os.environ.get('COMMIT_MSG', ''),
+                'health_result':  os.environ.get('HEALTH_RESULT', 'unknown'),
+                'deployed_at':    os.environ['DEPLOY_TIME'],
+                'deployed_by':    os.environ['INPUT_TRIGGERED_BY'],
+                'duration_ms':    int(os.environ['DURATION_MS']),
+                'build_number':   os.environ['INPUT_RUN_NUMBER'],
+                'workflow_run':   os.environ['INPUT_RUN_ID'],
+            }
+            with open(os.environ['RUNTIME_DIR'] + '/last_deploy_summary.json', 'w') as f:
+                json.dump(data, f, indent=2)
+            print('  Wrote last_deploy_summary.json')
+            "
+            }
+
+            # ── Rollback ──────────────────────────────────────────────────────
+            perform_rollback() {
+              log_section "Manual Rollback"
+
+              if [ ! -f "${RUNTIME_DIR}/previous_version.json" ]; then
+                echo "ERROR: No previous_version.json found in ${RUNTIME_DIR}."
+                echo "  Cannot rollback: no prior successful deployment recorded."
+                exit 1
+              fi
+
+              echo "Previous version to restore:"
+              cat "${RUNTIME_DIR}/previous_version.json"
+
+              local prev_sha prev_ref prev_ref_type prev_msg
+              prev_sha=$(python3      -c "import json; d=json.load(open('${RUNTIME_DIR}/previous_version.json')); print(d['commit_sha'])")
+              prev_ref=$(python3      -c "import json; d=json.load(open('${RUNTIME_DIR}/previous_version.json')); print(d['git_ref'])")
+              prev_ref_type=$(python3 -c "import json; d=json.load(open('${RUNTIME_DIR}/previous_version.json')); print(d.get('ref_type','commit'))")
+              prev_msg=$(python3      -c "import json; d=json.load(open('${RUNTIME_DIR}/previous_version.json')); print(d.get('commit_message','N/A'))")
+
+              INPUT_GIT_REF="$prev_ref"
+              RESOLVED_SHA="$prev_sha"
+              SHORT_SHA="${prev_sha:0:7}"
+              REF_TYPE="$prev_ref_type"
+              COMMIT_MSG="$prev_msg"
+              export RESOLVED_SHA SHORT_SHA REF_TYPE COMMIT_MSG
+
+              cd "$REPO_DIR"
+              git fetch --all --tags --quiet
+
+              # git switch for branch rollbacks (keeps branch tracking intact);
+              # detached HEAD only for exact tag/commit rollbacks
+              case "$REF_TYPE" in
+                branch)
+                  git switch -C "$prev_ref" "origin/$prev_ref" --discard-changes
+                  ;;
+                tag|commit)
+                  git checkout --detach "$RESOLVED_SHA"
+                  ;;
+              esac
+              echo "  Working tree: $(git rev-parse --short HEAD)"
+
+              install_deps
+              restart_services
+              reload_nginx
+              health_check
+              write_version_file "rollback"
+              log_deployment "SUCCESS"
+              write_last_summary "SUCCESS"
+            }
+
+            # ── Deploy ────────────────────────────────────────────────────────
+            perform_deploy() {
+              resolve_ref "$INPUT_GIT_REF"
+              checkout_ref
+              install_deps
+              restart_services
+              reload_nginx
+              health_check
+              write_version_file "deploy"
+              log_deployment "SUCCESS"
+              write_last_summary "SUCCESS"
+            }
+
+            # ── Entry point ───────────────────────────────────────────────────
+            log_section "Starting: action=${INPUT_ACTION}, ref=${INPUT_GIT_REF}"
+            setup_runtime_dir
+
+            if [ -f "${RUNTIME_DIR}/current_version.json" ]; then
+              echo ""
+              echo "Currently deployed version:"
+              cat "${RUNTIME_DIR}/current_version.json"
+            fi
+
+            # On any non-zero exit: record FAILED before terminating
+            trap '
+              EXIT_CODE=$?
+              if [ "$EXIT_CODE" -ne 0 ]; then
+                log_deployment "FAILED"  2>/dev/null || true
+                write_last_summary "FAILED" 2>/dev/null || true
+              fi
+            ' EXIT
+
+            case "$INPUT_ACTION" in
+              deploy)   perform_deploy ;;
+              rollback) perform_rollback ;;
+              *)
+                echo "ERROR: Unknown action '${INPUT_ACTION}'. Must be 'deploy' or 'rollback'."
+                exit 1
+                ;;
+            esac
+
+            OUTER_EOF
+
+      # ────────────────────────────────────────────────────────────────────────
+      # Read deployment metadata from VPS using native SSH so the output can be
+      # captured into a step output variable and passed to the summary step.
+      # Runs even when the deploy step fails.
+      # ────────────────────────────────────────────────────────────────────────
+      - name: Read deployment metadata from VPS
+        if: always()
+        id: meta
+        env:
+          SSH_KEY_CONTENT: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY_CONTENT" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          META=$(ssh -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -o BatchMode=yes \
+            -o ConnectTimeout=10 \
+            -p "${VPS_PORT}" \
+            "${VPS_USER}@${VPS_HOST}" \
+            "cat ${RUNTIME_DIR}/last_deploy_summary.json 2>/dev/null || echo '{}'" \
+          ) || META="{}"
+
+          rm -f ~/.ssh/deploy_key
+
+          # Write multiline output using GitHub's heredoc delimiter syntax
+          {
+            echo "data<<SUMMARY_EOF"
+            echo "$META"
+            echo "SUMMARY_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      # ────────────────────────────────────────────────────────────────────────
+      # Write GitHub Step Summary — always runs, captures both success and failure.
+      # Uses python3 to safely parse the JSON and format the Markdown table.
+      # ────────────────────────────────────────────────────────────────────────
+      - name: Write Step Summary
+        if: always()
+        env:
+          META: ${{ steps.meta.outputs.data }}
+          GIT_REF: ${{ inputs.git_ref }}
+          ACTION: ${{ inputs.action }}
+          ACTOR: ${{ github.actor }}
+          JOB_STATUS: ${{ job.status }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python3 - << 'PYEOF'
+          import json, os
+
+          raw = os.environ.get("META", "{}")
+          try:
+              d = json.loads(raw)
+          except Exception:
+              d = {}
+
+          def f(key, default="N/A"):
+              v = d.get(key)
+              return str(v) if v is not None else default
+
+          job_status  = os.environ.get("JOB_STATUS", "failure")
+          status_badge = "SUCCESS" if job_status == "success" else "FAILED"
+
+          duration_ms = d.get("duration_ms")
+          if duration_ms is not None:
+              try:
+                  ms = int(duration_ms)
+                  duration_str = f"{ms / 1000:.1f}s ({ms}ms)"
+              except (ValueError, TypeError):
+                  duration_str = str(duration_ms)
+          else:
+              duration_str = "N/A"
+
+          lines = [
+              "## Deployment Center",
+              "",
+              "### Current Deployment",
+              "",
+              "| Field | Value |",
+              "|-------|-------|",
+              f"| **Status**         | {status_badge} |",
+              f"| **Action**         | `{f('action')}` |",
+              f"| **Git Ref**        | `{os.environ.get('GIT_REF', 'N/A')}` |",
+              f"| **Ref Type**       | {f('ref_type')} |",
+              f"| **Commit SHA**     | `{f('short_sha')}` |",
+              f"| **Commit Message** | {f('commit_message')} |",
+              f"| **Health Check**   | {f('health_result')} |",
+              f"| **Duration**       | {duration_str} |",
+              f"| **Deploy Time**    | {f('deployed_at')} |",
+              f"| **Deployed By**    | `{os.environ.get('ACTOR', 'N/A')}` |",
+              f"| **Run**            | [View Logs]({os.environ.get('RUN_URL', '')}) |",
+              "",
+              "---",
+              f"_Generated by [Deploy Version]({os.environ.get('RUN_URL', '')}) workflow_",
+          ]
+
+          summary_path = os.environ.get("GITHUB_STEP_SUMMARY", "/dev/stdout")
+          with open(summary_path, "a") as fh:
+              fh.write("\n".join(lines) + "\n")
+
+          PYEOF
