@@ -36,6 +36,8 @@ var shelterApiV1Router = require("./routes/api/v1/shelters");
 var deviceApiV1Router = require("./routes/api/v1/devices");
 var notificationApiV1Router = require("./routes/api/v1/notifications");
 
+var appVersionApiV1Router = require("./routes/appVersionRoutes");
+
 var app = express();
 
 // Middleware
@@ -97,7 +99,8 @@ app.use("/api/v1", adoptionRequestApiV1Router);
 app.use("/api/v1", petReturnApiV1Router);
 app.use("/api/v1", housingReviewApiV1Router);
 app.use("/api/v1", shelterApiV1Router);
-app.use("/api/v1", deviceApiV1Router);
+app.use("/api/v1/device", deviceApiV1Router);
+app.use("/api/v1/app", appVersionApiV1Router);
 app.use("/api/v1", notificationApiV1Router);
 app.use("/", indexRouter);
 app.use("/auth", authRouter);
