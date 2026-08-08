@@ -1,0 +1,13 @@
+{
+  "version": "1.0.1",
+  "updateGroup": "3192e3fc-63f7-495e-a349-f3e515a9ad7f",
+  "runtimeVersion": "1.0.0",
+  "channel": "preview",
+  "releaseDate": "2026-08-08",
+  "isMandatory": false,
+  "changelog": [
+    "Tích hợp hệ thống cập nhật OTA thông minh (Pre-download ngầm & Throttle 6h)",
+    "Bổ sung thông báo Banner và nút khởi động lại chủ động trong Cài đặt",
+    "Tối ưu hóa hiệu năng ứng dụng và sửa một số lỗi giao diện"
+  ]
+}

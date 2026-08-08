@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "updateGroup": "initial-release",
+  "runtimeVersion": "1.0.0",
+  "channel": "production",
+  "releaseDate": "2026-08-01",
+  "isMandatory": false,
+  "changelog": [
+    "Phiên bản khởi tạo ứng dụng Pet Mobile"
+  ]
+}
