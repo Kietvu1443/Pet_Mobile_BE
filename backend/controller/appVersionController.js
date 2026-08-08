@@ -26,8 +26,8 @@ const appVersionController = {
         try {
           const content = fs.readFileSync(path.join(UPDATES_DIR, file), "utf8");
           const data = JSON.parse(content);
-          // Standardize version using semver if valid
-          if (data.version && semver.valid(semver.coerce(data.version))) {
+          // Validate semver format
+          if (data.version && semver.valid(data.version)) {
             updates.push(data);
           }
         } catch (e) {
@@ -47,11 +47,7 @@ const appVersionController = {
       }
 
       // Sort by semver descending
-      matchingUpdates.sort((a, b) => {
-        const vA = semver.coerce(a.version)?.version || a.version;
-        const vB = semver.coerce(b.version)?.version || b.version;
-        return semver.rcompare(vA, vB);
-      });
+      matchingUpdates.sort((a, b) => semver.rcompare(a.version, b.version));
 
       const latest = matchingUpdates[0];
       return sendSuccess(res, 200, "Lấy thông tin phiên bản mới nhất thành công", latest);

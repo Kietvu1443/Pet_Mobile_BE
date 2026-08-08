@@ -99,7 +99,7 @@ app.use("/api/v1", adoptionRequestApiV1Router);
 app.use("/api/v1", petReturnApiV1Router);
 app.use("/api/v1", housingReviewApiV1Router);
 app.use("/api/v1", shelterApiV1Router);
-app.use("/api/v1/device", deviceApiV1Router);
+app.use("/api/v1", deviceApiV1Router);
 app.use("/api/v1/app", appVersionApiV1Router);
 app.use("/api/v1", notificationApiV1Router);
 app.use("/", indexRouter);
