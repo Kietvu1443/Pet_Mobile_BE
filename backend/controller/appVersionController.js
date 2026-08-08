@@ -27,6 +27,7 @@ const appVersionController = {
           const content = fs.readFileSync(path.join(UPDATES_DIR, file), "utf8");
           const data = JSON.parse(content);
           // Validate semver format
+          // Validate semver format
           if (data.version && (semver.valid(data.version) || semver.valid(semver.coerce(data.version)))) {
             updates.push(data);
           }
