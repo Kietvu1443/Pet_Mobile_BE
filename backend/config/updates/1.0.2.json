@@ -8,10 +8,17 @@
   "changelog": [
     "Ra mắt trạng thái Siêu thích ⭐ (Superlike) cho thú cưng",
     "Hỗ trợ bật/tắt Siêu thích linh hoạt bằng nút Ngôi sao ⭐",
-    "Nâng cấp thẻ thú cưng Siêu thích với viền vàng và badge '⭐ Ưu tiên'",
-    "Bổ sung Tab phân loại riêng 'Super Like ⭐' trên màn hình Yêu thích",
-    "Tối ưu chân thẻ thú cưng: Sắp xếp 6 nút công cụ thành 2 hàng gọn gàng, rõ ràng",
+    "Nâng cấp thẻ thú cưng Siêu thích với viền vàng và badge \"⭐ Ưu tiên\"",
+    "Bổ sung tab phân loại riêng \"Super Like ⭐\" trên màn hình Yêu thích",
+    "Ra mắt Bộ sưu tập (Collections) để nhóm thú cưng theo danh mục riêng",
+    "Hỗ trợ tạo Bộ sưu tập mới với emoji và quản lý thú cưng trong từng bộ sưu tập",
+    "Thêm Ghi chú cá nhân (Notes) cho từng thú cưng và đồng bộ với màn hình Chi tiết",
+    "Ra mắt chế độ So sánh thú cưng, hỗ trợ đối chiếu tối đa 3 thú cưng cùng lúc",
+    "Bổ sung Lời nhắc quay lại (Reminder) với thông báo cục bộ và mở thẳng trang Chi tiết",
     "Tích hợp bộ chọn Ngày & Giờ tùy chỉnh (Native DateTimePicker) cho Lời nhắc",
-    "Tích hợp trạng thái Siêu thích trong bảng So sánh và thông báo Lời nhắc ưu tiên"
+    "Tích hợp trạng thái Siêu thích trong bảng So sánh và thông báo Lời nhắc ưu tiên",
+    "Tối ưu giao diện màn hình Yêu thích: tìm kiếm, sắp xếp, lọc theo loài và trạng thái",
+    "Cải thiện hiệu năng với TanStack Query, đồng bộ realtime và cập nhật giao diện mượt mà hơn",
+    "Tối ưu chân thẻ thú cưng: sắp xếp 6 nút công cụ thành 2 hàng gọn gàng, rõ ràng"
   ]
 }
