@@ -36,11 +36,11 @@ const appVersionController = {
         }
       }
 
-      // Filter by channel and exact runtimeVersion match
+      // Filter by channel and runtimeVersion match (flexible for Expo SDK runtime versions)
       const matchingUpdates = updates.filter(
         (u) =>
-          u.channel === channel &&
-          (u.runtimeVersion === runtimeVersion || !u.runtimeVersion)
+          (!u.channel || u.channel === channel || u.channel === "production" || channel === "production") &&
+          (!u.runtimeVersion || u.runtimeVersion === "*" || u.runtimeVersion === runtimeVersion || runtimeVersion.startsWith("exposdk:"))
       );
 
       if (matchingUpdates.length === 0) {

@@ -21,4 +21,28 @@ router.get(
   favoritesApiV1Controller.getMyFavorites,
 );
 
+router.get(
+  "/favorites/passed",
+  requireApiAuth,
+  favoritesApiV1Controller.getMyPassed,
+);
+
+router.get(
+  "/favorites/superliked",
+  requireApiAuth,
+  favoritesApiV1Controller.getMySuperliked,
+);
+
+router.put(
+  "/favorites/:petId/restore",
+  requireApiAuth,
+  favoritesApiV1Controller.restoreFavorite,
+);
+
+router.put(
+  "/favorites/:petId/superlike",
+  requireApiAuth,
+  favoritesApiV1Controller.superlikeFavorite,
+);
+
 module.exports = router;

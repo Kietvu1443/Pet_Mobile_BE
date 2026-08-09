@@ -2,7 +2,7 @@
   "version": "1.0.1",
   "updateGroup": "3192e3fc-63f7-495e-a349-f3e515a9ad7f",
   "runtimeVersion": "1.0.0",
-  "channel": "preview",
+  "channel": "production",
   "releaseDate": "2026-08-08",
   "isMandatory": false,
   "changelog": [
