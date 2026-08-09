@@ -126,6 +126,20 @@ const PetCollection = {
       throw error;
     }
   },
+
+  // Find a collection owned by a specific user
+  async findOwnedCollection(collectionId, userId) {
+    try {
+      const [rows] = await pool.execute(
+        "SELECT * FROM pet_collections WHERE id = ? AND user_id = ? LIMIT 1",
+        [collectionId, userId],
+      );
+      return rows[0] || null;
+    } catch (error) {
+      console.error("Error finding owned collection:", error);
+      throw error;
+    }
+  },
 };
 
 module.exports = PetCollection;

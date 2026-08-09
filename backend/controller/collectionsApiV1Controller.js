@@ -68,7 +68,11 @@ const collectionsApiV1Controller = {
         return sendError(res, 400, "collectionId không hợp lệ");
       }
 
-      await PetCollection.deleteCollection(userId, collectionId);
+      const deleted = await PetCollection.deleteCollection(userId, collectionId);
+      if (!deleted) {
+        return sendError(res, 404, "Không tìm thấy bộ sưu tập");
+      }
+
       return sendSuccess(res, 200, "Xóa bộ sưu tập thành công", { collectionId });
     } catch (error) {
       console.error("[Collections API] deleteCollection error:", error);
@@ -78,10 +82,16 @@ const collectionsApiV1Controller = {
 
   async addPetToCollection(req, res) {
     try {
+      const userId = Number(req.user.id);
       const collectionId = Number(req.params.id);
       const { petId } = req.body;
       if (!collectionId || !petId) {
         return sendError(res, 400, "Thông tin collectionId hoặc petId không hợp lệ");
+      }
+
+      const collection = await PetCollection.findOwnedCollection(collectionId, userId);
+      if (!collection) {
+        return sendError(res, 404, "Không tìm thấy bộ sưu tập");
       }
 
       await PetCollection.addPet(collectionId, Number(petId));
@@ -97,10 +107,16 @@ const collectionsApiV1Controller = {
 
   async removePetFromCollection(req, res) {
     try {
+      const userId = Number(req.user.id);
       const collectionId = Number(req.params.id);
       const petId = Number(req.params.petId);
       if (!collectionId || !petId) {
         return sendError(res, 400, "Thông tin không hợp lệ");
+      }
+
+      const collection = await PetCollection.findOwnedCollection(collectionId, userId);
+      if (!collection) {
+        return sendError(res, 404, "Không tìm thấy bộ sưu tập");
       }
 
       await PetCollection.removePet(collectionId, petId);
@@ -118,6 +134,15 @@ const collectionsApiV1Controller = {
     try {
       const userId = Number(req.user.id);
       const collectionId = Number(req.params.id);
+      if (!collectionId) {
+        return sendError(res, 400, "collectionId không hợp lệ");
+      }
+
+      const collection = await PetCollection.findOwnedCollection(collectionId, userId);
+      if (!collection) {
+        return sendError(res, 404, "Không tìm thấy bộ sưu tập");
+      }
+
       const rows = await PetCollection.findCollectionPets(userId, collectionId);
       const favorites = rows.map(normalizePet);
       return sendSuccess(res, 200, "Lấy thú cưng trong bộ sưu tập thành công", {

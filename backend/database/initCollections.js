@@ -27,9 +27,11 @@ async function initCollectionTables() {
     `);
 
     console.log("✅ pet_collections and pet_collection_items tables initialized successfully!");
+    process.exit(0);
   } catch (error) {
     console.error("❌ Error initializing collection tables:", error);
+    process.exit(1);
   }
 }
 
-initCollectionTables().then(() => process.exit(0));
+initCollectionTables();

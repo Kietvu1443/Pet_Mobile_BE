@@ -3,6 +3,7 @@ const { pool } = require("../config/db");
 
 async function initSuperlike() {
   let connection;
+  let hasError = false;
   try {
     connection = await pool.getConnection();
     console.log("Connecting to MySQL database to run Superlike migration...");
@@ -31,9 +32,10 @@ async function initSuperlike() {
     console.log("🎉 Superlike migration completed successfully!");
   } catch (error) {
     console.error("❌ Superlike migration failed:", error);
+    hasError = true;
   } finally {
     if (connection) connection.release();
-    process.exit(0);
+    process.exit(hasError ? 1 : 0);
   }
 }
 

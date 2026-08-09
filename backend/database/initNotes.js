@@ -17,9 +17,11 @@ async function initNotesTable() {
       );
     `);
     console.log("✅ pet_notes table initialized successfully!");
+    process.exit(0);
   } catch (error) {
     console.error("❌ Error initializing pet_notes table:", error);
+    process.exit(1);
   }
 }
 
-initNotesTable().then(() => process.exit(0));
+initNotesTable();
