@@ -27,7 +27,8 @@ const appVersionController = {
           const content = fs.readFileSync(path.join(UPDATES_DIR, file), "utf8");
           const data = JSON.parse(content);
           // Validate semver format
-          if (data.version && semver.valid(data.version)) {
+          // Validate semver format
+          if (data.version && (semver.valid(data.version) || semver.valid(semver.coerce(data.version)))) {
             updates.push(data);
           }
         } catch (e) {
@@ -35,11 +36,11 @@ const appVersionController = {
         }
       }
 
-      // Filter by channel and exact runtimeVersion match
+      // Filter by channel and runtimeVersion match (flexible for Expo SDK runtime versions)
       const matchingUpdates = updates.filter(
         (u) =>
-          u.channel === channel &&
-          (u.runtimeVersion === runtimeVersion || !u.runtimeVersion)
+          (!u.channel || u.channel === channel || u.channel === "production" || channel === "production") &&
+          (!u.runtimeVersion || u.runtimeVersion === "*" || u.runtimeVersion === runtimeVersion || runtimeVersion.startsWith("exposdk:"))
       );
 
       if (matchingUpdates.length === 0) {
@@ -47,7 +48,11 @@ const appVersionController = {
       }
 
       // Sort by semver descending
-      matchingUpdates.sort((a, b) => semver.rcompare(a.version, b.version));
+      matchingUpdates.sort((a, b) => {
+        const vA = semver.valid(a.version) ? a.version : (semver.coerce(a.version)?.version || a.version);
+        const vB = semver.valid(b.version) ? b.version : (semver.coerce(b.version)?.version || b.version);
+        return semver.rcompare(vA, vB);
+      });
 
       const latest = matchingUpdates[0];
       return sendSuccess(res, 200, "Lấy thông tin phiên bản mới nhất thành công", latest);

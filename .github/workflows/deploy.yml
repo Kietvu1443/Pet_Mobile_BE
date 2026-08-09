@@ -30,6 +30,19 @@ jobs:
             git fetch origin
             git reset --hard origin/main
 
+            echo "== Write deployment metadata =="
+            mkdir -p runtime
+            COMMIT=$(git rev-parse --short HEAD)
+            DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+            cat > runtime/current_version.json <<JSON
+            {
+              "version": "$COMMIT",
+              "deployedAt": "$DATE",
+              "source": "github-actions-auto"
+            }
+            JSON
+
             echo "== Install dependencies =="
             npm ci
 

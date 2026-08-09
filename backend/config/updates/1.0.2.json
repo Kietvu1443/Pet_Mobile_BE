@@ -1,0 +1,17 @@
+{
+  "version": "1.0.2",
+  "updateGroup": "sprint-5-superlike-ota-update",
+  "runtimeVersion": "1.0.0",
+  "channel": "production",
+  "releaseDate": "2026-08-09",
+  "isMandatory": false,
+  "changelog": [
+    "Sprint 5 — Ra mắt trạng thái Siêu thích ⭐ (Superlike) cho thú cưng",
+    "Hỗ trợ bật/tắt Siêu thích linh hoạt bằng nút Ngôi sao ⭐",
+    "Nâng cấp thẻ thú cưng Siêu thích với viền vàng #FFB800 và badge '⭐ Ưu tiên'",
+    "Bổ sung Tab phân loại riêng 'Siêu thích ⭐' trên màn hình Yêu thích",
+    "Tối ưu chân thẻ thú cưng: Sắp xếp 6 nút công cụ thành 2 hàng gọn gàng, rõ ràng",
+    "Tích hợp bộ chọn Ngày & Giờ tùy chỉnh (Native DateTimePicker) cho Lời nhắc",
+    "Tích hợp trạng thái Siêu thích trong bảng So sánh và thông báo Lời nhắc ưu tiên"
+  ]
+}

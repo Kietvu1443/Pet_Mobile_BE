@@ -83,6 +83,53 @@ const PetLike = {
     }
   },
 
+  // Get pets passed by the user
+  async findPassedPets(userId) {
+    try {
+      const query = `
+        SELECT p.*, pl.created_at as liked_at, pi.image_path as avatar_image
+        FROM pets p
+        JOIN pet_likes pl ON p.id = pl.pet_id
+        LEFT JOIN pet_images pi ON p.id = pi.pet_id AND pi.display_order = 0
+        WHERE pl.user_id = ? AND pl.status = 'passed'
+        ORDER BY pl.created_at DESC
+      `;
+      const [rows] = await pool.execute(query, [userId]);
+      return rows;
+    } catch (error) {
+      console.error("Error finding passed pets:", error);
+      throw error;
+    }
+  },
+
+  // Soft remove a like (changes status to 'passed')
+  async softRemove(userId, petId) {
+    try {
+      const [result] = await pool.execute(
+        "INSERT INTO pet_likes (user_id, pet_id, status) VALUES (?, ?, 'passed') ON DUPLICATE KEY UPDATE status = 'passed'",
+        [userId, petId],
+      );
+      return result.affectedRows > 0;
+    } catch (error) {
+      console.error("Error soft removing pet like:", error);
+      throw error;
+    }
+  },
+
+  // Restore a passed pet back to 'liked'
+  async restorePet(userId, petId) {
+    try {
+      const [result] = await pool.execute(
+        "INSERT INTO pet_likes (user_id, pet_id, status) VALUES (?, ?, 'liked') ON DUPLICATE KEY UPDATE status = 'liked'",
+        [userId, petId],
+      );
+      return result.affectedRows > 0;
+    } catch (error) {
+      console.error("Error restoring pet like:", error);
+      throw error;
+    }
+  },
+
   // Delete a like (idempotent — always returns success)
   async delete(userId, petId) {
     try {
@@ -93,6 +140,39 @@ const PetLike = {
       return true;
     } catch (error) {
       console.error("Error deleting pet like:", error);
+      throw error;
+    }
+  },
+
+  // Superlike a pet
+  async superLike(userId, petId) {
+    try {
+      const [result] = await pool.execute(
+        "INSERT INTO pet_likes (user_id, pet_id, status) VALUES (?, ?, 'superliked') ON DUPLICATE KEY UPDATE status = 'superliked'",
+        [userId, petId],
+      );
+      return result.affectedRows > 0;
+    } catch (error) {
+      console.error("Error superliking pet:", error);
+      throw error;
+    }
+  },
+
+  // Get pets superliked by the user
+  async findSuperlikedPets(userId) {
+    try {
+      const query = `
+        SELECT p.*, pl.created_at as liked_at, pi.image_path as avatar_image
+        FROM pets p
+        JOIN pet_likes pl ON p.id = pl.pet_id
+        LEFT JOIN pet_images pi ON p.id = pi.pet_id AND pi.display_order = 0
+        WHERE pl.user_id = ? AND pl.status = 'superliked'
+        ORDER BY pl.created_at DESC
+      `;
+      const [rows] = await pool.execute(query, [userId]);
+      return rows;
+    } catch (error) {
+      console.error("Error finding superliked pets:", error);
       throw error;
     }
   },
