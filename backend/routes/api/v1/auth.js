@@ -16,6 +16,8 @@ router.patch("/profile", requireApiAuth, authApiV1Controller.updateProfile);
 router.patch("/preferences", requireApiAuth, authApiV1Controller.updatePreferences);
 router.post("/avatar", requireApiAuth, authApiV1Controller.uploadAvatar);
 router.post("/background", requireApiAuth, authApiV1Controller.updateBackground);
+router.post("/send-otp", requireApiAuth, authApiV1Controller.sendOtp);
+router.post("/verify-otp", requireApiAuth, authApiV1Controller.verifyOtp);
 
 // ── Google / Facebook Login ───────────────────────────────────────────────────
 router.post("/google", oauthController.googleLogin);

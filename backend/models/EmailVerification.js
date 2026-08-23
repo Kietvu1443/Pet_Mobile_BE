@@ -4,10 +4,10 @@ const EmailVerification = {
   /**
    * Save a new OTP for a user
    */
-  async saveOtp(userId, otp, expiresAt) {
+  async saveOtp(userId, otp, expiresAt, pendingEmail = null) {
     const [result] = await pool.execute(
-      `INSERT INTO email_verifications (user_id, otp, expires_at) VALUES (?, ?, ?)`,
-      [userId, otp, expiresAt]
+      `INSERT INTO email_verifications (user_id, otp, expires_at, pending_email) VALUES (?, ?, ?, ?)`,
+      [userId, otp, expiresAt, pendingEmail || null]
     );
     return result;
   },

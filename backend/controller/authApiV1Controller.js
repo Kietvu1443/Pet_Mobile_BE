@@ -1,7 +1,10 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const EmailVerification = require("../models/EmailVerification");
 const { JWT_SECRET } = require("../middleware/authMiddleware");
 const { sendSuccess, sendError } = require("../utils/apiResponse");
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API_KEY);
 const {
   avatarUpload,
   bgUpload,
@@ -36,13 +39,14 @@ const authApiV1Controller = {
         display_name,
         name,
         email,
+        phone,
         password,
         confirmPassword,
         birthday,
         address,
       } = req.body;
 
-      if (!display_name || !name || !email || !password) {
+      if (!display_name || !name || (!email && !phone) || !password) {
         return sendError(res, 400, "Vui lòng điền đầy đủ thông tin");
       }
 
@@ -54,23 +58,30 @@ const authApiV1Controller = {
         return sendError(res, 400, "Mật khẩu phải có ít nhất 8 ký tự");
       }
 
-      const [existingEmail, existingDisplayName] = await Promise.all([
-        User.findByEmail(email),
-        User.findByDisplayName(display_name),
-      ]);
-
-      if (existingEmail) {
-        return sendError(res, 409, "Email này đã được đăng ký");
-      }
+      const [existingDisplayName, existingEmail, existingPhone] =
+        await Promise.all([
+          User.findByDisplayName(display_name),
+          email ? User.findByEmail(email) : null,
+          phone ? User.findByPhone(phone) : null,
+        ]);
 
       if (existingDisplayName) {
         return sendError(res, 409, "Tên đăng nhập này đã được sử dụng");
       }
 
+      if (email && existingEmail) {
+        return sendError(res, 409, "Email này đã được đăng ký");
+      }
+
+      if (phone && existingPhone) {
+        return sendError(res, 409, "Số điện thoại này đã được đăng ký");
+      }
+
       const newUser = await User.create({
         display_name,
         name,
-        email,
+        email: email || null,
+        phone: phone || null,
         password,
         birthday: birthday || null,
         address: address || null,
@@ -102,6 +113,7 @@ const authApiV1Controller = {
           display_name: newUser.display_name,
           name: newUser.name,
           email: newUser.email,
+          phone: newUser.phone,
           role: newUser.role,
           verify: 0,
         },
@@ -289,6 +301,7 @@ const authApiV1Controller = {
           birthday: user.birthday || null,
           gender: user.gender || null,
           phone: user.phone || null,
+          address: user.address || null,
           preferences: user.preferences || null,
         },
       });
@@ -314,47 +327,25 @@ const authApiV1Controller = {
         return sendError(res, 401, "Vui lòng đăng nhập tài khoản");
       }
 
-      const display_name = String(req.body?.display_name || "").trim();
-      const name = String(req.body?.name || "").trim();
-      const email = String(req.body?.email || "")
-        .trim()
-        .toLowerCase();
-
-      if (!display_name || !name || !email) {
-        return sendError(res, 400, "Vui lòng điền đầy đủ thông tin");
-      }
-
-      if (!EMAIL_REGEX.test(email)) {
-        return sendError(res, 400, "Email không đúng định dạng");
-      }
-
-      if (display_name.length > MAX_DISPLAY_NAME_LENGTH) {
-        return sendError(
-          res,
-          400,
-          `Tên đăng nhập không được vượt quá ${MAX_DISPLAY_NAME_LENGTH} ký tự`,
-        );
-      }
-
-      if (name.length > MAX_NAME_LENGTH) {
-        return sendError(
-          res,
-          400,
-          `Tên hiển thị không được vượt quá ${MAX_NAME_LENGTH} ký tự`,
-        );
-      }
-
-      if (email.length > MAX_EMAIL_LENGTH) {
-        return sendError(
-          res,
-          400,
-          `Email không được vượt quá ${MAX_EMAIL_LENGTH} ký tự`,
-        );
-      }
-
       const currentUser = await User.findById(req.user.id);
       if (!currentUser) {
         return sendError(res, 404, "Không tìm thấy người dùng");
+      }
+
+      const display_name = req.body?.display_name !== undefined
+        ? String(req.body.display_name || "").trim()
+        : (currentUser.display_name || `user_${req.user.id}`);
+
+      const name = req.body?.name !== undefined
+        ? String(req.body.name || "").trim()
+        : (currentUser.name || currentUser.display_name || "Người dùng");
+
+      const email = String(req.body?.email || currentUser.email || "")
+        .trim()
+        .toLowerCase();
+
+      if (!display_name || !name) {
+        return sendError(res, 400, "Vui lòng điền đầy đủ Tên đăng nhập và Họ tên");
       }
 
       // Partial update: merge optional fields with current values
@@ -404,7 +395,7 @@ const authApiV1Controller = {
       }
 
       const [existingEmail, existingDisplayName] = await Promise.all([
-        User.findByEmail(email),
+        email ? User.findByEmail(email) : null,
         User.findByDisplayName(display_name),
       ]);
 
@@ -419,17 +410,11 @@ const authApiV1Controller = {
         return sendError(res, 409, "Tên đăng nhập này đã được sử dụng");
       }
 
-      const currentEmail = String(currentUser.email || "")
-        .trim()
-        .toLowerCase();
-      const isEmailChanged = currentEmail !== email;
-      const verify = isEmailChanged ? 0 : Number(currentUser.verify || 0);
-
       const updatedUser = await User.updateProfile(req.user.id, {
         display_name,
         name,
-        email,
-        verify,
+        email: currentUser.email || null,
+        verify: Number(currentUser.verify || 0),
         birthday: birthday || null,
         gender: gender || null,
         phone: phone || null,
@@ -538,6 +523,209 @@ const authApiV1Controller = {
     } catch (error) {
       console.error("[Auth API v1] updatePreferences error:", error);
       return sendError(res, 500, "Đã xảy ra lỗi, vui lòng thử lại");
+    }
+  },
+
+  async sendOtp(req, res) {
+    try {
+      if (!req.user || !req.user.id) {
+        return sendError(res, 401, "Vui lòng đăng nhập tài khoản");
+      }
+
+      const userId = req.user.id;
+      const user = await User.findById(userId);
+      if (!user) {
+        return sendError(res, 404, "Không tìm thấy người dùng");
+      }
+
+      const targetEmail = String(req.body?.email || user.email || "")
+        .trim()
+        .toLowerCase();
+
+      if (!targetEmail) {
+        return sendError(
+          res,
+          400,
+          "Vui lòng nhập địa chỉ email trước khi yêu cầu mã OTP",
+        );
+      }
+
+      if (!EMAIL_REGEX.test(targetEmail)) {
+        return sendError(res, 400, "Email không đúng định dạng");
+      }
+
+      const existingUser = await User.findByEmail(targetEmail);
+      if (existingUser && Number(existingUser.id) !== Number(userId)) {
+        return sendError(res, 409, "Email này đã được đăng ký bởi một tài khoản khác");
+      }
+
+      if (user.email === targetEmail && user.verify === 1) {
+        return sendError(res, 400, "Email này đã được xác thực trước đó");
+      }
+
+      // Check rate limit (max 3 trong 10 phút)
+      const recentCount = await EmailVerification.countRecentOtps(userId, 10);
+      if (recentCount >= 3) {
+        return sendError(
+          res,
+          429,
+          "Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau 10 phút.",
+        );
+      }
+
+      // Check cooldown (60 giây)
+      const cooldown = await EmailVerification.checkCooldown(userId, 60);
+      if (!cooldown.canSend) {
+        return sendError(
+          res,
+          429,
+          `Vui lòng chờ ${cooldown.waitSeconds} giây trước khi yêu cầu mã OTP mới.`,
+          { waitSeconds: cooldown.waitSeconds },
+        );
+      }
+
+      // Xóa OTP cũ
+      await EmailVerification.deleteByUserId(userId);
+
+      // Tạo OTP 6 chữ số
+      const otp = String(Math.floor(100000 + Math.random() * 900000));
+      const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+      // Lưu vào DB kèm theo targetEmail vào pending_email
+      await EmailVerification.saveOtp(userId, otp, expiresAt, targetEmail);
+
+      // Gửi email nếu có Resend API key
+      if (process.env.RESEND_API_KEY) {
+        try {
+          await resend.emails.send({
+            from: "Pet Helper <noreply@mail.pethelper.app>",
+            to: targetEmail,
+            subject: "Xác minh tài khoản Pet Helper",
+            html: `
+              <div style="font-family: system-ui, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
+                <h2 style="color: #2b663e;">Pet Helper - Xác minh Email</h2>
+                <p>Xin chào <b>${user.name}</b>,</p>
+                <p>Mã xác minh của bạn là:</p>
+                <div style="background: #f0fdf4; border: 2px solid #2b663e; border-radius: 12px; padding: 20px; text-align: center; margin: 24px 0;">
+                  <span style="font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #2b663e;">${otp}</span>
+                </div>
+                <p style="color: #666;">Mã này sẽ hết hạn sau <b>5 phút</b>.</p>
+              </div>
+            `,
+          });
+        } catch (resendErr) {
+          console.error("Resend send error:", resendErr);
+        }
+      }
+
+      console.log(`✅ [API v1] OTP sent to ${targetEmail} (OTP: ${otp})`);
+      return sendSuccess(res, 200, "Mã OTP đã được gửi tới email của bạn.", {
+        email: targetEmail,
+        waitSeconds: 60,
+      });
+    } catch (error) {
+      console.error("[Auth API v1] sendOtp error:", error);
+      return sendError(res, 500, "Không thể gửi mã OTP. Vui lòng thử lại.");
+    }
+  },
+
+  async verifyOtp(req, res) {
+    try {
+      if (!req.user || !req.user.id) {
+        return sendError(res, 401, "Vui lòng đăng nhập tài khoản");
+      }
+
+      const userId = req.user.id;
+      const otp = String(req.body?.otp || "").trim();
+
+      if (!otp || otp.length !== 6) {
+        return sendError(res, 400, "Vui lòng nhập đúng mã OTP 6 chữ số.");
+      }
+
+      const record = await EmailVerification.findValidOtp(userId);
+      if (!record) {
+        return sendError(
+          res,
+          400,
+          "Mã OTP không tồn tại hoặc đã hết hạn. Vui lòng yêu cầu mã mới.",
+        );
+      }
+
+      if (record.attempts >= 5) {
+        await EmailVerification.deleteByUserId(userId);
+        return sendError(
+          res,
+          429,
+          "Bạn đã nhập sai quá 5 lần. Vui lòng yêu cầu mã OTP mới.",
+        );
+      }
+
+      if (record.otp !== otp) {
+        await EmailVerification.incrementAttempts(record.id);
+        const remaining = 4 - record.attempts;
+        return sendError(
+          res,
+          400,
+          `Mã OTP không đúng. Bạn còn ${remaining > 0 ? remaining : 0} lần thử.`,
+        );
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return sendError(res, 404, "Không tìm thấy người dùng");
+      }
+
+      const targetEmail = record.pending_email || user.email;
+      if (!targetEmail) {
+        return sendError(res, 400, "Không tìm thấy địa chỉ email cần xác minh.");
+      }
+
+      // Chỉ cập nhật email và verify = 1 khi OTP chính xác
+      const updatedUser = await User.updateEmailAndVerify(userId, targetEmail);
+
+      if (!updatedUser) {
+        return sendError(
+          res,
+          500,
+          "Không thể cập nhật thông tin xác thực email.",
+        );
+      }
+
+      await EmailVerification.deleteByUserId(userId);
+
+      const token = jwt.sign(
+        {
+          id: updatedUser.id,
+          display_name: updatedUser.display_name,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          role: updatedUser.role,
+          verify: updatedUser.verify || 0,
+        },
+        JWT_SECRET,
+        { expiresIn: "24h" },
+      );
+
+      res.cookie("token", token, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+
+      return sendSuccess(res, 200, "Xác thực email thành công!", {
+        token,
+        user: {
+          id: updatedUser.id,
+          display_name: updatedUser.display_name,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          role: updatedUser.role,
+          verify: updatedUser.verify || 0,
+        },
+      });
+    } catch (error) {
+      console.error("[Auth API v1] verifyOtp error:", error);
+      return sendError(res, 500, "Không thể xác nhận OTP. Vui lòng thử lại.");
     }
   },
 };
