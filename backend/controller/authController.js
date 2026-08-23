@@ -14,13 +14,14 @@ const authController = {
         display_name,
         name,
         email,
+        phone,
         password,
         confirmPassword,
         birthday,
         address,
       } = req.body;
 
-      if (!display_name || !name || !email || !password) {
+      if (!display_name || !name || (!email && !phone) || !password) {
         return res.status(400).json({
           error: "Vui lòng điền đầy đủ thông tin",
         });
@@ -38,17 +39,29 @@ const authController = {
         });
       }
 
-      const existingUser = await User.findByEmail(email);
-      if (existingUser) {
-        return res.status(409).json({
-          error: "Email này đã được đăng ký",
-        });
+      if (email) {
+        const existingEmail = await User.findByEmail(email);
+        if (existingEmail) {
+          return res.status(409).json({
+            error: "Email này đã được đăng ký",
+          });
+        }
+      }
+
+      if (phone) {
+        const existingPhone = await User.findByPhone(phone);
+        if (existingPhone) {
+          return res.status(409).json({
+            error: "Số điện thoại này đã được đăng ký",
+          });
+        }
       }
 
       const newUser = await User.create({
         display_name,
         name,
-        email,
+        email: email || null,
+        phone: phone || null,
         password,
         birthday: birthday || null,
         address: address || null,

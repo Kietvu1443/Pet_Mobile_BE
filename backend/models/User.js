@@ -28,6 +28,21 @@ const User = {
     }
   },
 
+  // Find user by phone
+  async findByPhone(phone) {
+    if (!phone) return null;
+    try {
+      const [rows] = await pool.execute(
+        "SELECT * FROM users WHERE phone = ?",
+        [phone],
+      );
+      return rows[0] || null;
+    } catch (error) {
+      console.error("Error finding user by phone:", error);
+      throw error;
+    }
+  },
+
   // Find user by ID
   async findById(id) {
     try {
@@ -45,23 +60,31 @@ const User = {
   // Create new user
   async create(userData) {
     try {
-      const { display_name, name, email, password, birthday, address } =
+      const { display_name, name, email, phone, password, birthday, address } =
         userData;
 
       const [result] = await pool.execute(
-        `INSERT INTO users (display_name, name, email, password, role, birthday, address) 
-         VALUES (?, ?, ?, ?, 2, ?, ?)`,
+        `INSERT INTO users (display_name, name, email, phone, password, role, birthday, address) 
+         VALUES (?, ?, ?, ?, ?, 2, ?, ?)`,
         [
           display_name,
           name,
-          email,
+          email || null,
+          phone || null,
           password,
           birthday || null,
           address || null,
         ],
       );
 
-      return { id: result.insertId, display_name, name, email, role: 2 };
+      return {
+        id: result.insertId,
+        display_name,
+        name,
+        email: email || null,
+        phone: phone || null,
+        role: 2,
+      };
     } catch (error) {
       console.error("Error creating user:", error);
       throw error;
@@ -97,6 +120,21 @@ const User = {
       return result.affectedRows > 0;
     } catch (error) {
       console.error("Error updating user role:", error);
+      throw error;
+    }
+  },
+
+  // Update user email and set verify status to 1
+  async updateEmailAndVerify(userId, email) {
+    try {
+      const [result] = await pool.execute(
+        "UPDATE users SET email = ?, verify = 1 WHERE id = ?",
+        [email, userId],
+      );
+      if (result.affectedRows === 0) return null;
+      return this.findById(userId);
+    } catch (error) {
+      console.error("Error updating user email and verify status:", error);
       throw error;
     }
   },

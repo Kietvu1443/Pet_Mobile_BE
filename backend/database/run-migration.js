@@ -5,8 +5,10 @@ require("dotenv").config();
 const { pool } = require("../config/db");
 
 const STATEMENTS = [
-  // 1. Cho phép password nullable
+  // 1. Cho phép password và email nullable, mở rộng OTP
   `ALTER TABLE users MODIFY COLUMN password VARCHAR(255) NULL`,
+  `ALTER TABLE users MODIFY COLUMN email VARCHAR(255) NULL`,
+  `ALTER TABLE email_verifications ADD COLUMN pending_email VARCHAR(255) NULL AFTER otp`,
 
   // 2. Tạo bảng user_connections
   `CREATE TABLE IF NOT EXISTS user_connections (
