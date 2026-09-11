@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-const dotenv = require("../node_modules/dotenv");
+const dotenv = require("dotenv");
 
 // Load .env
 dotenv.config({ path: path.join(__dirname, "../.env") });

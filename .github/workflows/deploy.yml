@@ -47,6 +47,9 @@ jobs:
             echo "== Install dependencies =="
             npm ci
 
+            echo "== Run database migrations =="
+            node database/migrate-all.js
+
             echo "== Restart PM2 =="
             pm2 restart pet-helper
             pm2 save
