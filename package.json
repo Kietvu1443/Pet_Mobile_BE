@@ -5,6 +5,7 @@
   "scripts": {
     "start": "npm run start --prefix backend",
     "dev": "npm run dev --prefix backend",
-    "install-all": "npm install --prefix backend"
+    "install-all": "npm install --prefix backend",
+    "seed:demo-places": "node backend/database/seed_demo_places.js"
   }
 }

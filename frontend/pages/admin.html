@@ -975,6 +975,9 @@
                     <button class="nav-btn" data-tab="shelters">
                         <span class="material-symbols-outlined">home_work</span> Trại cứu hộ
                     </button>
+                    <button class="nav-btn" data-tab="places">
+                        <span class="material-symbols-outlined">place</span> Địa điểm
+                    </button>
                     <button class="nav-btn" data-tab="reports">
                         <span class="material-symbols-outlined">campaign</span> Báo cáo thất lạc
                     </button>
@@ -1076,6 +1079,19 @@
                                     <span class="status-pill pending" id="statSheltersPending">0 chờ</span>
                                     <span class="status-pill approved" id="statSheltersApproved">0 duyệt</span>
                                     <span class="status-pill rejected" id="statSheltersRejected">0 từ chối</span>
+                                </div>
+                            </article>
+                            <article class="stat-card" data-jump-tab="places">
+                                <div class="flex items-center justify-between mb-6">
+                                    <div class="stat-icon" style="color: #ec4899;"><span class="material-symbols-outlined">place</span>
+                                    </div>
+                                    <span class="stat-label">Địa điểm cộng đồng</span>
+                                </div>
+                                <p class="stat-value text-3xl mb-4" id="statPlacesTotal">0</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="status-pill pending" id="statPlacesPending">0 chờ</span>
+                                    <span class="status-pill approved" id="statPlacesApproved">0 duyệt</span>
+                                    <span class="status-pill rejected" id="statPlacesRejected">0 từ chối</span>
                                 </div>
                             </article>
                             <article class="stat-card" data-jump-tab="news">
@@ -1310,6 +1326,51 @@
                             <div class="flex gap-3">
                                 <button class="tool-btn" data-page-nav="prev" data-page-tab="shelters">Trước</button>
                                 <button class="tool-btn" data-page-nav="next" data-page-tab="shelters">Tiếp</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PLACES PANEL -->
+                <section class="tab-panel" id="panel-places">
+                    <div class="panel-head">
+                        <div>
+                            <h2>Địa điểm cộng đồng</h2>
+                            <p class="panel-sub">Kiểm duyệt và quản lý các địa điểm do người dùng đóng góp.</p>
+                        </div>
+                        <button class="tool-btn" data-refresh-tab="places"><span
+                                class="material-symbols-outlined">sync</span> Tải lại</button>
+                    </div>
+                    <div class="px-12 pb-6 flex gap-3">
+                        <button class="tool-btn place-filter-btn active" data-place-status="all"
+                            style="background: #00220f; color: #fff;">Tất cả</button>
+                        <button class="tool-btn place-filter-btn" data-place-status="pending">⏳ Chờ duyệt</button>
+                        <button class="tool-btn place-filter-btn" data-place-status="approved">✅ Đã duyệt</button>
+                        <button class="tool-btn place-filter-btn" data-place-status="rejected">❌ Từ chối</button>
+                    </div>
+                    <div class="panel-state" id="placesState"></div>
+                    <div class="panel-content is-hidden" id="placesContent">
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Địa điểm</th>
+                                        <th>Loại</th>
+                                        <th>Địa chỉ</th>
+                                        <th>Người tạo</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="placesBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-bar px-12 pb-12 flex items-center justify-between" id="placesPagination">
+                            <div class="text-slate-400 font-bold text-sm" id="placesPaginationSummary">Trang 0 / 0</div>
+                            <div class="flex gap-3">
+                                <button class="tool-btn" data-page-nav="prev" data-page-tab="places">Trước</button>
+                                <button class="tool-btn" data-page-nav="next" data-page-tab="places">Tiếp</button>
                             </div>
                         </div>
                     </div>
@@ -1551,11 +1612,11 @@
 
     <script>
         const TAB_KEY = 'pet_helper_admin_tab';
-        const TAB_LIST = ['dashboard', 'adoption', 'housing', 'shelters', 'pets', 'reports', 'news', 'users'];
-        const PAGINATED_TABS = ['adoption', 'housing', 'shelters', 'pets', 'reports', 'news', 'users'];
+        const TAB_LIST = ['dashboard', 'adoption', 'housing', 'shelters', 'places', 'pets', 'reports', 'news', 'users'];
+        const PAGINATED_TABS = ['adoption', 'housing', 'shelters', 'places', 'pets', 'reports', 'news', 'users'];
         const PAGE_SIZE = 10;
 
-        const TAB_ROWS_KEYS = { adoption: 'adoptionRows', housing: 'housingRows', shelters: 'shelterRows', pets: 'petRows', reports: 'reportRows', news: 'newsRows', users: 'userRows' };
+        const TAB_ROWS_KEYS = { adoption: 'adoptionRows', housing: 'housingRows', shelters: 'shelterRows', places: 'placeRows', pets: 'petRows', reports: 'reportRows', news: 'newsRows', users: 'userRows' };
 
         const state = {
             currentUser: null,
@@ -1563,18 +1624,20 @@
             isBlocked: false,
             activeTab: 'dashboard',
             reportFilter: 'all',
+            placeFilter: 'all',
             detail: { isOpen: false, context: null, id: null },
             pagination: {
                 adoption: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0, loading: false, cache: {} },
                 housing: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0, loading: false, cache: {} },
                 shelters: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0, loading: false, cache: {} },
+                places: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0, loading: false, cache: {} },
                 pets: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0, loading: false, cache: {} },
                 reports: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0, loading: false, cache: {} },
                 news: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0, loading: false, cache: {} },
                 users: { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0, loading: false, cache: {} },
             },
-            fetchedTabs: { dashboard: false, adoption: false, housing: false, shelters: false, pets: false, reports: false, news: false, users: false },
-            adoptionRows: [], housingRows: [], shelterRows: [], petRows: [], reportRows: [], newsRows: [], userRows: [],
+            fetchedTabs: { dashboard: false, adoption: false, housing: false, shelters: false, places: false, pets: false, reports: false, news: false, users: false },
+            adoptionRows: [], housingRows: [], shelterRows: [], placeRows: [], petRows: [], reportRows: [], newsRows: [], userRows: [],
             pendingActions: new Set()
         };
 
@@ -1587,6 +1650,7 @@
         const panelEls = {
             dashboard: document.getElementById('panel-dashboard'), adoption: document.getElementById('panel-adoption'),
             housing: document.getElementById('panel-housing'), shelters: document.getElementById('panel-shelters'),
+            places: document.getElementById('panel-places'),
             pets: document.getElementById('panel-pets'), reports: document.getElementById('panel-reports'),
             news: document.getElementById('panel-news'), users: document.getElementById('panel-users')
         };
@@ -1595,6 +1659,7 @@
             adoption: { stateEl: document.getElementById('adoptionState'), contentEl: document.getElementById('adoptionContent'), bodyEl: document.getElementById('adoptionBody') },
             housing: { stateEl: document.getElementById('housingState'), contentEl: document.getElementById('housingContent'), bodyEl: document.getElementById('housingBody') },
             shelters: { stateEl: document.getElementById('sheltersState'), contentEl: document.getElementById('sheltersContent'), bodyEl: document.getElementById('sheltersBody') },
+            places: { stateEl: document.getElementById('placesState'), contentEl: document.getElementById('placesContent'), bodyEl: document.getElementById('placesBody') },
             pets: { stateEl: document.getElementById('petsState'), contentEl: document.getElementById('petsContent'), bodyEl: document.getElementById('petsBody') },
             reports: { stateEl: document.getElementById('reportsState'), contentEl: document.getElementById('reportsContent'), bodyEl: document.getElementById('reportsBody') },
             news: { stateEl: document.getElementById('newsState'), contentEl: document.getElementById('newsContent'), bodyEl: document.getElementById('newsBody') },
@@ -1661,10 +1726,11 @@
         const loadDashboardData = async (force) => {
             setSectionState('dashboard', 'loading', 'Đang tải...');
             try {
-                const [a, h, s, p, r, n, u] = await Promise.all([
+                const [a, h, s, pl, p, r, n, u] = await Promise.all([
                     adminApiFetch('/api/v1/adoption-requests/admin'),
                     adminApiFetch('/api/v1/admin/housing-reviews?limit=100'),
                     adminApiFetch('/api/v1/admin/shelters?limit=100'),
+                    adminApiFetch('/api/v1/admin/places?limit=100').catch(() => ({ data: { places: [] } })),
                     adminApiFetch('/api/v1/pets'),
                     adminApiFetch('/api/v1/admin/reports'), adminApiFetch('/api/v1/admin/news'),
                     isAdmin() ? adminApiFetch('/api/v1/admin/users?limit=1') : Promise.resolve({ data: { total: 0 } })
@@ -1672,6 +1738,7 @@
                 state.adoptionRows = a.data?.data || a.data?.requests || [];
                 state.housingRows = h.data?.data || [];
                 state.shelterRows = s.data?.data || [];
+                state.placeRows = pl.data?.places || [];
                 state.petRows = p.data?.pets || [];
                 state.reportRows = (r.data?.data || r.data?.reports || []).map(row => {
                     row.type = String(row.type || '').toLowerCase();
@@ -1684,6 +1751,7 @@
                 state.fetchedTabs.adoption = true;
                 state.fetchedTabs.housing = true;
                 state.fetchedTabs.shelters = true;
+                state.fetchedTabs.places = true;
                 state.fetchedTabs.pets = true;
                 state.fetchedTabs.reports = true;
                 state.fetchedTabs.news = true;
@@ -1741,6 +1809,17 @@
             document.getElementById('statSheltersApproved').textContent = `${sRows.filter(r => r.status === 'approved').length} duyệt`;
             document.getElementById('statSheltersRejected').textContent = `${sRows.filter(r => r.status === 'rejected').length} từ chối`;
 
+            // Places
+            const plRows = state.placeRows;
+            const plTotalEl = document.getElementById('statPlacesTotal');
+            if (plTotalEl) plTotalEl.textContent = plRows.length;
+            const plPendingEl = document.getElementById('statPlacesPending');
+            if (plPendingEl) plPendingEl.textContent = `${plRows.filter(r => r.status === 'pending').length} chờ`;
+            const plApprovedEl = document.getElementById('statPlacesApproved');
+            if (plApprovedEl) plApprovedEl.textContent = `${plRows.filter(r => r.status === 'approved').length} duyệt`;
+            const plRejectedEl = document.getElementById('statPlacesRejected');
+            if (plRejectedEl) plRejectedEl.textContent = `${plRows.filter(r => r.status === 'rejected').length} từ chối`;
+
             if (isAdmin()) {
                 const el = document.getElementById('statUsersTotal');
                 if (el) el.textContent = state.pagination.users.total;
@@ -1754,6 +1833,7 @@
                 ...state.adoptionRows.filter(r => r.status === 'pending').map(r => ({ type: 'adoption', label: 'Nhận nuôi', name: r.display_name || r.user_name, meta: r.pet_name ? `Thú cưng: ${r.pet_name}` : '', id: r.id })),
                 ...state.housingRows.filter(r => r.status === 'pending').map(r => ({ type: 'housing', label: 'Nhà ở', name: r.display_name || r.name, meta: `Loại: ${r.house_type || ''}`, id: r.id })),
                 ...state.shelterRows.filter(r => r.status === 'pending').map(r => ({ type: 'shelters', label: 'Trại', name: r.display_name || r.name, meta: `Tên: ${r.name || ''}`, id: r.id })),
+                ...state.placeRows.filter(r => r.status === 'pending').map(r => ({ type: 'places', label: 'Địa điểm', name: r.name, meta: `Loại: ${r.type || ''}`, id: r.id })),
                 ...state.reportRows.filter(r => r.status === 'pending').map(r => ({ type: 'report', label: 'Báo cáo', name: r.reporter_name || r.name, meta: r.found_location || '', id: r.id })),
                 ...state.newsRows.filter(r => r.status === 'pending').map(r => ({ type: 'news', label: 'Bài tin', name: r.title, meta: r.author_name || '', id: r.id }))
             ].slice(0, 5);
@@ -1771,7 +1851,7 @@
                                 <div style="font-size:0.78rem;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(i.meta)}</div>
                             </div>
                         </div>
-                        <button class="tool-btn" data-jump-tab="${i.type === 'report' ? 'reports' : i.type === 'housing' ? 'housing' : i.type === 'shelters' ? 'shelters' : i.type}">Xử lý</button>
+                        <button class="tool-btn" data-jump-tab="${i.type === 'report' ? 'reports' : i.type === 'housing' ? 'housing' : i.type === 'shelters' ? 'shelters' : i.type === 'places' ? 'places' : i.type}">Xử lý</button>
                     </div>
                 `).join('') : '<div class="urgent-empty">✅ Tất cả đã được xử lý!</div>';
             }
@@ -1785,6 +1865,7 @@
                     adoption: `/api/v1/adoption-requests/admin?page=${p.page}&limit=${p.pageSize}`,
                     housing: `/api/v1/admin/housing-reviews?page=${p.page}&limit=${p.pageSize}`,
                     shelters: `/api/v1/admin/shelters?page=${p.page}&limit=${p.pageSize}`,
+                    places: `/api/v1/admin/places?page=${p.page}&limit=${p.pageSize}${state.placeFilter && state.placeFilter !== 'all' ? `&status=${state.placeFilter}` : ''}`,
                     pets: `/api/v1/pets?page=${p.page}&limit=${p.pageSize}`,
                     reports: `/api/v1/admin/reports?page=${p.page}&limit=${p.pageSize}`,
                     news: `/api/v1/admin/news?page=${p.page}&limit=${p.pageSize}`,
@@ -1792,7 +1873,7 @@
                 };
                 const payload = await adminApiFetch(urlMap[tab]);
                 const data = payload.data || {};
-                const rows = data.requests || data.pets || data.reports || data.news || data.users || data.data || [];
+                const rows = data.requests || data.pets || data.reports || data.news || data.users || data.places || data.data || [];
                 state[TAB_ROWS_KEYS[tab]] = rows;
                 p.total = data.total || rows.length;
                 p.totalPages = data.totalPages || 1;
@@ -1822,6 +1903,36 @@
                 if (tab === 'shelters') {
                     const reviewedBy = row.reviewed_by ? `#${row.reviewed_by}` : '-';
                     return `<tr><td><span class="font-mono text-xs font-bold text-slate-300">#${row.id}</span></td><td><div class="font-black text-slate-800">${escapeHtml(row.display_name || row.name || 'User')}</div><div style="font-size:0.75rem;color:#64748b;">${escapeHtml(row.email || '')}</div></td><td><span class="font-bold text-slate-500">${escapeHtml(row.name || '-')}</span></td><td><span class="status-pill ${row.status}">${row.status}</span></td><td>${formatDate(row.created_at)}</td><td><span class="text-slate-400 text-sm">${reviewedBy}</span></td><td>${row.status === 'pending' ? `<button class="action-btn approve" data-action="status-shelter" data-id="${row.id}" data-next="approved">Duyệt</button> <button class="action-btn reject" data-action="status-shelter" data-id="${row.id}" data-next="rejected">Từ chối</button>` : ''} <button class="action-btn info" data-action="detail-shelters" data-id="${row.id}">Chi tiết</button></td></tr>`;
+                }
+                if (tab === 'places') {
+                    const typeLabel = {
+                        shelter: 'Trại cứu hộ',
+                        veterinary: 'Thú y 24/7',
+                        grooming: 'Spa Grooming',
+                        pet_shop: 'Cửa hàng',
+                        pet_cafe: 'Cafe thú cưng',
+                        park: 'Công viên',
+                        meetup: 'Điểm hẹn offline',
+                        other: 'Khác'
+                    };
+                    return `<tr>
+                        <td>
+                            <div class="font-black text-slate-800">${escapeHtml(row.name)}</div>
+                            <div style="font-size:0.75rem;color:#64748b;">${row.phone ? `📞 ${escapeHtml(row.phone)}` : ''}</div>
+                        </td>
+                        <td><span class="font-bold text-slate-600">${typeLabel[row.type] || row.type}</span></td>
+                        <td><div style="max-width:220px;font-size:0.85rem;color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(row.address)}">${escapeHtml(row.address)}</div></td>
+                        <td><span class="font-medium text-slate-700">${escapeHtml(row.creator_name || row.creator_username || 'User')}</span></td>
+                        <td><span class="status-pill ${row.status}">${row.status}</span></td>
+                        <td>${formatDate(row.created_at)}</td>
+                        <td>
+                            <div class="flex gap-2">
+                                ${row.status === 'pending' ? `<button class="action-btn approve" data-action="status-place" data-id="${row.id}" data-next="approved">Duyệt</button> <button class="action-btn reject" data-action="status-place" data-id="${row.id}" data-next="rejected">Từ chối</button>` : ''}
+                                <a href="https://www.google.com/maps?q=${row.latitude},${row.longitude}" target="_blank" class="action-btn info" style="text-decoration:none;display:inline-flex;align-items:center;">Maps ↗</a>
+                                <button class="action-btn delete" data-action="delete-place" data-id="${row.id}">Xóa</button>
+                            </div>
+                        </td>
+                    </tr>`;
                 }
                 if (tab === 'pets') return `<tr><td><span class="font-mono text-xs font-bold text-slate-300">#${row.id}</span></td><td><div class="font-black text-slate-800">${escapeHtml(row.name)}</div></td><td><span class="font-bold text-slate-500">${row.pet_type}</span></td><td><span class="status-pill ${row.status}">${row.status}</span></td><td><span class="text-slate-400 text-sm">${formatDate(row.updated_at)}</span></td><td><div class="flex gap-2"><a href="/adopt/admin/edit/${row.id}" class="action-btn unban" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Sửa</a><button class="action-btn delete" data-action="delete-pet" data-id="${row.id}">Xóa bỏ</button></div></td></tr>`;
                 if (tab === 'reports') return `<tr><td>${escapeHtml(row.reporter_name || row.name || 'User')}</td><td>${row.type}</td><td>${escapeHtml(row.found_location || '-')}</td><td><span class="status-pill ${row.status}">${row.status}</span></td><td>${formatDate(row.created_at)}</td><td><button class="action-btn approve" data-action="status-report" data-id="${row.id}" data-next="resolved">Xong</button> <button class="action-btn info" data-action="detail-reports" data-id="${row.id}">Chi tiết</button></td></tr>`;
@@ -2084,11 +2195,55 @@
                     if (nextStatus === 'approved') toastSuccess('Đã duyệt trại cứu hộ');
                     loadPagedTab('shelters', true);
                 }
+                else if (act === 'status-place') {
+                    const nextStatus = t.dataset.next;
+                    let adminNotes = null;
+                    if (nextStatus === 'rejected') {
+                        const { value: inputNotes } = await Swal.fire({
+                            title: 'Từ chối địa điểm cộng đồng',
+                            input: 'textarea',
+                            inputLabel: 'Lý do từ chối',
+                            inputPlaceholder: 'Nhập lý do từ chối...',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            confirmButtonText: 'Từ chối',
+                            cancelButtonText: 'Hủy',
+                            inputValidator: (value) => { if (!value || !value.trim()) return 'Vui lòng nhập lý do từ chối'; }
+                        });
+                        if (!inputNotes) return;
+                        adminNotes = inputNotes.trim();
+                    }
+                    await adminApiFetch(`/api/v1/admin/places/${id}/status`, { method: 'PATCH', body: { status: t.dataset.next, admin_notes: adminNotes } });
+                    if (nextStatus === 'approved') toastSuccess('Đã duyệt địa điểm cộng đồng');
+                    loadPagedTab('places', true);
+                }
+                else if (act === 'delete-place') {
+                    if (confirm('Bạn có chắc chắn muốn xóa địa điểm này?')) {
+                        await adminApiFetch(`/api/v1/admin/places/${id}`, { method: 'DELETE' });
+                        toastSuccess('Đã xóa địa điểm');
+                        loadPagedTab('places', true);
+                    }
+                }
                 else if (act === 'delete-pet') { if (confirm('Xóa?')) { await adminApiFetch(`/api/v1/pets/${id}`, { method: 'DELETE' }); loadPagedTab('pets', true); } }
                 else if (act === 'status-report') { await adminApiFetch(`/api/v1/admin/reports/${id}/status`, { method: 'PATCH', body: { status: t.dataset.next } }); loadPagedTab('reports', true); }
                 else if (act === 'delete-report') { await adminApiFetch(`/api/v1/admin/reports/${id}`, { method: 'DELETE' }); loadPagedTab('reports', true); }
                 else if (act === 'status-news') { await adminApiFetch(`/api/v1/admin/news/${id}/status`, { method: 'PATCH', body: { status: t.dataset.next } }); loadPagedTab('news', true); }
                 else if (act === 'delete-news') { await adminApiFetch(`/api/v1/admin/news/${id}`, { method: 'DELETE' }); loadPagedTab('news', true); }
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.place-filter-btn');
+            if (btn) {
+                state.placeFilter = btn.dataset.placeStatus || 'all';
+                document.querySelectorAll('.place-filter-btn').forEach(b => {
+                    const isActive = b === btn;
+                    b.classList.toggle('active', isActive);
+                    b.style.background = isActive ? '#00220f' : '';
+                    b.style.color = isActive ? '#fff' : '';
+                });
+                state.pagination.places.page = 1;
+                loadPagedTab('places', true);
             }
         });
 
