@@ -3,6 +3,8 @@ const PlaceReview = require("../models/PlaceReview");
 const ModerationReport = require("../models/ModerationReport");
 const { sendSuccess, sendError } = require("../utils/apiResponse");
 const { getImageUrl, deleteImage } = require("../config/upload");
+const notificationService = require("../service/notificationService");
+const NOTIF_TYPES = require("../shared/constants/notificationTypes");
 
 const placeApiV1Controller = {
   /**
@@ -110,10 +112,8 @@ const placeApiV1Controller = {
 
       const placeType = Place.VALID_PLACE_TYPES.includes(type) ? type : "other";
 
-      // Server-side status enforcement
-      const userRole = req.user.role;
-      const isAdminOrStaff = userRole === 0 || userRole === 1;
-      const status = isAdminOrStaff ? "approved" : "pending";
+      // Server-side status enforcement: Tất cả địa điểm đóng góp mới đều phải qua Admin kiểm duyệt
+      const status = "pending";
 
       let imageUrl = null;
       if (req.file) {
@@ -144,9 +144,7 @@ const placeApiV1Controller = {
         throw dbErr;
       }
 
-      const message = status === "approved"
-        ? "Tạo địa điểm thành công"
-        : "Địa điểm đã được gửi và đang chờ kiểm duyệt";
+      const message = "Địa điểm đã được gửi và đang chờ kiểm duyệt";
 
       return sendSuccess(res, 201, message, { place: newPlace });
     } catch (error) {
@@ -401,6 +399,28 @@ const placeApiV1Controller = {
       const updated = await Place.updateStatus(id, status, admin_notes || null);
       if (!updated) {
         return sendError(res, 404, "Không tìm thấy địa điểm");
+      }
+
+      // Gửi thông báo đến người tạo địa điểm (chuông thông báo + push notification)
+      if (updated.created_by) {
+        if (status === "rejected") {
+          const reasonText = admin_notes?.trim() ? ` Lý do: ${admin_notes.trim()}` : "";
+          void notificationService.send({
+            userId: updated.created_by,
+            title: "❌ Địa điểm của bạn bị từ chối",
+            message: `Địa điểm "${updated.name}" đã bị từ chối.${reasonText}`,
+            type: NOTIF_TYPES.PLACE_REJECTED,
+            data: { placeId: updated.id, status: "rejected" },
+          });
+        } else if (status === "approved") {
+          void notificationService.send({
+            userId: updated.created_by,
+            title: "✅ Địa điểm của bạn đã được duyệt",
+            message: `Địa điểm "${updated.name}" đã được duyệt và hiển thị trên bản đồ công khai.`,
+            type: NOTIF_TYPES.PLACE_APPROVED,
+            data: { placeId: updated.id, status: "approved" },
+          });
+        }
       }
 
       return sendSuccess(res, 200, `Đã cập nhật trạng thái địa điểm thành ${status}`, { place: updated });
