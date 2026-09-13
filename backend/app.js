@@ -42,6 +42,8 @@ var appVersionApiV1Router = require("./routes/appVersionRoutes");
 var userPetApiV1Router = require("./routes/api/v1/userPets");
 var placesApiV1Router = require("./routes/api/v1/places");
 var bestMatchApiV1Router = require("./routes/api/v1/bestMatches");
+var publicPetsApiV1Router = require("./routes/api/v1/publicPets");
+var petWebRouter = require("./routes/petWeb");
 
 var app = express();
 
@@ -112,12 +114,22 @@ app.use("/api/v1", notificationApiV1Router);
 app.use("/api/v1", userPetApiV1Router);
 app.use("/api/v1", placesApiV1Router);
 app.use("/api/v1", bestMatchApiV1Router);
+app.use("/api/v1", publicPetsApiV1Router);
+app.use("/pet", petWebRouter);
+
+// Android App Links verification file
+app.get("/.well-known/assetlinks.json", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.sendFile(path.join(__dirname, "../frontend/.well-known/assetlinks.json"));
+});
+
 app.use("/", indexRouter);
 app.use("/auth", authRouter);
 app.use("/adopt", petRouter);
 app.use("/", adoptionRequestRouter);
 app.use("/", reportRouter);
 app.use("/api/v1", newsApiV1Router);
+
 
 // Health Check Endpoint - used by deployment workflow for post-deploy verification
 app.get("/api/v1/health", (req, res) => {
