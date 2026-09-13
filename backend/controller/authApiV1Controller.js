@@ -4,7 +4,15 @@ const EmailVerification = require("../models/EmailVerification");
 const { JWT_SECRET } = require("../middleware/authMiddleware");
 const { sendSuccess, sendError } = require("../utils/apiResponse");
 const { Resend } = require("resend");
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
+
+if (!resend) {
+  console.warn(
+    "⚠️ RESEND_API_KEY chưa được cấu hình. Chức năng gửi email OTP API v1 sẽ không hoạt động.",
+  );
+}
 const {
   avatarUpload,
   bgUpload,
@@ -594,28 +602,34 @@ const authApiV1Controller = {
       // Lưu vào DB kèm theo targetEmail vào pending_email
       await EmailVerification.saveOtp(userId, otp, expiresAt, targetEmail);
 
+      if (!resend) {
+        return sendError(
+          res,
+          503,
+          "Dịch vụ gửi email chưa được cấu hình",
+        );
+      }
+
       // Gửi email nếu có Resend API key
-      if (process.env.RESEND_API_KEY) {
-        try {
-          await resend.emails.send({
-            from: "Pet Helper <noreply@mail.pethelper.app>",
-            to: targetEmail,
-            subject: "Xác minh tài khoản Pet Helper",
-            html: `
-              <div style="font-family: system-ui, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
-                <h2 style="color: #2b663e;">Pet Helper - Xác minh Email</h2>
-                <p>Xin chào <b>${user.name}</b>,</p>
-                <p>Mã xác minh của bạn là:</p>
-                <div style="background: #f0fdf4; border: 2px solid #2b663e; border-radius: 12px; padding: 20px; text-align: center; margin: 24px 0;">
-                  <span style="font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #2b663e;">${otp}</span>
-                </div>
-                <p style="color: #666;">Mã này sẽ hết hạn sau <b>5 phút</b>.</p>
+      try {
+        await resend.emails.send({
+          from: "Pet Helper <noreply@mail.pethelper.app>",
+          to: targetEmail,
+          subject: "Xác minh tài khoản Pet Helper",
+          html: `
+            <div style="font-family: system-ui, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
+              <h2 style="color: #2b663e;">Pet Helper - Xác minh Email</h2>
+              <p>Xin chào <b>${user.name}</b>,</p>
+              <p>Mã xác minh của bạn là:</p>
+              <div style="background: #f0fdf4; border: 2px solid #2b663e; border-radius: 12px; padding: 20px; text-align: center; margin: 24px 0;">
+                <span style="font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #2b663e;">${otp}</span>
               </div>
-            `,
-          });
-        } catch (resendErr) {
-          console.error("Resend send error:", resendErr);
-        }
+              <p style="color: #666;">Mã này sẽ hết hạn sau <b>5 phút</b>.</p>
+            </div>
+          `,
+        });
+      } catch (resendErr) {
+        console.error("Resend send error:", resendErr);
       }
 
       console.log(`✅ [API v1] OTP sent to ${targetEmail} (OTP: ${otp})`);

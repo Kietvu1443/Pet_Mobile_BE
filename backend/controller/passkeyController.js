@@ -17,7 +17,15 @@ const { Resend } = require("resend");
 const { sendSuccess, sendError } = require("../utils/apiResponse");
 const { JWT_SECRET } = require("../middleware/authMiddleware");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
+
+if (!resend) {
+  console.warn(
+    "⚠️ RESEND_API_KEY chưa được cấu hình. Passkey email sẽ không hoạt động.",
+  );
+}
 const rpID = process.env.PASSKEY_RP_ID || "localhost";
 const rpName = process.env.PASSKEY_RP_NAME || "Pet Helper";
 const origin = process.env.PASSKEY_ORIGIN || "http://localhost:3000";
@@ -258,6 +266,12 @@ exports.deleteSendOtp = async (req, res) => {
     const otp = String(Math.floor(100000 + Math.random() * 900000));
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
     await EmailVerification.saveOtp(userId, otp, expiresAt);
+
+    if (!resend) {
+      return res.status(503).json({
+        error: "Dịch vụ gửi email chưa được cấu hình",
+      });
+    }
 
     const emailResult = await resend.emails.send({
       from: "Pet Helper <noreply@mail.pethelper.app>",

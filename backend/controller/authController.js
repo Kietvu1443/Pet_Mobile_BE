@@ -4,7 +4,15 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../middleware/authMiddleware");
 const { Resend } = require("resend");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
+
+if (!resend) {
+  console.warn(
+    "⚠️ RESEND_API_KEY chưa được cấu hình. Chức năng gửi email OTP sẽ không hoạt động.",
+  );
+}
 
 const authController = {
   // Xử lí đăng kí
@@ -227,6 +235,12 @@ const authController = {
       // Lưu vào database
       await EmailVerification.saveOtp(userId, otp, expiresAt);
 
+      if (!resend) {
+        return res.status(503).json({
+          error: "Dịch vụ gửi email chưa được cấu hình. Vui lòng cấu hình RESEND_API_KEY.",
+        });
+      }
+
       // 5. Gửi email qua Resend
       const emailResult = await resend.emails.send({
         from: "Pet Helper <noreply@mail.pethelper.app>",
@@ -397,6 +411,12 @@ const authController = {
       const otp = String(Math.floor(100000 + Math.random() * 900000));
       const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
       await EmailVerification.saveOtp(user.id, otp, expiresAt);
+
+      if (!resend) {
+        return res.status(503).json({
+          error: "Dịch vụ gửi email chưa được cấu hình. Vui lòng cấu hình RESEND_API_KEY.",
+        });
+      }
 
       // Gửi email
       const emailResult = await resend.emails.send({
@@ -654,6 +674,12 @@ const authController = {
 
       // Lưu vào database
       await EmailVerification.saveOtp(userId, otp, expiresAt);
+
+      if (!resend) {
+        return res.status(503).json({
+          error: "Dịch vụ gửi email chưa được cấu hình. Vui lòng cấu hình RESEND_API_KEY.",
+        });
+      }
 
       // 5. Gửi email qua Resend
       const emailResult = await resend.emails.send({

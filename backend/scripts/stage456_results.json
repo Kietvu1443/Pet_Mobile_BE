@@ -1,0 +1,69 @@
+{
+  "stage4_backend_startup": {
+    "pass": true,
+    "details": {
+      "httpStatus": 200,
+      "healthStatus": "ok",
+      "dbQueryTest": "OK",
+      "database": "pet_helper"
+    }
+  },
+  "stage5_existing_api": {
+    "pass": true,
+    "details": {
+      "petsEndpoint": {
+        "status": 200,
+        "ok": true
+      },
+      "newsEndpoint": {
+        "status": 200,
+        "ok": true
+      },
+      "placesEndpoint": {
+        "status": 200,
+        "ok": true
+      }
+    }
+  },
+  "stage6_best_match_petsnap": {
+    "pass": true,
+    "checks": [
+      {
+        "name": "GET /api/v1/best-matches",
+        "pass": true,
+        "status": 200,
+        "count": 0
+      },
+      {
+        "name": "Best Match DB Transactional Write/Read/FK & Rollback",
+        "pass": true,
+        "details": {
+          "readOk": true,
+          "rolledBackCleanly": true,
+          "residualRows": 0
+        }
+      },
+      {
+        "name": "GET /api/v1/pet-snap",
+        "pass": true,
+        "status": 200,
+        "candidatePetId": 307
+      },
+      {
+        "name": "GET /api/v1/pet-snap/liked-pets",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "name": "GET /api/v1/pet-snap/:id/detail-view Telemetry Write & Clean",
+        "pass": true,
+        "details": {
+          "httpStatus": 200,
+          "recordedInDb": true,
+          "cleanedUp": true,
+          "residualRows": 0
+        }
+      }
+    ]
+  }
+}

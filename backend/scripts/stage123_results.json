@@ -1,0 +1,352 @@
+{
+  "stage1_topology": {
+    "pass": true,
+    "totalTableCount": 47,
+    "original39Intact": true,
+    "newTablesCount": 8,
+    "newTables": [
+      "best_match_assessments",
+      "best_match_evidence",
+      "best_match_privacy_settings",
+      "best_match_stories",
+      "best_match_story_media",
+      "best_match_wellbeing_signals",
+      "best_matches",
+      "pet_interactions"
+    ],
+    "missingExpected8": [],
+    "unexpectedTables": []
+  },
+  "stage2_structure": {
+    "pass": true,
+    "errors": [],
+    "details": {
+      "best_match_assessments": {
+        "columnCount": 7,
+        "primaryKey": [
+          "id"
+        ],
+        "engine": "InnoDB",
+        "collation": "utf8mb4_unicode_ci",
+        "indexCount": 2,
+        "indexNames": [
+          "PRIMARY",
+          "idx_best_match_assessments_match_date"
+        ],
+        "foreignKeys": [
+          {
+            "name": "fk_best_match_assessment_match",
+            "column": "best_match_id",
+            "refTable": "best_matches",
+            "refColumn": "id",
+            "onDelete": "CASCADE"
+          }
+        ]
+      },
+      "best_match_evidence": {
+        "columnCount": 11,
+        "primaryKey": [
+          "id"
+        ],
+        "engine": "InnoDB",
+        "collation": "utf8mb4_unicode_ci",
+        "indexCount": 5,
+        "indexNames": [
+          "PRIMARY",
+          "idx_best_match_evidence_match_created",
+          "idx_best_match_evidence_match_type",
+          "idx_best_match_evidence_source",
+          "idx_best_match_evidence_date"
+        ],
+        "foreignKeys": [
+          {
+            "name": "fk_best_match_evidence_match",
+            "column": "best_match_id",
+            "refTable": "best_matches",
+            "refColumn": "id",
+            "onDelete": "CASCADE"
+          }
+        ]
+      },
+      "best_match_privacy_settings": {
+        "columnCount": 9,
+        "primaryKey": [
+          "id"
+        ],
+        "engine": "InnoDB",
+        "collation": "utf8mb4_unicode_ci",
+        "indexCount": 2,
+        "indexNames": [
+          "PRIMARY",
+          "uq_best_match_privacy"
+        ],
+        "foreignKeys": [
+          {
+            "name": "fk_best_match_privacy_match",
+            "column": "best_match_id",
+            "refTable": "best_matches",
+            "refColumn": "id",
+            "onDelete": "CASCADE"
+          }
+        ]
+      },
+      "best_match_stories": {
+        "columnCount": 10,
+        "primaryKey": [
+          "id"
+        ],
+        "engine": "InnoDB",
+        "collation": "utf8mb4_unicode_ci",
+        "indexCount": 4,
+        "indexNames": [
+          "PRIMARY",
+          "idx_best_match_stories_match_created",
+          "idx_best_match_stories_match_story_date",
+          "idx_best_match_stories_author"
+        ],
+        "foreignKeys": [
+          {
+            "name": "fk_best_match_story_author",
+            "column": "author_user_id",
+            "refTable": "users",
+            "refColumn": "id",
+            "onDelete": "CASCADE"
+          },
+          {
+            "name": "fk_best_match_story_match",
+            "column": "best_match_id",
+            "refTable": "best_matches",
+            "refColumn": "id",
+            "onDelete": "CASCADE"
+          }
+        ]
+      },
+      "best_match_story_media": {
+        "columnCount": 8,
+        "primaryKey": [
+          "id"
+        ],
+        "engine": "InnoDB",
+        "collation": "utf8mb4_unicode_ci",
+        "indexCount": 2,
+        "indexNames": [
+          "PRIMARY",
+          "idx_best_match_story_media_story_order"
+        ],
+        "foreignKeys": [
+          {
+            "name": "fk_best_match_story_media_story",
+            "column": "story_id",
+            "refTable": "best_match_stories",
+            "refColumn": "id",
+            "onDelete": "CASCADE"
+          }
+        ]
+      },
+      "best_match_wellbeing_signals": {
+        "columnCount": 14,
+        "primaryKey": [
+          "id"
+        ],
+        "engine": "InnoDB",
+        "collation": "utf8mb4_unicode_ci",
+        "indexCount": 5,
+        "indexNames": [
+          "PRIMARY",
+          "idx_best_match_signals_match_status",
+          "idx_best_match_signals_severity_status",
+          "idx_best_match_signals_created",
+          "fk_best_match_signal_reviewer"
+        ],
+        "foreignKeys": [
+          {
+            "name": "fk_best_match_signal_match",
+            "column": "best_match_id",
+            "refTable": "best_matches",
+            "refColumn": "id",
+            "onDelete": "CASCADE"
+          },
+          {
+            "name": "fk_best_match_signal_reviewer",
+            "column": "reviewed_by",
+            "refTable": "users",
+            "refColumn": "id",
+            "onDelete": "SET NULL"
+          }
+        ]
+      },
+      "best_matches": {
+        "columnCount": 15,
+        "primaryKey": [
+          "id"
+        ],
+        "engine": "InnoDB",
+        "collation": "utf8mb4_unicode_ci",
+        "indexCount": 6,
+        "indexNames": [
+          "PRIMARY",
+          "uq_best_match_adoption_request",
+          "idx_best_match_user_status",
+          "idx_best_match_pet_status",
+          "idx_best_match_started_at",
+          "idx_best_match_last_activity"
+        ],
+        "foreignKeys": [
+          {
+            "name": "fk_best_match_adoption_request",
+            "column": "adoption_request_id",
+            "refTable": "adoption_requests",
+            "refColumn": "id",
+            "onDelete": "CASCADE"
+          },
+          {
+            "name": "fk_best_match_pet",
+            "column": "pet_id",
+            "refTable": "pets",
+            "refColumn": "id",
+            "onDelete": "CASCADE"
+          },
+          {
+            "name": "fk_best_match_user",
+            "column": "user_id",
+            "refTable": "users",
+            "refColumn": "id",
+            "onDelete": "CASCADE"
+          }
+        ]
+      },
+      "pet_interactions": {
+        "columnCount": 8,
+        "primaryKey": [
+          "id"
+        ],
+        "engine": "InnoDB",
+        "collation": "utf8mb4_unicode_ci",
+        "indexCount": 6,
+        "indexNames": [
+          "PRIMARY",
+          "idx_interactions_user",
+          "idx_interactions_pet",
+          "idx_interactions_type",
+          "idx_interactions_user_pet",
+          "idx_interactions_user_created"
+        ],
+        "foreignKeys": [
+          {
+            "name": "fk_pet_interactions_pet",
+            "column": "pet_id",
+            "refTable": "pets",
+            "refColumn": "id",
+            "onDelete": "CASCADE"
+          },
+          {
+            "name": "fk_pet_interactions_user",
+            "column": "user_id",
+            "refTable": "users",
+            "refColumn": "id",
+            "onDelete": "CASCADE"
+          }
+        ]
+      }
+    }
+  },
+  "stage3_safety": {
+    "pass": true,
+    "errors": [],
+    "coreTableStats": {
+      "users": {
+        "rowCount": 14,
+        "columnCount": 19,
+        "columns": [
+          "id",
+          "display_name",
+          "name",
+          "email",
+          "password",
+          "role",
+          "birthday",
+          "gender",
+          "phone",
+          "address",
+          "preferences",
+          "created_at",
+          "updated_at",
+          "verify",
+          "status",
+          "banned_reason",
+          "banned_at",
+          "avatar",
+          "bg_preference"
+        ]
+      },
+      "pets": {
+        "rowCount": 164,
+        "columnCount": 16,
+        "columns": [
+          "id",
+          "name",
+          "pet_type",
+          "breed",
+          "age",
+          "gender",
+          "color",
+          "weight",
+          "pet_code",
+          "vaccination",
+          "description",
+          "contact_info",
+          "source_url",
+          "status",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "adoption_requests": {
+        "rowCount": 4,
+        "columnCount": 8,
+        "columns": [
+          "id",
+          "user_id",
+          "pet_id",
+          "message",
+          "status",
+          "reviewed_by",
+          "created_at",
+          "reviewed_at"
+        ]
+      },
+      "pet_likes": {
+        "rowCount": 21,
+        "columnCount": 5,
+        "columns": [
+          "id",
+          "user_id",
+          "pet_id",
+          "status",
+          "created_at"
+        ]
+      },
+      "user_pets": {
+        "rowCount": 1,
+        "columnCount": 15,
+        "columns": [
+          "id",
+          "user_id",
+          "name",
+          "species",
+          "breed",
+          "gender",
+          "birth_date",
+          "color",
+          "weight",
+          "vaccinated",
+          "description",
+          "traits",
+          "image_url",
+          "created_at",
+          "updated_at"
+        ]
+      }
+    }
+  }
+}

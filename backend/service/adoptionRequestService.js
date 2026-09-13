@@ -1,6 +1,8 @@
 const { pool } = require("../config/db");
 const notificationService = require("./notificationService");
 const NOTIF_TYPES = require("../shared/constants/notificationTypes");
+const bestMatchService = require("./bestMatchService");
+const BestMatch = require("../models/BestMatch");
 
 function createError(status, message) {
   const error = new Error(message);
@@ -220,6 +222,31 @@ const adoptionRequestService = {
         data: { requestId, petId: request.pet_id, status: "approved" },
       });
 
+      // Phase C4: Best Match auto-activation (Fail-Safe: never blocks adoption approval)
+      let bestMatchResult = null;
+      try {
+        bestMatchResult = await bestMatchService.ensureBestMatchForOfficialAdoption(requestId);
+      } catch (bmError) {
+        console.warn(`[Adoption -> BestMatch] Warning: Best Match auto-activation failed for request ${requestId}:`, bmError.message);
+      }
+
+      if (bestMatchResult && bestMatchResult.didActivate) {
+        try {
+          notificationService.send({
+            userId: request.user_id,
+            title: "💛 Hành trình Best Match đã bắt đầu",
+            message: "Best Match của bạn đã sẵn sàng — hãy ghé qua khi bạn muốn lưu lại một khoảnh khắc.",
+            type: NOTIF_TYPES.BEST_MATCH_STARTED,
+            data: {
+              bestMatchId: bestMatchResult.bestMatch.id,
+              petId: request.pet_id,
+            },
+          });
+        } catch (notifErr) {
+          console.warn("[Adoption -> BestMatch] Warning: Failed to send BEST_MATCH_STARTED notification:", notifErr.message);
+        }
+      }
+
       return { id: requestId, status: "approved" };
     } catch (error) {
       await connection.rollback();
@@ -229,7 +256,12 @@ const adoptionRequestService = {
     }
   },
 
-  async revertApprovedRequest({ requestId }) {
+  async revertApprovedRequest(opts, maybeReason) {
+    const requestId = typeof opts === "object" ? opts?.requestId : opts;
+    const reason =
+      (typeof opts === "object" ? opts?.reason : maybeReason) ||
+      "Adoption approval was reverted by an administrator.";
+
     const connection = await pool.getConnection();
     try {
       await connection.beginTransaction();
@@ -272,6 +304,23 @@ const adoptionRequestService = {
       ]);
 
       await connection.commit();
+
+      // Phase C4: Cancel linked Best Match if adoption is reverted (Fail-Safe)
+      try {
+        const linkedBestMatch = await BestMatch.getByAdoptionRequestId(requestId);
+        if (linkedBestMatch && linkedBestMatch.status === "active") {
+          await BestMatch.cancel({
+            bestMatchId: linkedBestMatch.id,
+            reason: BestMatch.formatCancelReason(
+              BestMatch.CANCEL_REASON.ADOPTION_REVERTED,
+              reason || "Adoption approval was reverted by an administrator.",
+            ),
+          });
+        }
+      } catch (bmError) {
+        console.warn(`[Adoption -> BestMatch] Warning: Failed to cancel linked Best Match on revert for request ${requestId}:`, bmError.message);
+      }
+
       return { id: requestId, status: "pending" };
     } catch (error) {
       await connection.rollback();
