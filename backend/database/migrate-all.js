@@ -5,6 +5,10 @@
  * Mỗi migration script con tự xử lý idempotency (CREATE IF NOT EXISTS / skip duplicate)
  * và tự exit với mã lỗi chuẩn (0 = OK, 1 = fail).
  *
+ * migration_ledger.js (chạy đầu tiên) quản lý các SQL migration 1.0.8 (001-004)
+ * bằng bảng `schema_migrations`: bootstrap-verify trên DB đã tồn tại,
+ * execute thật trên DB mới. Xem migrations/README.md.
+ *
  * Cách dùng:
  *   node database/migrate-all.js
  */
@@ -17,6 +21,7 @@ const DB_DIR = __dirname;
 // Thứ tự quan trọng: run-migration.js tạo các bảng nền tảng trước,
 // rồi đến các init/migration module chuyên biệt.
 const MIGRATIONS = [
+  { file: "migration_ledger.js", desc: "Ledger: verify/bootstrap các migration 1.0.8 (001-004)" },
   { file: "run-migration.js", desc: "Schema nền tảng (users, shelters, notifications...)" },
   { file: "initCollections.js", desc: "Bảng pet_collections & pet_collection_items" },
   { file: "initNotes.js", desc: "Bảng pet_notes" },

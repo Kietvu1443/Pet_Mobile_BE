@@ -1,4 +1,25 @@
 -- ============================================================================
+-- ⛔ SUPERSEDED — DO NOT RUN / ĐÃ BỊ THAY THẾ — KHÔNG CHẠY
+-- ============================================================================
+-- File này KHÔNG còn nằm trong migration chain (đã di chuyển vào archive/).
+--
+-- Lý do SUPERSEDED:
+--   1. Schema best_matches trong file này KHÁC với schema do 003_best_match.sql
+--      tạo ra (003: status ENUM('active','cancelled'), có cancelled_at,
+--      cancel_reason — file này: ENUM('active','inactive','cancelled'),
+--      có ended_at, source, notes).
+--   2. Code hiện tại (models/BestMatch.js, service/bestMatchService.js) dùng
+--      cancelled_at / cancel_reason — tức khớp 003, KHÔNG khớp file này.
+--   3. File này từng được dùng như bản "consolidated production-safe" để dựng
+--      bảng best match trên production khi chưa có 002/003. Production hiện
+--      tại đã có schema chuẩn từ 002 + 003, chạy file này là no-op ở mức
+--      CREATE IF NOT EXISTS nhưng nếu ai chạy trên DB mới sẽ tạo schema SAI
+--      so với code.
+--
+-- Thứ tự migration đúng: xem migrations/README.md
+-- ============================================================================
+
+-- ============================================================================
 -- Production Migration: Best Match + PetSnap / Recommendation Telemetry
 -- File: 004_production_bestmatch_petsnap.sql
 -- Target DB: pet_helper (Production)
