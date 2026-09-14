@@ -1,0 +1,16 @@
+{
+  "version": "1.0.3",
+  "updateId": "01a09b62-44b6-70ab-be37-e1316c0a65ea",
+  "updateGroup": "1710d886-a733-49d8-9661-349e120c9fc6",
+  "runtimeVersion": "1.0.0",
+  "channel": "preview",
+  "platform": "android",
+  "releaseDate": "2026-09-13",
+  "isMandatory": false,
+  "changelog": [
+    "Khắc phục sự cố đóng ứng dụng đột ngột (crash) khi thêm thú cưng thứ 3 vào danh sách so sánh",
+    "Nâng cấp chế độ So sánh thú cưng, hỗ trợ đối chiếu đồng thời tối đa 4 thú cưng",
+    "Tối ưu cơ chế đồng bộ dữ liệu so sánh, bảo toàn thao tác thêm/xóa của người dùng",
+    "Cải thiện tính ổn định của hệ thống cập nhật OTA và giao diện thông báo phiên bản"
+  ]
+}

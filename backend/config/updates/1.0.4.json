@@ -1,0 +1,16 @@
+{
+  "version": "1.0.4",
+  "updateId": "01a09d69-e391-773e-81f7-70b36b9e22d3",
+  "updateGroup": "00ce5e37-9cc1-4d63-ab6d-4e5fa347d3f4",
+  "runtimeVersion": "1.0.0",
+  "channel": "preview",
+  "platform": "android, ios",
+  "releaseDate": "2026-09-14",
+  "isMandatory": false,
+  "changelog": [
+    "Khắc phục lỗi tính khoảng cách trên bản đồ: Ẩn khoảng cách giả định khi chưa bật GPS, chỉ tính khoảng cách khi có vị trí thực tế của người dùng",
+    "Sửa lỗi hệ thống cập nhật OTA: Hỗ trợ kiểm tra và nâng cấp tuần tự từng phiên bản theo đúng lịch sử log phát hành",
+    "Đồng bộ chính xác phiên bản ứng dụng tại chân trang Hồ sơ và màn hình Cài đặt (khắc phục lỗi hiển thị sai Version 1.2.0)",
+    "Tối ưu hóa độ mượt mà khi di chuyển camera và xem danh sách địa điểm khám phá thú cưng"
+  ]
+}
