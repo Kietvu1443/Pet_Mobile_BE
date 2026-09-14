@@ -1,0 +1,17 @@
+{
+  "version": "1.0.5",
+  "updateId": "01a09db3-35e2-74ad-89a1-6db937d183f9",
+  "updateGroup": "764b9b54-233a-4b6b-8307-d21e653354f5",
+  "runtimeVersion": "1.0.0",
+  "channel": "preview",
+  "platform": "android, ios",
+  "releaseDate": "2026-09-14",
+  "isMandatory": false,
+  "changelog": [
+    "Khắc phục triệt để lỗi đơ cứng UI khi quẹt thẻ thú cưng tốc độ cao (Pet Swipe): nâng buffer lên 10 thẻ, quẹt lạc quan không chặn",
+    "Tối ưu hóa hoạt ảnh bay thẻ ExitingCard độc lập, kích hoạt cảm ứng tức thì cho thẻ kế tiếp (0ms delay)",
+    "Bổ sung nhận diện gia tốc vẩy tay (Fling Velocity), quẹt nhanh dứt khoát không bị bật ngược về giữa",
+    "Prefetch trước ảnh của 5 thẻ kế tiếp với expo-image, loại bỏ hoàn toàn hiện tượng nghẽn luồng chính và giật lag",
+    "Mở khóa nút bấm Thích / Bỏ qua / Siêu thích, cho phép thao tác liên tục không bị delay"
+  ]
+}
