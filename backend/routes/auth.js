@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controller/authController");
 const { isAuthenticated } = require("../middleware/authMiddleware");
+const { requireTurnstile } = require("../middleware/turnstileMiddleware");
 
 // GET - Compatibility redirect for legacy auth page
 router.get("/login", (req, res) => {
@@ -9,16 +10,16 @@ router.get("/login", (req, res) => {
 });
 
 // POST - Handle registration
-router.post("/register", authController.register);
+router.post("/register", requireTurnstile(), authController.register);
 
 // POST - Handle login
-router.post("/login", authController.login);
+router.post("/login", requireTurnstile(), authController.login);
 
 // GET - Handle logout
 router.get("/logout", authController.logout);
 
 // POST - Send OTP for email verification
-router.post("/send-otp", isAuthenticated, authController.sendOtp);
+router.post("/send-otp", isAuthenticated, requireTurnstile(), authController.sendOtp);
 
 // POST - Verify OTP
 router.post("/verify-otp", isAuthenticated, authController.verifyOtp);

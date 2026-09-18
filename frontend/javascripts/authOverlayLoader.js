@@ -21,6 +21,16 @@
       if (data && data.success && data.data) {
         window.GOOGLE_CLIENT_ID = data.data.googleClientId;
         window.FACEBOOK_APP_ID = data.data.facebookAppId;
+        window.TURNSTILE_SITE_KEY = data.data.turnstileSiteKey || window.TURNSTILE_SITE_KEY || "";
+
+        // Tải Cloudflare Turnstile SDK động nếu chưa có
+        if (!document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]')) {
+          var tScript = document.createElement("script");
+          tScript.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+          tScript.async = true;
+          tScript.defer = true;
+          document.head.appendChild(tScript);
+        }
 
         // Tải Google Client SDK động nếu có GOOGLE_CLIENT_ID hợp lệ
         if (window.GOOGLE_CLIENT_ID && !window.GOOGLE_CLIENT_ID.includes("YOUR_")) {

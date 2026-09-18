@@ -4,11 +4,12 @@ const authApiV1Controller = require("../../../controller/authApiV1Controller");
 const oauthController = require("../../../controller/oauthController");
 const passkeyController = require("../../../controller/passkeyController");
 const { requireApiAuth } = require("../../../middleware/apiAuthV1");
+const { requireTurnstile } = require("../../../middleware/turnstileMiddleware");
 
 // ── Existing auth endpoints ───────────────────────────────────────────────────
 router.get("/config", authApiV1Controller.getConfig);
-router.post("/register", authApiV1Controller.register);
-router.post("/login", authApiV1Controller.login);
+router.post("/register", requireTurnstile(), authApiV1Controller.register);
+router.post("/login", requireTurnstile(), authApiV1Controller.login);
 router.post("/logout", authApiV1Controller.logout);
 router.get("/me", requireApiAuth, authApiV1Controller.me);
 router.get("/scan-count", requireApiAuth, authApiV1Controller.getScanCount);
@@ -16,7 +17,7 @@ router.patch("/profile", requireApiAuth, authApiV1Controller.updateProfile);
 router.patch("/preferences", requireApiAuth, authApiV1Controller.updatePreferences);
 router.post("/avatar", requireApiAuth, authApiV1Controller.uploadAvatar);
 router.post("/background", requireApiAuth, authApiV1Controller.updateBackground);
-router.post("/send-otp", requireApiAuth, authApiV1Controller.sendOtp);
+router.post("/send-otp", requireApiAuth, requireTurnstile(), authApiV1Controller.sendOtp);
 router.post("/verify-otp", requireApiAuth, authApiV1Controller.verifyOtp);
 
 // ── Google / Facebook Login ───────────────────────────────────────────────────
