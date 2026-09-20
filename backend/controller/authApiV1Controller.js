@@ -478,9 +478,12 @@ const authApiV1Controller = {
 
   getConfig(req, res) {
     try {
+      const { getTurnstileCredentials } = require("../service/turnstileService");
+      const { siteKey } = getTurnstileCredentials();
       return sendSuccess(res, 200, "Lấy cấu hình thành công", {
         googleClientId: process.env.GOOGLE_CLIENT_ID || "",
         facebookAppId: process.env.FACEBOOK_APP_ID || "",
+        turnstileSiteKey: siteKey,
       });
     } catch (error) {
       console.error("[Auth API v1] getConfig error:", error);

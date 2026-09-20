@@ -51,6 +51,10 @@
                 <a href="#" class="auth-overlay__forgot" id="overlayForgotLink"
                     onclick="overlayShowForgotPassword(); return false;">Quên mật khẩu?</a>
             </div>
+            <!-- Cloudflare Turnstile Login Widget -->
+            <div class="auth-overlay__turnstile-wrap" style="display: flex; justify-content: center; margin: 14px 0 10px; min-height: 65px;">
+                <div id="turnstile-login-widget"></div>
+            </div>
             <button type="submit" class="auth-overlay__btn">ĐĂNG NHẬP</button>
         </form>
 
@@ -104,6 +108,10 @@
                     <input type="checkbox" name="terms" required> Tôi đồng ý với <a href="#"
                         class="auth-overlay__terms-link">điều khoản</a>
                 </label>
+            </div>
+            <!-- Cloudflare Turnstile Register Widget -->
+            <div class="auth-overlay__turnstile-wrap" style="display: flex; justify-content: center; margin: 14px 0 10px; min-height: 65px;">
+                <div id="turnstile-register-widget"></div>
             </div>
             <button type="submit" class="auth-overlay__btn">TẠO TÀI KHOẢN</button>
         </form>
@@ -614,6 +622,9 @@
     }
 </style>
 
+<!-- ========== CLOUDFLARE TURNSTILE CLIENT SDK ========== -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+
 <!-- ========== AUTH OVERLAY JAVASCRIPT ========== -->
 <script>
     // ===== Overlay Open / Close =====
@@ -634,6 +645,9 @@
         if (id === 'auth-overlay') {
             window.__authOverlayOpenRequested = true;
             window.__pendingAuthOverlayOpen = false;
+            if (typeof initOverlayTurnstile === 'function') {
+                setTimeout(initOverlayTurnstile, 80);
+            }
         }
 
         document.body.style.overflow = 'hidden';
@@ -726,6 +740,94 @@
         if (sucAlert) sucAlert.style.display = 'none';
     }
 
+    // ===== Cloudflare Turnstile Integration =====
+    let overlayLoginWidgetId = null;
+    let overlayRegisterWidgetId = null;
+
+    async function ensureSiteKey() {
+        if (window.TURNSTILE_SITE_KEY) return window.TURNSTILE_SITE_KEY;
+        try {
+            const res = await fetch('/api/v1/auth/config');
+            const data = await res.json();
+            if (data?.data?.turnstileSiteKey) {
+                window.TURNSTILE_SITE_KEY = data.data.turnstileSiteKey;
+            }
+        } catch (e) {
+            console.warn('[Turnstile] Could not load config:', e);
+        }
+        return window.TURNSTILE_SITE_KEY || '';
+    }
+
+    function renderTurnstileWidget(containerId, type) {
+        const container = document.getElementById(containerId);
+        const siteKey = window.TURNSTILE_SITE_KEY;
+        if (!container || !window.turnstile || !siteKey) return;
+
+        if (type === 'login' && overlayLoginWidgetId !== null) return;
+        if (type === 'register' && overlayRegisterWidgetId !== null) return;
+
+        try {
+            const widgetId = turnstile.render(container, {
+                sitekey: siteKey,
+                theme: 'light',
+                size: 'normal',
+                callback: function (token) {
+                    overlayHideAlerts();
+                },
+                'expired-callback': function () {
+                    turnstile.reset(widgetId);
+                },
+                'error-callback': function () {
+                    console.warn('[Turnstile] Challenge error or network issue');
+                },
+            });
+
+            if (type === 'login') overlayLoginWidgetId = widgetId;
+            if (type === 'register') overlayRegisterWidgetId = widgetId;
+        } catch (err) {
+            console.warn('[Turnstile] Render error:', err);
+        }
+    }
+
+    async function initOverlayTurnstile() {
+        if (!window.turnstile) {
+            setTimeout(initOverlayTurnstile, 150);
+            return;
+        }
+        await ensureSiteKey();
+        renderTurnstileWidget('turnstile-login-widget', 'login');
+        renderTurnstileWidget('turnstile-register-widget', 'register');
+    }
+
+    function resetTurnstileWidget(type) {
+        if (!window.turnstile) return;
+        try {
+            if (type === 'login' && overlayLoginWidgetId !== null) {
+                turnstile.reset(overlayLoginWidgetId);
+            } else if (type === 'register' && overlayRegisterWidgetId !== null) {
+                turnstile.reset(overlayRegisterWidgetId);
+            }
+        } catch (e) {
+            console.warn('[Turnstile] Reset error:', e);
+        }
+    }
+
+    function getTurnstileResponseToken(type) {
+        if (!window.turnstile) return null;
+        try {
+            if (type === 'login' && overlayLoginWidgetId !== null) {
+                return turnstile.getResponse(overlayLoginWidgetId);
+            }
+            if (type === 'register' && overlayRegisterWidgetId !== null) {
+                return turnstile.getResponse(overlayRegisterWidgetId);
+            }
+            const selector = type === 'login' ? '#turnstile-login-widget' : '#turnstile-register-widget';
+            return turnstile.getResponse(selector);
+        } catch (e) {
+            return null;
+        }
+    }
+
     // ===== Tab Switching =====
     (function () {
         const tabs = document.querySelectorAll('.auth-overlay__tab');
@@ -753,6 +855,7 @@
                     registerForm.classList.remove('auth-overlay__hidden');
                     registerForm.classList.add('auth-overlay__fade-in');
                 }
+                setTimeout(initOverlayTurnstile, 80);
             });
         });
     })();
@@ -780,11 +883,19 @@
             const display_name = document.getElementById('overlayLoginDisplayName').value;
             const password = document.getElementById('overlayLoginPassword').value;
 
+            const turnstileToken = getTurnstileResponseToken('login');
+            if (!turnstileToken) {
+                overlayShowError('Vui lòng hoàn thành xác minh bảo mật (Turnstile).');
+                btn.textContent = originalText;
+                btn.classList.remove('loading');
+                return;
+            }
+
             try {
                 const response = await fetch('/api/v1/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ display_name, password }),
+                    body: JSON.stringify({ display_name, password, turnstileToken }),
                 });
 
                 let data = null;
@@ -792,6 +903,7 @@
                     data = await response.json();
                 } catch (parseError) {
                     overlayShowError('Đăng nhập thất bại. Vui lòng thử lại.');
+                    resetTurnstileWidget('login');
                     btn.textContent = originalText;
                     btn.classList.remove('loading');
                     return;
@@ -811,12 +923,14 @@
                 } else {
                     const message = (data && (data.message || data.error)) || 'Đăng nhập thất bại';
                     overlayShowError(message);
+                    resetTurnstileWidget('login');
                     btn.textContent = originalText;
                     btn.classList.remove('loading');
                 }
             } catch (error) {
                 console.error('Login error:', error);
                 overlayShowError('Sai tài khoản hoặc mật khẩu');
+                resetTurnstileWidget('login');
                 btn.textContent = originalText;
                 btn.classList.remove('loading');
             }
@@ -854,6 +968,15 @@
                 return;
             }
 
+            const turnstileToken = getTurnstileResponseToken('register');
+            if (!turnstileToken) {
+                overlayShowError('Vui lòng hoàn thành xác minh bảo mật (Turnstile).');
+                btn.textContent = originalText;
+                btn.classList.remove('loading');
+                return;
+            }
+            formData.turnstileToken = turnstileToken;
+
             try {
                 const response = await fetch('/api/v1/auth/register', {
                     method: 'POST',
@@ -866,6 +989,7 @@
                     data = await response.json();
                 } catch (parseError) {
                     overlayShowError('Đăng ký thất bại. Vui lòng thử lại.');
+                    resetTurnstileWidget('register');
                     btn.textContent = originalText;
                     btn.classList.remove('loading');
                     return;
@@ -885,12 +1009,14 @@
                 } else {
                     const message = (data && (data.message || data.error)) || 'Đăng ký thất bại';
                     overlayShowError(message);
+                    resetTurnstileWidget('register');
                     btn.textContent = originalText;
                     btn.classList.remove('loading');
                 }
             } catch (error) {
                 console.error('Register error:', error);
                 overlayShowError('Đã xảy ra lỗi kết nối, vui lòng thử lại');
+                resetTurnstileWidget('register');
                 btn.textContent = originalText;
                 btn.classList.remove('loading');
             }
