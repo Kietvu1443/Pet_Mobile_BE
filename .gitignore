@@ -1,6 +1,9 @@
 node_modules/
 .env
 .env.local
+.env.production
+db-init/*.sql
+*.tar
 
 # uploads
 pets/

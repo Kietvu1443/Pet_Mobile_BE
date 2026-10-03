@@ -45,18 +45,25 @@
 ### 1. Sử dụng Docker (Khuyên dùng)
 Yêu cầu: Đã cài đặt Docker Desktop.
 
+> 📦 Hướng dẫn đóng gói image và triển khai sang thiết bị khác: xem [DEPLOYMENT.md](DEPLOYMENT.md).
+
+Chạy tại máy có source (build context là thư mục gốc `Pet_Mobile_BE/`):
+
 ```bash
-# Khởi chạy hệ thống lần đầu (bao gồm build)
-docker-compose up --build
+# 1. Tạo file env từ template rồi điền giá trị thật
+cp .env.production.example .env.production
 
-# Chạy ở chế độ nền
-docker-compose up -d
+# 2. Khởi chạy (bao gồm build) ở chế độ nền
+docker compose --env-file .env.production up -d --build
 
-# Dừng hệ thống
-docker-compose down
+# Xem log / dừng
+docker compose --env-file .env.production logs -f
+docker compose --env-file .env.production down
 ```
+
 - **Website**: [http://localhost:3000](http://localhost:3000)
-- **Quản lý DB (phpMyAdmin)**: [http://localhost:8080](http://localhost:8080) (User: `root` / Pass: `root123`)
+- **MySQL**: chỉ trong Docker network, không publish port. Dùng DBeaver qua SSH tunnel (xem [DEPLOYMENT.md](DEPLOYMENT.md)).
+- ⚠️ Không chạy `docker compose down -v` nếu muốn giữ dữ liệu.
 
 ### 2. Cài đặt thủ công (Local)
 Yêu cầu: Node.js >= 16, MySQL.

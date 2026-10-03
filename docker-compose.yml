@@ -1,0 +1,78 @@
+# ============================================================================
+# Pet Helper — BUILD/DEV compose (chạy trên máy có source + Dockerfile)
+#
+# Dùng để build image rồi export sang thiết bị đích.
+#   docker compose --env-file .env.production build
+#   docker compose --env-file .env.production up -d
+#
+# Lưu ý: file này KHÔNG dành cho máy đích (máy đích dùng docker-compose.prod.yml).
+# ============================================================================
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      MYSQL_DATABASE: ${DB_NAME:-pet_helper}
+    volumes:
+      - db_data:/var/lib/mysql
+      # Chỉ chạy khi volume MySQL TRỐNG. Đặt dump vào ./db-init/*.sql
+      # (xem db-init/README.md — repo không tự dựng đủ schema từ đầu).
+      - ./db-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      pet_helper_net:
+        ipv4_address: ${DB_STATIC_IP:-172.30.0.10}
+
+  migrate:
+    image: ${APP_IMAGE:-pet-helper-app:1.0.0}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env.production
+    command: ["node", "database/migrate-all.js"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - pet_helper_net
+
+  app:
+    image: ${APP_IMAGE:-pet-helper-app:1.0.0}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env.production
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/v1/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - pet_helper_net
+
+networks:
+  pet_helper_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${DOCKER_SUBNET:-172.30.0.0/24}
+
+volumes:
+  db_data:

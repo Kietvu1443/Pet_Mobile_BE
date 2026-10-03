@@ -1,0 +1,35 @@
+# VCS / editor
+.git
+.gitignore
+.vscode
+
+# Secrets — never ship into the image
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.production.example
+
+# Dependencies are installed inside the image
+**/node_modules
+
+# Runtime artifacts / local data (backup_production.js -> backend/database/backups)
+**/backups
+**/*.log
+**/*.tmp
+
+# User uploads: production uses Cloudinary; these dirs are created at runtime
+# by config/upload.js. Do not bake local uploads into the image.
+frontend/uploads/**
+frontend/images/pets/**
+
+# OS noise
+**/.DS_Store
+Thumbs.db
+**/__pycache__
+**/*.pyc
+
+# Build-time only files (not needed inside the image)
+Dockerfile
+docker-compose*.yml
+DEPLOYMENT.md
+db-init

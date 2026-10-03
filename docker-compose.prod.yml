@@ -1,0 +1,81 @@
+# ============================================================================
+# Pet Helper — PRODUCTION compose (chạy trên máy ĐÍCH)
+#
+# Không yêu cầu source code hay Dockerfile. Chỉ cần:
+#   1. Image đã được load:  docker load -i pet-helper-app-1.0.0.tar
+#   2. File .env.production (tạo riêng trên máy đích, không commit)
+#   3. ./db-init/<dump>.sql  (chỉ cần cho lần khởi tạo DB đầu tiên)
+#
+# Chạy:
+#   docker compose --env-file .env.production -f docker-compose.prod.yml up -d
+#
+# Quyết định đã chốt:
+#   - KHÔNG có phpMyAdmin (DB quản lý bằng DBeaver qua SSH tunnel).
+#   - KHÔNG publish port MySQL ra host/public interface; DB chỉ trong Docker network.
+#   - migrate chạy TRƯỚC app, dùng CÙNG image với app.
+#   - Không hardcode domain/PASSKEY_ORIGIN/HTTPS/reverse proxy trong file này.
+# ============================================================================
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      MYSQL_DATABASE: ${DB_NAME:-pet_helper}
+    volumes:
+      - db_data:/var/lib/mysql
+      # Chỉ chạy khi volume MySQL TRỐNG (lần đầu). Đặt dump vào ./db-init/*.sql.
+      # KHÔNG dùng để thay thế migration cho DB đang chạy.
+      - ./db-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      pet_helper_net:
+        ipv4_address: ${DB_STATIC_IP:-172.30.0.10}
+    # KHÔNG khai báo `ports` tại đây: MySQL chỉ expose trong Docker network.
+
+  migrate:
+    image: ${APP_IMAGE:?APP_IMAGE is required}
+    env_file: .env.production
+    command: ["node", "database/migrate-all.js"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - pet_helper_net
+
+  app:
+    image: ${APP_IMAGE:?APP_IMAGE is required}
+    restart: unless-stopped
+    env_file: .env.production
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/v1/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - pet_helper_net
+
+networks:
+  pet_helper_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${DOCKER_SUBNET:-172.30.0.0/24}
+
+volumes:
+  db_data:
